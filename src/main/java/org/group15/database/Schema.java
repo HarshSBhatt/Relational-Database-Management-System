@@ -2,8 +2,6 @@ package org.group15.database;
 
 import org.group15.io.SchemaIO;
 
-import java.io.File;
-
 public class Schema {
 
     SchemaIO schemaIO = new SchemaIO();
