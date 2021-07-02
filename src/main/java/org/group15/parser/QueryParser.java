@@ -8,14 +8,17 @@ public class QueryParser {
     public void parse(String query) {
         String[] list = query.split(" ");
         String dbOperation = list[0].toUpperCase();
-        String schemaName = list[2].toLowerCase();
+
 
         switch (dbOperation) {
             case "CREATE":
+                String schemaName = list[2].toLowerCase();
                 schema.create(schemaName);
                 break;
             case "USE":
-                System.out.println("USE");
+                String schemaname = list[1].toLowerCase();
+                int size = list.length;
+                schema.isUseExist(schemaname , size);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + dbOperation);
