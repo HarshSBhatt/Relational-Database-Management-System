@@ -1,48 +1,42 @@
 package org.group15;
 
-import org.group15.parser.QueryParser;
+import org.group15.auth.Auth;
+import org.group15.core.Group15;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.util.Scanner;
 
 public class App {
-    public static void main(String[] args) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        QueryParser queryParser = new QueryParser();
 
-        boolean valid = true;
-        while (valid) {
-            System.out.println("--------------------------");
-            System.out.println("PRESS 1: Write Query");
-            System.out.println("PRESS 2: Generate Logs");
-            System.out.println("PRESS 3: Generate ERD");
-            System.out.println("PRESS 4: Exit");
-            System.out.println("--------------------------");
-            try {
-                System.out.print("Select any input: ");
-                int input = Integer.parseInt(br.readLine());
-                switch (input) {
-                    case 1:
-                        System.out.print("Query: ");
-                        String query = br.readLine();
-                        queryParser.parse(query);
-                        break;
-                    case 2:
-                        System.out.println("Logs");
-                        break;
-                    case 3:
-                        System.out.println("ERD");
-                        break;
-                    case 4:
-                        valid = false;
-                        break;
-                    default:
-                        break;
-                }
-            } catch (Exception e) {
-                System.out.println("Invalid Input!");
-                System.out.println(e.getMessage());
-            }
+  public static void main(String[] args) {
+    Auth auth = new Auth();
+    Group15 group15 = new Group15();
+
+    Scanner sc = new Scanner(System.in);
+
+    System.out.print("Enter username: ");
+    String username = sc.next();
+
+    System.out.print("Enter password: ");
+    String password = sc.next();
+
+    boolean isAuthenticated = auth.login(username, password);
+    if (!isAuthenticated) {
+      System.out.print("Do you want to register? (Y/N) ");
+      String inputChar = sc.next();
+      if (inputChar.equalsIgnoreCase("y")) {
+        boolean isRegistered = auth.register(username, password);
+        if (isRegistered) {
+          System.out.println("New User Created");
+          // Main provider for query parsing
+          group15.rdbmsProvider();
         }
+      } else {
+        System.out.println("User selected no. Process terminated");
+      }
+    } else {
+      // Main provider for query parsing
+      group15.rdbmsProvider();
     }
+  }
+
 }
