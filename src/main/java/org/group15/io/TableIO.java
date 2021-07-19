@@ -20,18 +20,21 @@ public class TableIO {
         }
     }
 
-    public void create(String schemaName, String tableName) {
+    public boolean create(String schemaName, String tableName) {
         try {
             String path = Helper.getTablePath(schemaName, tableName);
             File file = new File(path);
             if (file.exists()) {
                 System.out.println("Table already exists");
+                return false;
             } else {
                 file.createNewFile();
                 System.out.println("Table created");
+                return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 

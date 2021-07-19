@@ -1,0 +1,6 @@
+name ,
+HashMap<String,String> dt
+dt.put("name", "String")
+dt.put("my_created_at", "Date")
+
+get.get("name") == type of string
