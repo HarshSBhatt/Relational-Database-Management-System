@@ -2,6 +2,9 @@ package org.group15.parser;
 
 import org.group15.database.Schema;
 import org.group15.database.Table;
+import org.group15.sql.Create;
+import org.group15.sql.Select;
+import org.group15.sql.Use;
 
 public class QueryParser {
 
@@ -9,7 +12,12 @@ public class QueryParser {
 
   Table table = new Table();
 
-  SyntaxParser syntaxParser = new SyntaxParser();
+  Create createSQL = new Create();
+
+  Select selectSQL = new Select();
+
+  Use useSQL = new Use();
+
 
   public void parse(String query) {
     String[] queryParts = query.split(" ");
@@ -23,7 +31,7 @@ public class QueryParser {
     switch (dbOperation.toUpperCase()) {
       case "CREATE":
         size = queryParts.length;
-        isValidSyntax = syntaxParser.parseCreateSchemaStatement(size,
+        isValidSyntax = createSQL.parseCreateSchemaStatement(size,
             queryParts);
         if (isValidSyntax) {
           schemaName = queryParts[2].toLowerCase();
@@ -32,7 +40,7 @@ public class QueryParser {
         break;
       case "USE":
         size = queryParts.length;
-        isValidSyntax = syntaxParser.parseUseSchemaStatement(size, queryParts);
+        isValidSyntax = useSQL.parseUseSchemaStatement(size, queryParts);
         if (isValidSyntax) {
           schemaName = queryParts[1].toLowerCase();
           schema.setSchemaName(schemaName);
@@ -40,19 +48,17 @@ public class QueryParser {
         break;
       case "SHOW":
         size = queryParts.length;
-        syntaxParser.parseShowSchemaStatement(size, queryParts);
+        selectSQL.parseShowSchemaStatement(size, queryParts);
         break;
 
-
       case "CREATE_TABLE":
-
         size = queryParts.length;
         String selectedSchema = schema.getSchemaName();
         //System.out.println(size);
         if (schema.getSchemaName() == null) {
           System.out.println("Error! Schema is not selected");
         } else {
-          isValidSyntax = syntaxParser.parseCreateTableStatement(size,
+          isValidSyntax = createSQL.parseCreateTableStatement(size,
               queryParts,
               selectedSchema);
           if (isValidSyntax) {

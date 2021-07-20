@@ -15,7 +15,6 @@ public class Group15 {
 
     while (valid) {
       try {
-        System.out.print("Select any input: ");
         String input = br.readLine();
         if (input.equalsIgnoreCase("exit")) {
           valid = false;

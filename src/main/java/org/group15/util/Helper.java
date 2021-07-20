@@ -1,5 +1,7 @@
 package org.group15.util;
 
+import java.util.HashSet;
+
 public class Helper {
 
   public static String getTablePath(String schemaName, String tableName) {
@@ -10,4 +12,14 @@ public class Helper {
     return AppConstants.ROOT_FOLDER_PATH + "/" + schemaName;
   }
 
+  public static HashSet<String> getDataTypes() {
+
+    HashSet<String> values = new HashSet<>();
+
+    for (DataType dt : DataType.values()) {
+      values.add(dt.name());
+    }
+
+    return values;
+  }
 }
