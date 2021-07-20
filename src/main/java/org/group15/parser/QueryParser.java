@@ -4,7 +4,7 @@ import org.group15.database.Schema;
 import org.group15.database.Table;
 import org.group15.sql.Create;
 import org.group15.sql.Select;
-import org.group15.sql.Use;
+import org.group15.sql.Show;
 
 public class QueryParser {
 
@@ -16,13 +16,13 @@ public class QueryParser {
 
   Select selectSQL = new Select();
 
-  Use useSQL = new Use();
+  Show showSQL = new Show();
 
 
   public void parse(String query) {
     String[] queryParts = query.split(" ");
     String dbOperation = queryParts[0];
-    System.out.println(dbOperation);
+
     int size;
     String schemaName;
     boolean isValidSyntax;
@@ -40,7 +40,7 @@ public class QueryParser {
         break;
       case "USE":
         size = queryParts.length;
-        isValidSyntax = useSQL.parseUseSchemaStatement(size, queryParts);
+        isValidSyntax = selectSQL.parseUseSchemaStatement(size, queryParts);
         if (isValidSyntax) {
           schemaName = queryParts[1].toLowerCase();
           schema.setSchemaName(schemaName);
@@ -48,7 +48,7 @@ public class QueryParser {
         break;
       case "SHOW":
         size = queryParts.length;
-        selectSQL.parseShowSchemaStatement(size, queryParts);
+        showSQL.parseShowSchemaStatement(size, queryParts);
         break;
 
       case "CREATE_TABLE":

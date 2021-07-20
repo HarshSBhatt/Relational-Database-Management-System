@@ -1,6 +1,5 @@
 package org.group15.sql;
 
-import org.group15.database.Schema;
 import org.group15.io.SchemaIO;
 import org.group15.io.TableIO;
 import org.group15.util.Helper;
