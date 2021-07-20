@@ -4,5 +4,7 @@ public interface AppConstants {
 
   String ROOT_FOLDER_PATH = "schemas";
 
+  String DELIMITER_TOKEN = "**--**";
+
 }
 
