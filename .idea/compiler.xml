@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="RDBMS-Group-15" />
+        <module name="saurabh-dey-csci-5408-group-15-may-2021-project" />
         <module name="RDBMS" />
       </profile>
     </annotationProcessing>
