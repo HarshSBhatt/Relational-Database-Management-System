@@ -8,6 +8,11 @@ public class Helper {
     return AppConstants.ROOT_FOLDER_PATH + "/" + schemaName + "/tables/" + tableName + ".dp15";
   }
 
+  public static String getRelationOfColumnsPath(String schemaName,
+                                                String tableName) {
+    return AppConstants.ROOT_FOLDER_PATH + "/" + schemaName + "/relations/" + tableName + ".dp15";
+  }
+
   public static String getSchemaPath(String schemaName) {
     return AppConstants.ROOT_FOLDER_PATH + "/" + schemaName;
   }
@@ -22,4 +27,5 @@ public class Helper {
 
     return values;
   }
+
 }
