@@ -1,12 +1,13 @@
 package org.group15.sql;
 
-import org.group15.database.Schema;
+import org.group15.database.Column;
+import org.group15.database.Table;
 import org.group15.io.SchemaIO;
 import org.group15.io.TableIO;
+import org.group15.util.AppConstants;
 import org.group15.util.Helper;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 public class Create {
 
@@ -14,6 +15,7 @@ public class Create {
 
   TableIO tableIO;
 
+  Table table = new Table();
 
   public Create() {
     this.schemaIO = new SchemaIO();
@@ -31,34 +33,102 @@ public class Create {
     return isValidSyntax;
   }
 
-  public boolean parseCreateTableStatement(int size, String[] queryParts, String schemaName) {
+  /**
+   * @param query:      create table harsh (PersonID int, LastName varchar(255), FirstName varchar(255), Address varchar(255), City varchar(255))
+   * @param schemaName: database name
+   * @return true or false based on parsing
+   */
+  public boolean parseCreateTableStatement(String query, String schemaName) throws Exception {
     boolean isValidSyntax = false;
-    if (size >= 1 && queryParts[0].equalsIgnoreCase("create_table")) {
-      String tableName = queryParts[1].toLowerCase();
-      StringBuilder tableQuery = new StringBuilder();
-      for (String str : queryParts) {
-        tableQuery.append(str).append(" ");
-      }
-      int start = tableQuery.indexOf("(");
-      int end = tableQuery.lastIndexOf(")");
-      String columnNames = tableQuery.substring(start + 1, end);
-      String[] columns = columnNames.split(",");
-      HashMap<String, String> columnDataTypeMapping = new HashMap<>();
-      HashSet<String> dt = Helper.getDataTypes();
-      for (String column : columns) {
-        String[] nameAndDataType = column.split(" ");
-        if (dt.contains(nameAndDataType[1].toUpperCase())) {
-          columnDataTypeMapping.put(nameAndDataType[0], nameAndDataType[1]);
-        } else {
-          System.out.println("Data type not supported");
-          break;
+    if (query.contains("(")) {
+      // We wil count the occurrence of ')' & '(' in the query
+      long countOfOpeningBrace = Helper.getOccurrenceOf(query, '(');
+      long countOfClosingBrace = Helper.getOccurrenceOf(query, ')');
+
+      // If ')' & '(' count is different then it is a syntax error
+      if (countOfOpeningBrace == countOfClosingBrace) {
+        // tableRelatedStatement: create table users
+        String tableRelatedStatement = query.substring(0, query.indexOf("("));
+
+        // columnRelatedStatement: user_id int, last_name varchar(255), first_name varchar(255), address varchar(255), country varchar(255), PRIMARY KEY (user_id)
+        String columnRelatedStatement = query.substring(query.indexOf("(") + 1,
+            query.lastIndexOf(")"));
+
+        String[] tableParts = tableRelatedStatement.trim().split("\\s+");
+
+        if (tableParts.length == 3) {
+          // tableParts[2]: users
+          table.setTableName(tableParts[2]);
+
+          // columnRelatedStatement: user_id int, last_name varchar 255, first_name varchar 255, address varchar 255, country varchar 255, PRIMARY KEY user_id
+          String[] columns = columnRelatedStatement.replaceAll("[^a-zA-Z,0-9_]", " ").split(",");
+
+          Map<String, Column> tableColumns = new HashMap<>();
+          HashSet<String> validDataTypes = Helper.getDataTypes();
+          for (String column : columns) {
+            if (column.toUpperCase().contains(AppConstants.PRIMARY_KEY)) {
+              // Ignoring any number of whitespace between words
+              String[] currentColumnValues = column.trim().split("\\s+");
+              if (currentColumnValues.length == 3 && tableColumns.containsKey(currentColumnValues[2])) {
+                String columnName = currentColumnValues[2];
+                Column primaryKeyColObj = tableColumns.get(columnName);
+                primaryKeyColObj.setPrimaryKey(true);
+                tableColumns.put(columnName, primaryKeyColObj);
+              } else {
+                throw new Exception("Syntax error: Error occurred while " +
+                    "parsing primary key syntax");
+              }
+            } else if (column.toUpperCase().contains(AppConstants.FOREIGN_KEY)) {
+              // Ignoring any number of whitespace between words
+              String[] currentColumnValues = column.trim().split("\\s+");
+              // Example: FOREIGN KEY user_id REFERENCES users user_id
+              if (currentColumnValues.length == 6 && tableColumns.containsKey(currentColumnValues[2])) {
+                String columnName = currentColumnValues[2];
+                Column foreignKeyColObj = tableColumns.get(columnName);
+                foreignKeyColObj.setForeignKey(true);
+                foreignKeyColObj.setForeignKeyColumn(currentColumnValues[5]);
+                foreignKeyColObj.setForeignKeyTable(currentColumnValues[4]);
+                tableColumns.put(columnName, foreignKeyColObj);
+              } else {
+                throw new Exception("Syntax error: Error occurred while " +
+                    "parsing foreign key syntax");
+              }
+            } else {
+              Column tableColumn = new Column();
+
+              // Ignoring any number of whitespace between words
+              String[] currentColumnValues = column.trim().split("\\s+");
+
+              if (currentColumnValues.length >= 2) {
+                String columnName = currentColumnValues[0];
+                String columnDataType = currentColumnValues[1];
+                if (!validDataTypes.contains(columnDataType)) {
+                  throw new Exception("Unknown Datatype: " + columnDataType);
+                }
+                tableColumn.setColumnName(columnName);
+                tableColumn.setColumnDataType(columnDataType);
+                if (currentColumnValues.length == 3 && Helper.isInteger(currentColumnValues[2])) {
+                  tableColumn.setColumnSize(Integer.parseInt(currentColumnValues[2].trim()));
+                }
+                if (currentColumnValues.length >= 3 && column.toUpperCase().contains(AppConstants.AUTO_INCREMENT)) {
+                  tableColumn.setAutoIncrement(true);
+                }
+                tableColumns.put(columnName, tableColumn);
+              } else {
+                throw new Exception("Syntax error: Error occurred while " +
+                    "parsing table columns");
+              }
+            }
+          }
+          table.create(tableColumns, schemaName, table.getTableName());
+          isValidSyntax = true;
         }
+      } else {
+        throw new Exception("Syntax error: Syntax error: Error occurred due " +
+            "to mismatch parenthesis");
       }
-      System.out.println(columnDataTypeMapping);
-      System.out.println(columnNames);
-      isValidSyntax = tableIO.create(schemaName, tableName);
     } else {
-      System.out.println("Syntax error: Please check your syntax for Create Table");
+      throw new Exception("Syntax error: Please check your syntax for Create Table");
     }
     return isValidSyntax;
   }

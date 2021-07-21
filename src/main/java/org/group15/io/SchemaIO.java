@@ -17,7 +17,8 @@ public class SchemaIO {
       } else {
         directory.mkdirs();
         File tables = new File(Helper.getSchemaPath(schemaName + "/tables"));
-        File relations = new File(Helper.getSchemaPath(schemaName + "/relations"));
+        File relations = new File(Helper.getSchemaPath(schemaName +
+            "/table_metadata"));
         tables.mkdir();
         relations.mkdir();
         System.out.println("Schema created");

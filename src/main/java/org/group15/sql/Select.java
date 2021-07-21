@@ -9,18 +9,24 @@ public class Select {
 
   TableIO tableIO;
 
-
   public Select() {
     this.schemaIO = new SchemaIO();
     this.tableIO = new TableIO();
   }
 
-  public void parseShowSchemaStatement(int size, String[] queryParts) {
-    if (size == 2 && queryParts[1].equalsIgnoreCase("DATABASES")) {
-      schemaIO.list();
+  public boolean parseUseSchemaStatement(int size, String[] queryParts) {
+    if (size == 2) {
+      String schemaName = queryParts[1].toLowerCase();
+      if (schemaIO.isExist(schemaName)) {
+        System.out.println(schemaName + " selected");
+        return true;
+      } else {
+        System.out.println("Schema: " + schemaName + " does not exist");
+      }
     } else {
-      System.out.println("Syntax error: Please check your syntax for SHOW Schema");
+      System.out.println("Syntax error: Please check your syntax for USE Schema");
     }
+    return false;
   }
 
 }
