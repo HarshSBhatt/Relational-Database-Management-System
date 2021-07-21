@@ -70,3 +70,5 @@
 [Execution Time: 6380000ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
 [Execution Time: 4339300ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
 [Execution Time: 4903100ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (2,'User')]
+[Execution Time: 6253900ns] [Query Type: insert] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (1,'Bhatt','Harsh','Gujarat','India',1)]
+[Execution Time: 5977800ns] [Query Type: insert] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (2,'Bhatt','Harsh','Gujarat','India',1)]
