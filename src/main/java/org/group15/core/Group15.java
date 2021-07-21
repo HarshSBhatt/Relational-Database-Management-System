@@ -47,7 +47,7 @@ public class Group15 {
         " REFERENCES roles (role_id))";
 
     String insertQuery = "insert into roles (role_id,role_name) " +
-        "values (1,'Admin')";
+        "values (2,'User')";
 
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
