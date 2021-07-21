@@ -16,5 +16,17 @@ public interface AppConstants {
 
   String AUTO_INCREMENT = "AUTO_INCREMENT";
 
+  String COLUMN_NAME = "column_name";
+
+  String COLUMN_DATA_TYPE = "column_data_type";
+
+  String COLUMN_SIZE = "column_size";
+
+  String PK = "PK";
+
+  String FK = "FK";
+
+  String AI = "AI";
+
 }
 
