@@ -128,7 +128,7 @@ public class QueryParser {
                 ": ").append(query).append("]\n");
             tableName = queryParts[2].toLowerCase();
             table.setTableName(tableName);
-            System.out.println("Table: " + tableName + " created successfully");
+            System.out.println("Record inserted successfully into table: " + tableName);
           }
         }
         break;
