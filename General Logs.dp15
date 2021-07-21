@@ -1,0 +1,2 @@
+[Execution Time: 269300] [Query Type: insert] [Query: insert into roles (role_id, role_name) values (1, 'Admin')]
+[Execution Time: 193600ns] [Query Type: insert] [Query: insert into roles (role_id, role_name) values (1, 'Admin')]

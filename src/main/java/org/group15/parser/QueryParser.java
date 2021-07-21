@@ -46,6 +46,8 @@ public class QueryParser {
 
     String selectedSchema;
 
+    long queryStartTime, queryEndTime, elapsedTime;
+
     // Ignoring any number of whitespace between words
     String[] queryParts = query.split("\\s+");
 
@@ -60,6 +62,7 @@ public class QueryParser {
       dbOperation = "CREATE TABLE";
     }
 
+    queryStartTime = System.nanoTime();
     switch (dbOperation.toUpperCase()) {
       /**
        * SCHEMA related operations
@@ -133,6 +136,11 @@ public class QueryParser {
         System.out.println("Unexpected query: " + dbOperation);
         break;
     }
+    queryEndTime = System.nanoTime();
+    elapsedTime = queryEndTime - queryStartTime;
+    generalLogsWriter.append("[Execution Time: ").append(String.valueOf(elapsedTime)).append(
+        "ns] [Query Type: ").append(dbOperation).append("] [Query: ").append(query).append("]\n");
+    generalLogsWriter.close();
   }
 
 }
