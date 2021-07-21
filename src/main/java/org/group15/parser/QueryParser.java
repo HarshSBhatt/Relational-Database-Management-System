@@ -92,7 +92,9 @@ public class QueryParser {
       case "CREATE TABLE":
         eventLogsWriter.append("[User: ").append(username).append("] [Query" +
             ": ").append(query).append("]\n");
-        String selectedSchema = schema.getSchemaName();
+
+        String selectedSchema = "harsh";
+        //  String selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {

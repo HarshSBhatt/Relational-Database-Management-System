@@ -14,5 +14,7 @@ public interface AppConstants {
 
   String FOREIGN_KEY = "FOREIGN KEY";
 
+  String AUTO_INCREMENT = "AUTO_INCREMENT";
+
 }
 
