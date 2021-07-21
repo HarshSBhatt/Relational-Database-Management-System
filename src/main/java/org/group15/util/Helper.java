@@ -1,6 +1,7 @@
 package org.group15.util;
 
 import java.util.HashSet;
+import java.util.Locale;
 
 public class Helper {
 
@@ -8,9 +9,9 @@ public class Helper {
     return AppConstants.ROOT_FOLDER_PATH + "/" + schemaName + "/tables/" + tableName + ".dp15";
   }
 
-  public static String getRelationOfColumnsPath(String schemaName,
-                                                String tableName) {
-    return AppConstants.ROOT_FOLDER_PATH + "/" + schemaName + "/relations/" + tableName + ".dp15";
+  public static String getTableMetadataPath(String schemaName,
+                                            String tableName) {
+    return AppConstants.ROOT_FOLDER_PATH + "/" + schemaName + "/table_metadata/" + tableName + ".dp15";
   }
 
   public static String getSchemaPath(String schemaName) {
@@ -22,10 +23,19 @@ public class Helper {
     HashSet<String> values = new HashSet<>();
 
     for (DataType dt : DataType.values()) {
-      values.add(dt.name());
+      values.add(dt.name().toLowerCase());
     }
 
     return values;
+  }
+
+  public static long getOccurrenceOf(String input, char search) {
+    long count = 0;
+    for (int i = 0; i < input.length(); i++) {
+      if (input.charAt(i) == search)
+        count++;
+    }
+    return count;
   }
 
 }

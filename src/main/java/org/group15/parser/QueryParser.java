@@ -4,9 +4,18 @@ import org.group15.database.Schema;
 import org.group15.database.Table;
 import org.group15.sql.Create;
 import org.group15.sql.Select;
-import org.group15.sql.Use;
+import org.group15.sql.Show;
+import org.group15.util.AppConstants;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class QueryParser {
+
+  FileWriter eventLogsWriter;
+
+  FileWriter generalLogsWriter;
 
   Schema schema = new Schema();
 
@@ -16,59 +25,94 @@ public class QueryParser {
 
   Select selectSQL = new Select();
 
-  Use useSQL = new Use();
+  Show showSQL = new Show();
 
+  public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter) {
+    this.eventLogsWriter = eventLogsWriter;
+    this.generalLogsWriter = generalLogsWriter;
+  }
 
-  public void parse(String query) {
-    String[] queryParts = query.split(" ");
-    String dbOperation = queryParts[0];
-    System.out.println(dbOperation);
+  public void parse(String query, String username) throws Exception {
     int size;
+
     String schemaName;
+
     boolean isValidSyntax;
+
     String tableName;
 
+    // Ignoring any number of whitespace between words
+    String[] queryParts = query.split("\\s+");
+
+    String dbOperation = queryParts[0];
+
+    // Checking whether CREATE statement is for SCHEMA or TABLE
+    if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("SCHEMA")) {
+      dbOperation = "CREATE SCHEMA";
+    }
+
+    if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("TABLE")) {
+      dbOperation = "CREATE TABLE";
+    }
+
     switch (dbOperation.toUpperCase()) {
-      case "CREATE":
+      /**
+       * SCHEMA related operations
+       */
+      case "CREATE SCHEMA":
         size = queryParts.length;
         isValidSyntax = createSQL.parseCreateSchemaStatement(size,
             queryParts);
         if (isValidSyntax) {
+          eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+              ": ").append(query).append("]\n");
           schemaName = queryParts[2].toLowerCase();
           schema.setSchemaName(schemaName);
         }
         break;
       case "USE":
         size = queryParts.length;
-        isValidSyntax = useSQL.parseUseSchemaStatement(size, queryParts);
+        isValidSyntax = selectSQL.parseUseSchemaStatement(size, queryParts);
         if (isValidSyntax) {
+          eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+              ": ").append(query).append("]\n");
           schemaName = queryParts[1].toLowerCase();
           schema.setSchemaName(schemaName);
         }
         break;
       case "SHOW":
         size = queryParts.length;
-        selectSQL.parseShowSchemaStatement(size, queryParts);
+        showSQL.parseShowSchemaStatement(size, queryParts);
+        eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+            ": ").append(query).append("]\n");
         break;
-
-      case "CREATE_TABLE":
-        size = queryParts.length;
+      /**
+       * TABLE related operations
+       */
+      case "CREATE TABLE":
+        eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+            ": ").append(query).append("]\n");
         String selectedSchema = schema.getSchemaName();
-        //System.out.println(size);
-        if (schema.getSchemaName() == null) {
+        if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
-          isValidSyntax = createSQL.parseCreateTableStatement(size,
-              queryParts,
+          isValidSyntax = createSQL.parseCreateTableStatement(query.toLowerCase(),
               selectedSchema);
           if (isValidSyntax) {
-            tableName = queryParts[1].toLowerCase();
+            tableName = queryParts[2].toLowerCase();
             table.setTableName(tableName);
+            System.out.println("Table: " + tableName + " created successfully");
           }
         }
         break;
+      case "INSERT":
+        eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+            ": ").append(query).append("]\n");
+        System.out.println("Here");
+        break;
       default:
-        throw new IllegalStateException("Unexpected value: " + dbOperation);
+        System.out.println("Unexpected query: " + dbOperation);
+        break;
     }
   }
 
