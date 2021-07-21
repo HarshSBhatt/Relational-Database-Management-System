@@ -4,6 +4,7 @@ import org.group15.parser.QueryParser;
 import org.group15.util.AppConstants;
 
 import java.io.*;
+import java.util.Locale;
 
 public class Group15 {
 
@@ -28,39 +29,52 @@ public class Group15 {
     QueryParser queryParser = new QueryParser(eventLogsWriter, generalLogsWriter);
 
     boolean valid = true;
+
     /**
-     *
+     * Delete this when testing using user input
      */
-    String inputWithoutFK = "create table Users (user_id int, last_name " +
+    String roleDummyQuery = "create table roles (role_id int, role_name " +
+        "varchar(255)," +
+        "PRIMARY KEY (role_id))";
+
+    String createTableQueryWithoutFK = "create table Users (user_id int, " +
+        "last_name " +
         "varchar(255), first_name varchar(255), address varchar(255), country" +
         " varchar(255), PRIMARY KEY (user_id))";
 
-    String inputWithFK = "create table Users (user_id int, last_name varchar" +
-        "(255), " +
-        "first_name varchar(255), address varchar(255), country varchar(255)," +
+    String createTableQueryWithFK = "create table Users (user_id int, last_name varchar" +
+        "(255), first_name varchar(255), address varchar(255), country varchar(255)," +
         " role_id int, PRIMARY KEY (user_id)), FOREIGN KEY role_id REFERENCES" +
         " roles (role_id)";
-    queryParser.parse(inputWithoutFK, username);
+
+    String insertQuery = "INSERT into tables";
+
+//    queryParser.parse(createTableQueryWithoutFK, username);
+//    queryParser.parse(createTableQueryWithFK, username);
+    queryParser.parse(insertQuery, username);
+
     eventLogsWriter.close();
     generalLogsWriter.close();
+
+
     /**
-     *
+     * Uncomment this when testing using user input
      */
-//    while (valid) {
-//      try {
-//        String input = br.readLine();
-//        if (input.equalsIgnoreCase("exit")) {
-//          valid = false;
-//          eventLogsWriter.close();
-//          generalLogsWriter.close();
-//        } else {
-//          queryParser.parse(input);
-//        }
-//      } catch (Exception e) {
-//        System.out.println("Invalid Input!");
-//        System.out.println(e.getMessage());
-//      }
-//    }
+    //    while (valid) {
+    //      try {
+    //        String input = br.readLine();
+    //        if (input.equalsIgnoreCase("exit")) {
+    //          valid = false;
+    //          eventLogsWriter.close();
+    //          generalLogsWriter.close();
+    //        } else {
+    //          queryParser.parse(input, username);
+    //        }
+    //      } catch (Exception e) {
+    //        System.out.println("Invalid Input!");
+    //        System.out.println(e.getMessage());
+    //      }
+    //    }
   }
 
 }

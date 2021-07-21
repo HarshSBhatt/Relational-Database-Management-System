@@ -1,0 +1,2 @@
+column_name=role_name@##@column_data_type=varchar@##@column_size=255
+column_name=role_id@##@column_data_type=int@##@column_size=255@##@PK

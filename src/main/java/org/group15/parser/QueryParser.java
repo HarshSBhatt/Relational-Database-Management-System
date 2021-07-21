@@ -92,18 +92,11 @@ public class QueryParser {
       case "CREATE TABLE":
         eventLogsWriter.append("[User: ").append(username).append("] [Query" +
             ": ").append(query).append("]\n");
-        // String selectedSchema = schema.getSchemaName();
-        /**
-         * Delete this
-         */
-        String selectedSchema = "harsh";
-        /**
-         * Delete this
-         */
+        String selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
-          isValidSyntax = createSQL.parseCreateTableStatement(query,
+          isValidSyntax = createSQL.parseCreateTableStatement(query.toLowerCase(),
               selectedSchema);
           if (isValidSyntax) {
             tableName = queryParts[2].toLowerCase();
@@ -111,6 +104,11 @@ public class QueryParser {
             System.out.println("Table: " + tableName + " created successfully");
           }
         }
+        break;
+      case "INSERT":
+        eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+            ": ").append(query).append("]\n");
+        System.out.println("Here");
         break;
       default:
         System.out.println("Unexpected query: " + dbOperation);

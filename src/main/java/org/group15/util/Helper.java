@@ -1,6 +1,7 @@
 package org.group15.util;
 
 import java.util.HashSet;
+import java.util.Locale;
 
 public class Helper {
 
@@ -22,7 +23,7 @@ public class Helper {
     HashSet<String> values = new HashSet<>();
 
     for (DataType dt : DataType.values()) {
-      values.add(dt.name());
+      values.add(dt.name().toLowerCase());
     }
 
     return values;

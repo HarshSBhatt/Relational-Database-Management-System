@@ -47,7 +47,7 @@ public class Create {
 
       // If ')' & '(' count is different then it is a syntax error
       if (countOfOpeningBrace == countOfClosingBrace) {
-        // tableRelatedStatement: create table harsh
+        // tableRelatedStatement: create table users
         String tableRelatedStatement = query.substring(0, query.indexOf("("));
 
         // columnRelatedStatement: user_id int, last_name varchar(255), first_name varchar(255), address varchar(255), country varchar(255), PRIMARY KEY (user_id)
@@ -57,14 +57,14 @@ public class Create {
         String[] tableParts = tableRelatedStatement.trim().split("\\s+");
 
         if (tableParts.length == 3) {
-          // tableParts[2]: harsh
-          table.setTableName(tableParts[2].toLowerCase());
+          // tableParts[2]: users
+          table.setTableName(tableParts[2]);
 
           // columnRelatedStatement: user_id int, last_name varchar 255, first_name varchar 255, address varchar 255, country varchar 255, PRIMARY KEY user_id
           String[] columns = columnRelatedStatement.replaceAll("[^a-zA-Z,0-9_]", " ").split(",");
 
           Map<String, Column> tableColumns = new HashMap<>();
-
+          HashSet<String> validDataTypes = Helper.getDataTypes();
           for (String column : columns) {
             //
             if (column.toUpperCase().contains(AppConstants.PRIMARY_KEY)) {
@@ -82,7 +82,7 @@ public class Create {
             } else if (column.toUpperCase().contains(AppConstants.FOREIGN_KEY)) {
               // Ignoring any number of whitespace between words
               String[] currentColumnValues = column.trim().split("\\s+");
-              // Example: FOREIGN KEY user_id REFERENCES Users user_id
+              // Example: FOREIGN KEY user_id REFERENCES users user_id
               if (currentColumnValues.length == 6 && tableColumns.containsKey(currentColumnValues[2])) {
                 String columnName = currentColumnValues[2];
                 Column foreignKeyColObj = tableColumns.get(columnName);
@@ -102,9 +102,12 @@ public class Create {
 
               if (currentColumnValues.length >= 2) {
                 String columnName = currentColumnValues[0];
-                String columnType = currentColumnValues[1];
+                String columnDataType = currentColumnValues[1];
+                if (!validDataTypes.contains(columnDataType)) {
+                  throw new Exception("Unknown Datatype: " + columnDataType);
+                }
                 tableColumn.setColumnName(columnName);
-                tableColumn.setColumnDataType(columnType);
+                tableColumn.setColumnDataType(columnDataType);
                 if (currentColumnValues.length == 3) {
                   tableColumn.setColumnSize(Integer.parseInt(currentColumnValues[2].trim()));
                 }
