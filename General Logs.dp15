@@ -65,3 +65,8 @@
 [Execution Time: 6550800ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
 [Execution Time: 4221500ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
 [Execution Time: 4755400ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
+[Execution Time: 5138600ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
+[Execution Time: 4998000ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
+[Execution Time: 6380000ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
+[Execution Time: 4339300ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
+[Execution Time: 4903100ns] [Query Type: insert] [Query: insert into roles (role_id,role_name) values (2,'User')]

@@ -62,3 +62,8 @@
 [User: abc] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
 [User: abc] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
 [User: abc] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
+[User: abc] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
+[User: abc] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
+[User: abc] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
+[User: abc] [Query: insert into roles (role_id,role_name) values (1,'Admin')]
+[User: abc] [Query: insert into roles (role_id,role_name) values (2,'User')]
