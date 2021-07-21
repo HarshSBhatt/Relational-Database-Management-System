@@ -65,7 +65,7 @@ public class Table {
 
   public void create(Map<String, Column> tableColumns, String schemaName,
                      String tableName) throws Exception {
-    if (!tableIO.isExist(schemaName, tableName)) {
+    if (!tableIO.isMetadataTableExist(schemaName, tableName)) {
       if (hasValidForeignKey(tableColumns, schemaName)) {
         StringBuilder fileContent = new StringBuilder();
         String metaDataPath = Helper.getTableMetadataPath(schemaName,
