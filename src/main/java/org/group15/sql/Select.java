@@ -9,7 +9,6 @@ public class Select {
 
   TableIO tableIO;
 
-
   public Select() {
     this.schemaIO = new SchemaIO();
     this.tableIO = new TableIO();
