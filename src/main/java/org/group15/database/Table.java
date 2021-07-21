@@ -60,7 +60,7 @@ public class Table {
         }
       }
     }
-    return false;
+    return true;
   }
 
   public void create(Map<String, Column> tableColumns, String schemaName,
@@ -68,11 +68,14 @@ public class Table {
     if (!tableIO.isExist(schemaName, tableName)) {
       if (hasValidForeignKey(tableColumns, schemaName)) {
         StringBuilder fileContent = new StringBuilder();
-        String path = Helper.getTableMetadataPath(schemaName, tableName);
+        String metaDataPath = Helper.getTableMetadataPath(schemaName,
+            tableName);
+        String tablePath = Helper.getTablePath(schemaName, tableName);
 
-        File metadataFile = new File(path);
+        File metadataFile = new File(metaDataPath);
+        File tableFile = new File(tablePath);
 
-        if (metadataFile.createNewFile()) {
+        if (metadataFile.createNewFile() && tableFile.createNewFile()) {
           int pk = 0;
           int ai = 0;
           FileWriter metadataWriter = new FileWriter(metadataFile, true);

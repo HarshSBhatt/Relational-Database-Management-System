@@ -121,7 +121,7 @@ public class QueryParser {
           System.out.println("Error! Schema is not selected");
         } else {
           isValidSyntax =
-              insertSQL.parseInsertTableStatement(query.toLowerCase(),
+              insertSQL.parseInsertTableStatement(query,
                   selectedSchema);
           if (isValidSyntax) {
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +

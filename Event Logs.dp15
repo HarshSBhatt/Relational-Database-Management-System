@@ -40,3 +40,5 @@
 [User: abc] [Query: create table Users (user_id int, last_name varchar(255), first_name varchar(255) AUTO_INCREMENT, address varchar(255), country varchar(255), role_id int, PRIMARY KEY (user_id)), FOREIGN KEY role_id REFERENCES roles (role_id)]
 [User: abc] [Query: create table Users (user_id int, last_name varchar(255), first_name varchar(255) AUTO_INCREMENT, address varchar(255), country varchar(255), role_id int, PRIMARY KEY (user_id), FOREIGN KEY role_id REFERENCES roles (role_id))]
 [User: abc] [Query: create table Users (user_id int, last_name varchar(255), first_name varchar(255), address varchar(255), country varchar(255), role_id int, PRIMARY KEY (user_id), FOREIGN KEY role_id REFERENCES roles (role_id))]
+[User: abc] [Query: create table roles (role_id int, role_name varchar(255), PRIMARY KEY (role_id))]
+[User: abc] [Query: create table Users (user_id int, last_name varchar(255), first_name varchar(255), address varchar(255), country varchar(255), role_id int, PRIMARY KEY (user_id), FOREIGN KEY role_id REFERENCES roles (role_id))]
