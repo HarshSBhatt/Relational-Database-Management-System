@@ -46,11 +46,13 @@ public class Group15 {
         " role_id int, PRIMARY KEY (user_id), FOREIGN KEY role_id" +
         " REFERENCES roles (role_id))";
 
-    String insertQuery = "insert into roles (role_id, role_name) values (1, 'Admin')";
+    String insertQuery = "insert into roles (role_id,role_name) " +
+        "values (1,'Admin')";
 
+//    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
 //    queryParser.parse(createTableQueryWithFK, username);
-    queryParser.parse(insertQuery, username);
+    queryParser.parse(insertQuery.trim(), username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();
@@ -67,7 +69,7 @@ public class Group15 {
     //          eventLogsWriter.close();
     //          generalLogsWriter.close();
     //        } else {
-    //          queryParser.parse(input, username);
+    //          queryParser.parse(input.trim(), username);
     //        }
     //      } catch (Exception e) {
     //        System.out.println("Invalid Input!");
