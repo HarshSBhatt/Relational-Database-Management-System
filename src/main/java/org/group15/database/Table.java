@@ -124,4 +124,34 @@ public class Table {
     }
   }
 
+  public boolean insert(String schemaName, String tableName, String[] columnArray,
+                        Map<String, Column> columnsDetails) throws IOException {
+    // TODO: Check for PK and FK values
+    StringBuilder fileContent = new StringBuilder();
+
+    String tablePath = Helper.getTablePath(schemaName, tableName);
+
+    File tableFile = new File(tablePath);
+
+    if (tableFile.exists()) {
+      FileWriter tableDataWriter = new FileWriter(tableFile, true);
+      for (int i = 0; i < columnArray.length; i++) {
+        Column metadata = columnsDetails.get(columnArray[i]);
+        Object columnValue = metadata.getColumnValue();
+
+        if (i == columnArray.length - 1) {
+          fileContent.append(columnArray[i]).append("=").append(columnValue);
+        } else {
+          fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
+        }
+      }
+      fileContent.append("\n");
+      tableDataWriter.append(fileContent).close();
+    } else {
+      System.out.println("Something went wrong! File does not exist");
+      return false;
+    }
+    return true;
+  }
+
 }
