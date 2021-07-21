@@ -3,6 +3,7 @@ package org.group15.parser;
 import org.group15.database.Schema;
 import org.group15.database.Table;
 import org.group15.sql.Create;
+import org.group15.sql.Insert;
 import org.group15.sql.Select;
 import org.group15.sql.Show;
 import org.group15.util.AppConstants;
@@ -23,6 +24,8 @@ public class QueryParser {
 
   Create createSQL = new Create();
 
+  Insert insertSQL = new Insert();
+
   Select selectSQL = new Select();
 
   Show showSQL = new Show();
@@ -40,6 +43,8 @@ public class QueryParser {
     boolean isValidSyntax;
 
     String tableName;
+
+    String selectedSchema;
 
     // Ignoring any number of whitespace between words
     String[] queryParts = query.split("\\s+");
@@ -90,17 +95,16 @@ public class QueryParser {
        * TABLE related operations
        */
       case "CREATE TABLE":
-        eventLogsWriter.append("[User: ").append(username).append("] [Query" +
-            ": ").append(query).append("]\n");
-
-        String selectedSchema = "harsh";
-        //  String selectedSchema = schema.getSchemaName();
+        selectedSchema = "harsh";
+        //  selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
           isValidSyntax = createSQL.parseCreateTableStatement(query.toLowerCase(),
               selectedSchema);
           if (isValidSyntax) {
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
             tableName = queryParts[2].toLowerCase();
             table.setTableName(tableName);
             System.out.println("Table: " + tableName + " created successfully");
@@ -108,9 +112,22 @@ public class QueryParser {
         }
         break;
       case "INSERT":
-        eventLogsWriter.append("[User: ").append(username).append("] [Query" +
-            ": ").append(query).append("]\n");
-        System.out.println("Here");
+        selectedSchema = "harsh";
+        //  selectedSchema = schema.getSchemaName();
+        if (selectedSchema == null) {
+          System.out.println("Error! Schema is not selected");
+        } else {
+          isValidSyntax =
+              insertSQL.parseInsertTableStatement(query.toLowerCase(),
+                  selectedSchema);
+          if (isValidSyntax) {
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+            tableName = queryParts[2].toLowerCase();
+            table.setTableName(tableName);
+            System.out.println("Table: " + tableName + " created successfully");
+          }
+        }
         break;
       default:
         System.out.println("Unexpected query: " + dbOperation);
