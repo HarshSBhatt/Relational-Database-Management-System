@@ -85,14 +85,17 @@ public class Insert {
           if (columnsArray.length == valuesArray.length) {
             // Loading table metadata
             boolean isTableDataLoaded = getTableMetadata(schemaName, tableName);
+
             if (isTableDataLoaded) {
               // Checking if values has correct type and constraint related to table
               boolean isColAndValCorrectlyMapped =
                   validateColWithVal(columnsArray, valuesArray);
+
               if (isColAndValCorrectlyMapped) {
                 // If it is true, then we will insert data to the file/table
                 boolean isDataWritten = table.insert(schemaName, tableName,
-                    columnsArray, this.columns);
+                    columnsArray, this.columns, this.primaryKeyColumn, this.foreignKeyColumn);
+
                 if (!isDataWritten) {
                   throw new Exception("Error: Something went wrong while " +
                       "writing data to table");

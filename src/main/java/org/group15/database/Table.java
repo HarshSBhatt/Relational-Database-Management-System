@@ -63,6 +63,45 @@ public class Table {
     return true;
   }
 
+  public ArrayList<Object> getValuesOfParticularColumn(String schemaName,
+                                                       String tableName,
+                                                       Column column) throws IOException {
+    String tablePath = Helper.getTablePath(schemaName, tableName);
+
+    File tableFile = new File(tablePath);
+    ArrayList<Object> columnValues = new ArrayList<>();
+
+    if (tableFile.exists()) {
+      BufferedReader br =
+          new BufferedReader(new FileReader(tableFile));
+      String line;
+      while ((line = br.readLine()) != null) {
+        String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
+        for (String info : columnInfo) {
+          String colName = info.split("=")[0];
+          String colVal = info.split("=")[1];
+          if (colName.equalsIgnoreCase(column.getColumnName())) {
+            switch (column.getColumnDataType()) {
+              case "int":
+                columnValues.add(Integer.parseInt(colVal));
+                break;
+              case "float":
+                columnValues.add(Float.parseFloat(colVal));
+                break;
+              default:
+                columnValues.add(colVal);
+                break;
+            }
+          }
+        }
+      }
+      return columnValues;
+    } else {
+      System.out.println("Something went wrong! File does not exist");
+      return (ArrayList<Object>) Collections.emptyList();
+    }
+  }
+
   public void create(Map<String, Column> tableColumns, String schemaName,
                      String tableName) throws Exception {
     if (!tableIO.isMetadataTableExist(schemaName, tableName)) {
@@ -125,8 +164,9 @@ public class Table {
   }
 
   public boolean insert(String schemaName, String tableName, String[] columnArray,
-                        Map<String, Column> columnsDetails) throws IOException {
-    // TODO: Check for PK and FK values
+                        Map<String, Column> columnsDetails,
+                        Column primaryKeyColumn, Column foreignKeyColumn) throws IOException {
+
     StringBuilder fileContent = new StringBuilder();
 
     String tablePath = Helper.getTablePath(schemaName, tableName);
@@ -138,12 +178,46 @@ public class Table {
       for (int i = 0; i < columnArray.length; i++) {
         Column metadata = columnsDetails.get(columnArray[i]);
         Object columnValue = metadata.getColumnValue();
+        ArrayList<Object> listOfAvailableValuesInTable;
 
-        if (i == columnArray.length - 1) {
-          fileContent.append(columnArray[i]).append("=").append(columnValue);
+        if (primaryKeyColumn != null && columnArray[i].equalsIgnoreCase(primaryKeyColumn.getColumnName())) {
+          listOfAvailableValuesInTable = getValuesOfParticularColumn(schemaName, tableName,
+              primaryKeyColumn);
+
+          // If value is already present, then we will not insert
+          if (listOfAvailableValuesInTable.contains(columnValue)) {
+            System.out.println("Insert fail: Primary key constraint violated");
+            return false;
+          }
+          if (i == columnArray.length - 1) {
+            fileContent.append(columnArray[i]).append("=").append(columnValue);
+          } else {
+            fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
+          }
+        } else if (foreignKeyColumn != null && columnArray[i].equalsIgnoreCase(foreignKeyColumn.getColumnName())) {
+          listOfAvailableValuesInTable = getValuesOfParticularColumn(schemaName,
+              foreignKeyColumn.getForeignKeyTable(),
+              foreignKeyColumn);
+
+          // If value is not present, then we will not insert, because it can not be referenced
+          if (!listOfAvailableValuesInTable.contains(columnValue)) {
+            System.out.println("Insert fail: Foreign key constraint violated");
+            return false;
+          }
+          if (i == columnArray.length - 1) {
+            fileContent.append(columnArray[i]).append("=").append(columnValue);
+          } else {
+            fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
+          }
         } else {
-          fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
+          if (i == columnArray.length - 1) {
+            fileContent.append(columnArray[i]).append("=").append(columnValue);
+          } else {
+            fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
+          }
         }
+
+
       }
       fileContent.append("\n");
       tableDataWriter.append(fileContent).close();
