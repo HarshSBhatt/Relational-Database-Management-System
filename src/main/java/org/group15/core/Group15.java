@@ -49,10 +49,14 @@ public class Group15 {
     String insertQuery = "insert into roles (role_id,role_name) " +
         "values (2,'User')";
 
+    String insertUserQuery = "insert into users (user_id,last_name," +
+        "first_name,address,country,role_id) " +
+        "values (3,'Bhatt','Harsh','Gujarat','India',5)";
+
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
 //    queryParser.parse(createTableQueryWithFK, username);
-    queryParser.parse(insertQuery.trim(), username);
+    queryParser.parse(insertUserQuery.trim(), username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();

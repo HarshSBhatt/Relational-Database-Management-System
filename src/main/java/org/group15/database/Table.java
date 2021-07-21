@@ -196,7 +196,7 @@ public class Table {
           }
         } else if (foreignKeyColumn != null && columnArray[i].equalsIgnoreCase(foreignKeyColumn.getColumnName())) {
           listOfAvailableValuesInTable = getValuesOfParticularColumn(schemaName,
-              tableName,
+              foreignKeyColumn.getForeignKeyTable(),
               foreignKeyColumn);
 
           // If value is not present, then we will not insert, because it can not be referenced
