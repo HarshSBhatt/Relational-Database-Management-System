@@ -73,6 +73,8 @@ public class Table {
         File metadataFile = new File(path);
 
         if (metadataFile.createNewFile()) {
+          int pk = 0;
+          int ai = 0;
           FileWriter metadataWriter = new FileWriter(metadataFile, true);
           for (String key : tableColumns.keySet()) {
             Column column = tableColumns.get(key);
@@ -84,7 +86,22 @@ public class Table {
               fileContent.append("column_size=").append(column.getColumnSize());
             }
             if (column.isPrimaryKey()) {
-              fileContent.append(AppConstants.DELIMITER_TOKEN).append("PK");
+              if (pk < 1) {
+                fileContent.append(AppConstants.DELIMITER_TOKEN).append("PK");
+                pk++;
+              } else {
+                throw new Exception("Table can not have more than one primary " +
+                    "key");
+              }
+            }
+            if (column.isAutoIncrement()) {
+              if (ai < 1) {
+                fileContent.append(AppConstants.DELIMITER_TOKEN).append("AI");
+                ai++;
+              } else {
+                throw new Exception("Table can not have more than one " +
+                    "AUTO_INCREMENT field");
+              }
             }
             if (column.isForeignKey()) {
               fileContent.append(AppConstants.DELIMITER_TOKEN).append("FK=").append(column.getForeignKeyTable()).append(".").append(column.getForeignKeyColumn());

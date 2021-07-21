@@ -34,20 +34,19 @@ public class Group15 {
      * Delete this when testing using user input
      */
     String roleDummyQuery = "create table roles (role_id int, role_name " +
-        "varchar(255)," +
-        "PRIMARY KEY (role_id))";
+        "varchar(255), PRIMARY KEY (role_id))";
 
     String createTableQueryWithoutFK = "create table Users (user_id int, " +
         "last_name " +
         "varchar(255), first_name varchar(255), address varchar(255), country" +
         " varchar(255), PRIMARY KEY (user_id))";
 
-    String createTableQueryWithFK = "create table Users (user_id int, last_name varchar" +
-        "(255), first_name varchar(255), address varchar(255), country varchar(255)," +
-        " role_id int, PRIMARY KEY (user_id)), FOREIGN KEY role_id REFERENCES" +
-        " roles (role_id)";
+    String createTableQueryWithFK = "create table Users (user_id int, last_name varchar(255)," +
+        " first_name varchar(255), address varchar(255), country varchar(255)," +
+        " role_id int, PRIMARY KEY (user_id), FOREIGN KEY role_id" +
+        " REFERENCES roles (role_id))";
 
-    String insertQuery = "INSERT into tables";
+    String insertQuery = "insert into roles (role_id, role_name) values (1, 'Admin')";
 
 //    queryParser.parse(createTableQueryWithoutFK, username);
 //    queryParser.parse(createTableQueryWithFK, username);

@@ -66,7 +66,6 @@ public class Create {
           Map<String, Column> tableColumns = new HashMap<>();
           HashSet<String> validDataTypes = Helper.getDataTypes();
           for (String column : columns) {
-            //
             if (column.toUpperCase().contains(AppConstants.PRIMARY_KEY)) {
               // Ignoring any number of whitespace between words
               String[] currentColumnValues = column.trim().split("\\s+");
@@ -108,10 +107,12 @@ public class Create {
                 }
                 tableColumn.setColumnName(columnName);
                 tableColumn.setColumnDataType(columnDataType);
-                if (currentColumnValues.length == 3) {
+                if (currentColumnValues.length == 3 && Helper.isInteger(currentColumnValues[2])) {
                   tableColumn.setColumnSize(Integer.parseInt(currentColumnValues[2].trim()));
                 }
-
+                if (currentColumnValues.length >= 3 && column.toUpperCase().contains(AppConstants.AUTO_INCREMENT)) {
+                  tableColumn.setAutoIncrement(true);
+                }
                 tableColumns.put(columnName, tableColumn);
               } else {
                 throw new Exception("Syntax error: Error occurred while " +
