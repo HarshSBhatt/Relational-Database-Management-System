@@ -4,7 +4,10 @@ import java.io.*;
 
 public class Auth {
 
-  public Boolean login(String username, String password) {
+  Encryption encryption = new Encryption(5);
+
+  public Boolean login(String username, String password,
+                       String securityQuestionAnswer) {
     boolean flag = false;
 
     try {
@@ -20,10 +23,14 @@ public class Auth {
       String line = br.readLine();
       while (line != null) {
         if (username.equalsIgnoreCase(line)) {
-          line = br.readLine();
+          line = encryption.decode(br.readLine());
           if (password.equalsIgnoreCase(line)) {
-            flag = true;
-            System.out.println("Authorization successful");
+            if (securityQuestionAnswer.equalsIgnoreCase(br.readLine())) {
+              flag = true;
+              System.out.println("Authorization successful");
+            } else {
+              System.out.println("Wrong answer of security question!");
+            }
           } else {
             System.out.println("Wrong credentials!");
           }
@@ -38,7 +45,7 @@ public class Auth {
     return flag;
   }
 
-  public Boolean register(String username, String password) {
+  public Boolean register(String username, String password, String securityQuestionAnswer) {
     try {
       File file = new File("sign-in.dp15");
       FileReader fileReader = new FileReader(file);
@@ -56,7 +63,8 @@ public class Auth {
         line = bufferedReader.readLine();
       }
 
-      fileWriter.append(username).append("\n").append(password).append("\n\n");
+      fileWriter.append(username).append("\n").append(encryption.encode(password)).append("\n").append(securityQuestionAnswer).append(
+          "\n\n");
       fileWriter.close();
       bufferedReader.close();
     } catch (IOException e) {
