@@ -6,11 +6,11 @@ import org.group15.sql.Create;
 import org.group15.sql.Insert;
 import org.group15.sql.Select;
 import org.group15.sql.Show;
-import org.group15.util.AppConstants;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class QueryParser {
 
@@ -18,21 +18,30 @@ public class QueryParser {
 
   FileWriter generalLogsWriter;
 
+  FileWriter queryLogsWriter;
+
   Schema schema = new Schema();
 
-  Table table = new Table();
+  Table table;
 
-  Create createSQL = new Create();
+  Create createSQL;
 
-  Insert insertSQL = new Insert();
+  Insert insertSQL;
 
-  Select selectSQL = new Select();
+  Select selectSQL;
 
-  Show showSQL = new Show();
+  Show showSQL;
 
-  public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter) {
+  public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter
+      , FileWriter queryLogsWriter) {
     this.eventLogsWriter = eventLogsWriter;
     this.generalLogsWriter = generalLogsWriter;
+    this.queryLogsWriter = queryLogsWriter;
+    table = new Table(eventLogsWriter);
+    createSQL = new Create(eventLogsWriter);
+    insertSQL = new Insert(eventLogsWriter);
+    selectSQL = new Select(eventLogsWriter);
+    showSQL = new Show(eventLogsWriter);
   }
 
   public void parse(String query, String username) throws Exception {
@@ -61,6 +70,13 @@ public class QueryParser {
     if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("TABLE")) {
       dbOperation = "CREATE TABLE";
     }
+
+    // Logs related logic
+    Date date = new Date();
+    // getTime() returns current time in milliseconds
+    long time = date.getTime();
+    // Passed the milliseconds to constructor of Timestamp class
+    Timestamp ts = new Timestamp(time);
 
     queryStartTime = System.nanoTime();
     switch (dbOperation.toUpperCase()) {
@@ -121,14 +137,14 @@ public class QueryParser {
           System.out.println("Error! Schema is not selected");
         } else {
           isValidSyntax =
-              insertSQL.parseInsertTableStatement(query.toLowerCase(),
+              insertSQL.parseInsertTableStatement(query,
                   selectedSchema);
           if (isValidSyntax) {
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");
             tableName = queryParts[2].toLowerCase();
             table.setTableName(tableName);
-            System.out.println("Table: " + tableName + " created successfully");
+            System.out.println("Record inserted successfully into table: " + tableName);
           }
         }
         break;
@@ -136,11 +152,23 @@ public class QueryParser {
         System.out.println("Unexpected query: " + dbOperation);
         break;
     }
+
+    // Logs related logic
     queryEndTime = System.nanoTime();
     elapsedTime = queryEndTime - queryStartTime;
-    generalLogsWriter.append("[Execution Time: ").append(String.valueOf(elapsedTime)).append(
-        "ns] [Query Type: ").append(dbOperation).append("] [Query: ").append(query).append("]\n");
-    generalLogsWriter.close();
+
+    if (schema.getSchemaName() != null) {
+      File file = new File("schemas/" + schema.getSchemaName() + "/tables");
+      int totalTables = file.listFiles().length;
+      generalLogsWriter.append("[Execution Time: ").append(String.valueOf(elapsedTime)).append(
+          "ns] [Database Stat: Total tables -> ").append(String.valueOf(totalTables)).append("]\n");
+    } else {
+      generalLogsWriter.append("[Execution Time: ").append(String.valueOf(elapsedTime)).append(
+          "ns] [Database Stat: ").append("No Schema was selected! Database " +
+          "stat can not be retrieved").append("]\n");
+    }
+    queryLogsWriter.append("[Timestamp: ").append(String.valueOf(ts)).append(
+        "] [Query Type: ").append(dbOperation).append("] [Query: ").append(query).append("]\n");
   }
 
 }

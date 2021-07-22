@@ -4,7 +4,6 @@ import org.group15.parser.QueryParser;
 import org.group15.util.AppConstants;
 
 import java.io.*;
-import java.util.Locale;
 
 public class Group15 {
 
@@ -13,20 +12,29 @@ public class Group15 {
     File generalLogs = new File(AppConstants.GENERAL_LOG_FILENAME);
     // Default Event Log File
     File eventLogs = new File(AppConstants.EVENT_LOG_FILENAME);
+    // Default Query Log File
+    File queryLogs = new File(AppConstants.QUERY_LOG_FILENAME);
 
     if (generalLogs.createNewFile()) {
       System.out.println("New General Logs created!");
     }
+
     if (eventLogs.createNewFile()) {
       System.out.println("New Event Logs created!");
+    }
+
+    if (queryLogs.createNewFile()) {
+      System.out.println("New Query Logs created!");
     }
 
     // True indicates that data or text will be appended
     FileWriter eventLogsWriter = new FileWriter(eventLogs, true);
     FileWriter generalLogsWriter = new FileWriter(generalLogs, true);
+    FileWriter queryLogsWriter = new FileWriter(queryLogs, true);
 
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    QueryParser queryParser = new QueryParser(eventLogsWriter, generalLogsWriter);
+    QueryParser queryParser = new QueryParser(eventLogsWriter,
+        generalLogsWriter, queryLogsWriter);
 
     boolean valid = true;
 
@@ -46,14 +54,21 @@ public class Group15 {
         " role_id int, PRIMARY KEY (user_id), FOREIGN KEY role_id" +
         " REFERENCES roles (role_id))";
 
-    String insertQuery = "insert into roles (role_id, role_name) values (1, 'Admin')";
+    String insertQuery = "insert into roles (role_id,role_name) " +
+        "values (2,'User')";
 
+    String insertUserQuery = "insert into users (user_id,last_name," +
+        "first_name,address,country,role_id) " +
+        "values (15,'Bhatt','Harsh','Gujarat','India',1)";
+
+//    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
 //    queryParser.parse(createTableQueryWithFK, username);
-    queryParser.parse(insertQuery, username);
+    queryParser.parse(insertUserQuery.trim(), username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();
+    queryLogsWriter.close();
 
 
     /**
@@ -66,8 +81,9 @@ public class Group15 {
     //          valid = false;
     //          eventLogsWriter.close();
     //          generalLogsWriter.close();
+    //          queryLogsWriter.close();
     //        } else {
-    //          queryParser.parse(input, username);
+    //          queryParser.parse(input.trim(), username);
     //        }
     //      } catch (Exception e) {
     //        System.out.println("Invalid Input!");
