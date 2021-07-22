@@ -6,9 +6,7 @@ import org.group15.io.TableIO;
 import org.group15.util.AppConstants;
 import org.group15.util.Helper;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
 
 public class Insert {
@@ -21,13 +19,17 @@ public class Insert {
 
   Column foreignKeyColumn;
 
-  Table table = new Table();
+  FileWriter eventLogsWriter;
 
-  public Insert() {
+  Table table;
+
+  public Insert(FileWriter eventLogsWriter) {
     this.tableIO = new TableIO();
     this.columns = new HashMap<>();
     this.primaryKeyColumn = null;
     this.foreignKeyColumn = null;
+    this.eventLogsWriter = eventLogsWriter;
+    table = new Table(eventLogsWriter);
   }
 
   /**
@@ -47,15 +49,20 @@ public class Insert {
         String[] queryParts = query.split("\\s+");
 
         if (queryParts.length != 6) {
+          this.eventLogsWriter.append("Syntax error: Error while parsing insert query").append("\n");
           throw new Exception("Syntax error: Error while parsing insert query");
         }
 
         if (!queryParts[1].equalsIgnoreCase("INTO")) {
+          this.eventLogsWriter.append("Syntax error: INTO keyword not found " +
+              "in Insert query").append("\n");
           throw new Exception("Syntax error: INTO keyword not found in " +
               "Insert query");
         }
 
         if (!queryParts[4].equalsIgnoreCase("VALUES")) {
+          this.eventLogsWriter.append("Syntax error: VALUES keyword not found" +
+              " in Insert query").append("\n");
           throw new Exception("Syntax error: VALUES keyword not found in " +
               "Insert query");
         }
@@ -65,11 +72,15 @@ public class Insert {
         String queryValues = queryParts[queryParts.length - 1];
 
         if (!validatedValuesBetweenParenthesis(queryColumns)) {
+          this.eventLogsWriter.append("Syntax error: Error while parsing " +
+              "parenthesis of columns").append("\n");
           throw new Exception("Syntax error: Error while parsing parenthesis " +
               "of columns");
         }
 
         if (!validatedValuesBetweenParenthesis(queryValues)) {
+          this.eventLogsWriter.append("Syntax error: Error while parsing " +
+              "parenthesis of values").append("\n");
           throw new Exception("Syntax error: Error while parsing parenthesis " +
               "of values");
         }
@@ -97,29 +108,44 @@ public class Insert {
                     columnsArray, this.columns, this.primaryKeyColumn, this.foreignKeyColumn);
 
                 if (!isDataWritten) {
+                  this.eventLogsWriter.append("Error: Something went wrong " +
+                      "while writing data to table").append("\n");
                   throw new Exception("Error: Something went wrong while " +
                       "writing data to table");
                 }
+                this.eventLogsWriter.append("Data inserted successfully in " +
+                    "the table: ").append(tableName).append("\n");
               } else {
+                this.eventLogsWriter.append("Error: Something went wrong while " +
+                    "fetching table data").append("\n");
                 throw new Exception("Error: Something went wrong while " +
                     "fetching table data");
               }
             } else {
+              this.eventLogsWriter.append("Error: Something went wrong while " +
+                  "fetching table data").append("\n");
               throw new Exception("Error: Something went wrong while " +
                   "fetching table data");
             }
           } else {
+            this.eventLogsWriter.append("Error: Columns and its value " +
+                "mismatch").append("\n");
             throw new Exception("Error: Columns and its value mismatch");
           }
         } else {
+          this.eventLogsWriter.append("Error: Invalid table name").append("\n");
           throw new Exception("Error: Invalid table name");
         }
 
       } else {
+        this.eventLogsWriter.append("Syntax error: Error occurred due to " +
+            "mismatch parenthesis").append("\n");
         throw new Exception("Syntax error: Error occurred due " +
             "to mismatch parenthesis");
       }
     } else {
+      this.eventLogsWriter.append("Syntax error: Please check your syntax for" +
+          " Insert query").append("\n");
       throw new Exception("Syntax error: Please check your syntax for Insert query");
     }
     return true;
@@ -164,12 +190,14 @@ public class Insert {
           } else if (columnKey.equalsIgnoreCase(AppConstants.AI)) {
             column.setAutoIncrement(true);
           } else {
+            this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
             throw new Exception("Something went wrong near: " + columnKey);
           }
         }
         this.columns.put(column.getColumnName(), column);
       }
       br.close();
+      this.eventLogsWriter.append("Metadata fetched successfully for table: ").append(tableName).append("\n");
       return true;
     }
 
@@ -177,7 +205,7 @@ public class Insert {
   }
 
   public boolean validateColWithVal(String[] columnsArray,
-                                    String[] valuesArray) throws NumberFormatException {
+                                    String[] valuesArray) throws NumberFormatException, IOException {
     for (String col : columnsArray) {
       Set<String> key = this.columns.keySet();
 
@@ -187,6 +215,7 @@ public class Insert {
 
       if (this.primaryKeyColumn != null) {
         if (!key.contains(this.primaryKeyColumn.getColumnName())) {
+          this.eventLogsWriter.append("Insert fail: Value for primary key is null").append("\n");
           System.out.println("Insert fail: Value for primary key is null");
           return false;
         }
@@ -194,6 +223,7 @@ public class Insert {
 
       if (this.foreignKeyColumn != null) {
         if (!key.contains(this.foreignKeyColumn.getColumnName())) {
+          this.eventLogsWriter.append("Insert fail: Value for foreign key is null").append("\n");
           System.out.println("Insert fail: Value for foreign key is null");
           return false;
         }
@@ -218,17 +248,20 @@ public class Insert {
           int startIndex = colValue.indexOf("'");
           int endIndex = colValue.lastIndexOf("'");
           if (startIndex > 0 || endIndex < colValue.length() - 1) {
+            this.eventLogsWriter.append("Something went wrong while extracting value").append("\n");
             System.out.println("Something went wrong while extracting value");
             return false;
           }
           // If value has only '', then it will have length 2, that is empty
           if (colValue.length() == 2) {
             if (colName.equals(this.primaryKeyColumn.getColumnName())) {
-              System.out.println("Insert fail: Value for primary key is null" +
-                  "string");
+              this.eventLogsWriter.append("Insert fail: Value for primary key" +
+                  " is null").append("\n");
+              System.out.println("Insert fail: Value for primary key is null");
               return false;
             }
             if (colName.equals(this.foreignKeyColumn.getColumnName())) {
+              this.eventLogsWriter.append("Insert fail: Value for foreign key is null").append("\n");
               System.out.println("Insert fail: Value for foreign key is null");
               return false;
             }
@@ -237,6 +270,8 @@ public class Insert {
           break;
       }
     }
+    this.eventLogsWriter.append("Columns and its value validated " +
+        "successfully").append("\n");
     return true;
   }
 

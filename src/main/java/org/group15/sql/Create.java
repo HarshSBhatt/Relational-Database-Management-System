@@ -7,6 +7,8 @@ import org.group15.io.TableIO;
 import org.group15.util.AppConstants;
 import org.group15.util.Helper;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class Create {
@@ -15,19 +17,26 @@ public class Create {
 
   TableIO tableIO;
 
-  Table table = new Table();
+  FileWriter eventLogsWriter;
 
-  public Create() {
+  Table table;
+
+  public Create(FileWriter eventLogsWriter) {
     this.schemaIO = new SchemaIO();
     this.tableIO = new TableIO();
+    this.eventLogsWriter = eventLogsWriter;
+    table = new Table(eventLogsWriter);
   }
 
-  public boolean parseCreateSchemaStatement(int size, String[] queryParts) {
+  public boolean parseCreateSchemaStatement(int size, String[] queryParts) throws IOException {
     boolean isValidSyntax = false;
     if (size == 3 && queryParts[1].equalsIgnoreCase("SCHEMA")) {
       String schemaName = queryParts[2].toLowerCase();
       isValidSyntax = schemaIO.create(schemaName);
+      this.eventLogsWriter.append("Schema created with name: ").append(schemaName).append("\n");
     } else {
+      this.eventLogsWriter.append("Syntax error: Please check your syntax for" +
+          " Create Schema").append("\n");
       System.out.println("Syntax error: Please check your syntax for Create Schema");
     }
     return isValidSyntax;
@@ -75,6 +84,7 @@ public class Create {
                 primaryKeyColObj.setPrimaryKey(true);
                 tableColumns.put(columnName, primaryKeyColObj);
               } else {
+                this.eventLogsWriter.append("Syntax error: Error occurred while parsing primary key syntax").append("\n");
                 throw new Exception("Syntax error: Error occurred while " +
                     "parsing primary key syntax");
               }
@@ -90,6 +100,8 @@ public class Create {
                 foreignKeyColObj.setForeignKeyTable(currentColumnValues[4]);
                 tableColumns.put(columnName, foreignKeyColObj);
               } else {
+                this.eventLogsWriter.append("Syntax error: Error occurred " +
+                    "while parsing foreign key syntax").append("\n");
                 throw new Exception("Syntax error: Error occurred while " +
                     "parsing foreign key syntax");
               }
@@ -115,19 +127,25 @@ public class Create {
                 }
                 tableColumns.put(columnName, tableColumn);
               } else {
+                this.eventLogsWriter.append("Syntax error: Error occurred " +
+                    "while parsing table columns").append("\n");
                 throw new Exception("Syntax error: Error occurred while " +
                     "parsing table columns");
               }
             }
           }
           table.create(tableColumns, schemaName, table.getTableName());
+          this.eventLogsWriter.append("Table: ").append(table.getTableName()).append(" created in schema: ").append(schemaName).append("\n");
           isValidSyntax = true;
         }
       } else {
+        this.eventLogsWriter.append("Syntax error: Syntax error: Error " +
+            "occurred due to mismatch parenthesis").append("\n");
         throw new Exception("Syntax error: Syntax error: Error occurred due " +
             "to mismatch parenthesis");
       }
     } else {
+      this.eventLogsWriter.append("Syntax error: Please check your syntax for Create Table").append("\n");
       throw new Exception("Syntax error: Please check your syntax for Create Table");
     }
     return isValidSyntax;

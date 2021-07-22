@@ -17,10 +17,12 @@ public class Table {
 
   List<Map<String, Object>> tableValues;
 
+  FileWriter eventLogsWriter;
 
-  public Table() {
+  public Table(FileWriter eventLogsWriter) {
     this.columns = new HashMap<>();
     this.tableValues = new ArrayList<>();
+    this.eventLogsWriter = eventLogsWriter;
   }
 
   public String getTableName() {
@@ -56,10 +58,12 @@ public class Table {
           }
           br.close();
         } else {
+          this.eventLogsWriter.append("Failed to validate foreign key").append("\n");
           return false;
         }
       }
     }
+    this.eventLogsWriter.append("Foreign key check is performed successfully").append("\n");
     return true;
   }
 
@@ -97,6 +101,7 @@ public class Table {
       }
       return columnValues;
     } else {
+      this.eventLogsWriter.append("Something went wrong! File does not exist").append("\n");
       System.out.println("Something went wrong! File does not exist");
       return (ArrayList<Object>) Collections.emptyList();
     }
@@ -132,6 +137,7 @@ public class Table {
                 fileContent.append(AppConstants.DELIMITER_TOKEN).append("PK");
                 pk++;
               } else {
+                this.eventLogsWriter.append("Table can not have more than one primary key").append("\n");
                 throw new Exception("Table can not have more than one primary " +
                     "key");
               }
@@ -141,6 +147,7 @@ public class Table {
                 fileContent.append(AppConstants.DELIMITER_TOKEN).append("AI");
                 ai++;
               } else {
+                this.eventLogsWriter.append("Table can not have more than one AUTO_INCREMENT field").append("\n");
                 throw new Exception("Table can not have more than one " +
                     "AUTO_INCREMENT field");
               }
@@ -153,12 +160,15 @@ public class Table {
           metadataWriter.append(fileContent);
           metadataWriter.close();
         } else {
+          this.eventLogsWriter.append("Error occurred while creating table").append("\n");
           throw new Exception("Error occurred while creating table");
         }
       } else {
+        this.eventLogsWriter.append("Error: Wrong foreign key constraint").append("\n");
         throw new Exception("Error: Wrong foreign key constraint");
       }
     } else {
+      this.eventLogsWriter.append("Table already exists").append("\n");
       throw new Exception("Table already exists");
     }
   }
@@ -186,6 +196,7 @@ public class Table {
 
           // If value is already present, then we will not insert
           if (listOfAvailableValuesInTable.contains(columnValue)) {
+            this.eventLogsWriter.append("Insert fail: Primary key constraint violated").append("\n");
             System.out.println("Insert fail: Primary key constraint violated");
             return false;
           }
@@ -201,6 +212,7 @@ public class Table {
 
           // If value is not present, then we will not insert, because it can not be referenced
           if (!listOfAvailableValuesInTable.contains(columnValue)) {
+            this.eventLogsWriter.append("Insert fail: Foreign key constraint violated").append("\n");
             System.out.println("Insert fail: Foreign key constraint violated");
             return false;
           }
@@ -222,9 +234,11 @@ public class Table {
       fileContent.append("\n");
       tableDataWriter.append(fileContent).close();
     } else {
+      this.eventLogsWriter.append("Something went wrong! File does not exist").append("\n");
       System.out.println("Something went wrong! File does not exist");
       return false;
     }
+    System.out.println("Inserted row successfully");
     return true;
   }
 

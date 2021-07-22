@@ -4,7 +4,6 @@ import org.group15.parser.QueryParser;
 import org.group15.util.AppConstants;
 
 import java.io.*;
-import java.util.Locale;
 
 public class Group15 {
 
@@ -19,8 +18,13 @@ public class Group15 {
     if (generalLogs.createNewFile()) {
       System.out.println("New General Logs created!");
     }
+
     if (eventLogs.createNewFile()) {
       System.out.println("New Event Logs created!");
+    }
+
+    if (queryLogs.createNewFile()) {
+      System.out.println("New Query Logs created!");
     }
 
     // True indicates that data or text will be appended
@@ -55,7 +59,7 @@ public class Group15 {
 
     String insertUserQuery = "insert into users (user_id,last_name," +
         "first_name,address,country,role_id) " +
-        "values (8,'Bhatt','Harsh','Gujarat','India',1)";
+        "values (15,'Bhatt','Harsh','Gujarat','India',1)";
 
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
