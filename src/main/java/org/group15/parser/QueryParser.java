@@ -22,21 +22,26 @@ public class QueryParser {
 
   Schema schema = new Schema();
 
-  Table table = new Table();
+  Table table;
 
-  Create createSQL = new Create();
+  Create createSQL;
 
-  Insert insertSQL = new Insert();
+  Insert insertSQL;
 
-  Select selectSQL = new Select();
+  Select selectSQL;
 
-  Show showSQL = new Show();
+  Show showSQL;
 
   public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter
       , FileWriter queryLogsWriter) {
     this.eventLogsWriter = eventLogsWriter;
     this.generalLogsWriter = generalLogsWriter;
     this.queryLogsWriter = queryLogsWriter;
+    table = new Table(eventLogsWriter);
+    createSQL = new Create(eventLogsWriter);
+    insertSQL = new Insert(eventLogsWriter);
+    selectSQL = new Select(eventLogsWriter);
+    showSQL = new Show(eventLogsWriter);
   }
 
   public void parse(String query, String username) throws Exception {
