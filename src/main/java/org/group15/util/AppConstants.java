@@ -10,6 +10,8 @@ public interface AppConstants {
 
   String EVENT_LOG_FILENAME = "Event Logs.dp15";
 
+  String QUERY_LOG_FILENAME = "Query Logs.dp15";
+
   String PRIMARY_KEY = "PRIMARY KEY";
 
   String FOREIGN_KEY = "FOREIGN KEY";

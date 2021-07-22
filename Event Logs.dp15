@@ -69,3 +69,6 @@
 [User: abc] [Query: insert into roles (role_id,role_name) values (2,'User')]
 [User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (1,'Bhatt','Harsh','Gujarat','India',1)]
 [User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (2,'Bhatt','Harsh','Gujarat','India',1)]
+[User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (6,'Bhatt','Harsh','Gujarat','India',1)]
+[User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (7,'Bhatt','Harsh','Gujarat','India',1)]
+[User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (8,'Bhatt','Harsh','Gujarat','India',1)]
