@@ -108,7 +108,17 @@ public class QueryParser {
        * SCHEMA related operations
        */
       case "CREATE ERD":
-        System.out.println("Here in ERD case at QueryParser.java");
+        selectedSchema = schema.getSchemaName();
+        if (selectedSchema == null) {
+          System.out.println("Error! Schema is not selected");
+        } else {
+          isValidSyntax = erd.generateERD(selectedSchema);
+          if (isValidSyntax) {
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+            System.out.println("ERD created successfully");
+          }
+        }
         break;
       case "CREATE DUMP":
         System.out.println("Here in DUMP case at QueryParser.java");
