@@ -10,4 +10,9 @@ public class ERD {
     this.eventLogsWriter = eventLogsWriter;
   }
 
+  public boolean generateERD(String schemaName) {
+    // Logic here to generate ERD
+    return true;
+  }
+
 }
