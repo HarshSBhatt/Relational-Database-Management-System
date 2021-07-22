@@ -1,5 +1,6 @@
 package org.group15.parser;
 
+import org.group15.database.ERD;
 import org.group15.database.Schema;
 import org.group15.database.Table;
 import org.group15.sql.Create;
@@ -32,6 +33,8 @@ public class QueryParser {
 
   Show showSQL;
 
+  ERD erd;
+
   public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter
       , FileWriter queryLogsWriter) {
     this.eventLogsWriter = eventLogsWriter;
@@ -42,6 +45,7 @@ public class QueryParser {
     insertSQL = new Insert(eventLogsWriter);
     selectSQL = new Select(eventLogsWriter);
     showSQL = new Show(eventLogsWriter);
+    erd = new ERD(eventLogsWriter);
   }
 
   public void parse(String query, String username) throws Exception {
@@ -62,13 +66,33 @@ public class QueryParser {
 
     String dbOperation = queryParts[0];
 
-    // Checking whether CREATE statement is for SCHEMA or TABLE
-    if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("SCHEMA")) {
-      dbOperation = "CREATE SCHEMA";
-    }
+    // Checking whether CREATE statement is for SCHEMA or TABLE or ERD
+    if (queryParts.length >= 2) {
+      if (queryParts[1].equalsIgnoreCase("SCHEMA")) {
+        if (queryParts.length > 2) {
+          throw new Exception("Error: Wrong query for create schema");
+        }
+        dbOperation = "CREATE SCHEMA";
+      }
 
-    if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("TABLE")) {
-      dbOperation = "CREATE TABLE";
+      if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("TABLE")) {
+        dbOperation = "CREATE TABLE";
+      }
+
+      if (queryParts[1].equalsIgnoreCase("ERD")) {
+        if (queryParts.length > 2) {
+          throw new Exception("Error: Wrong query for create erd");
+        }
+        dbOperation = "CREATE ERD";
+      }
+
+      if (queryParts[1].equalsIgnoreCase("DUMP")) {
+        if (queryParts.length > 2) {
+          throw new Exception("Error: Wrong query for create dump");
+        }
+        dbOperation = "CREATE DUMP";
+      }
+
     }
 
     // Logs related logic
@@ -83,6 +107,12 @@ public class QueryParser {
       /**
        * SCHEMA related operations
        */
+      case "CREATE ERD":
+        System.out.println("Here in ERD case at QueryParser.java");
+        break;
+      case "CREATE DUMP":
+        System.out.println("Here in DUMP case at QueryParser.java");
+        break;
       case "CREATE SCHEMA":
         size = queryParts.length;
         isValidSyntax = createSQL.parseCreateSchemaStatement(size,
@@ -114,8 +144,7 @@ public class QueryParser {
        * TABLE related operations
        */
       case "CREATE TABLE":
-        selectedSchema = "harsh";
-        //  selectedSchema = schema.getSchemaName();
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -131,8 +160,7 @@ public class QueryParser {
         }
         break;
       case "INSERT":
-        selectedSchema = "harsh";
-        //  selectedSchema = schema.getSchemaName();
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
