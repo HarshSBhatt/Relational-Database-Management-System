@@ -6,11 +6,9 @@ import org.group15.sql.Create;
 import org.group15.sql.Insert;
 import org.group15.sql.Select;
 import org.group15.sql.Show;
-import org.group15.util.AppConstants;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -68,13 +66,14 @@ public class QueryParser {
       dbOperation = "CREATE TABLE";
     }
 
+    // Logs related logic
     Date date = new Date();
     // getTime() returns current time in milliseconds
     long time = date.getTime();
     // Passed the milliseconds to constructor of Timestamp class
     Timestamp ts = new Timestamp(time);
-    queryStartTime = System.nanoTime();
 
+    queryStartTime = System.nanoTime();
     switch (dbOperation.toUpperCase()) {
       /**
        * SCHEMA related operations
@@ -148,12 +147,23 @@ public class QueryParser {
         System.out.println("Unexpected query: " + dbOperation);
         break;
     }
+
+    // Logs related logic
     queryEndTime = System.nanoTime();
     elapsedTime = queryEndTime - queryStartTime;
+
+    if (schema.getSchemaName() != null) {
+      File file = new File("schemas/" + schema.getSchemaName() + "/tables");
+      int totalTables = file.listFiles().length;
+      generalLogsWriter.append("[Execution Time: ").append(String.valueOf(elapsedTime)).append(
+          "ns] [Database Stat: Total tables -> ").append(String.valueOf(totalTables)).append("]\n");
+    } else {
+      generalLogsWriter.append("[Execution Time: ").append(String.valueOf(elapsedTime)).append(
+          "ns] [Database Stat: ").append("No Schema was selected! Database " +
+          "stat can not be retrieved").append("]\n");
+    }
     queryLogsWriter.append("[Timestamp: ").append(String.valueOf(ts)).append(
         "] [Query Type: ").append(dbOperation).append("] [Query: ").append(query).append("]\n");
-    generalLogsWriter.append("[Execution Time: ").append(String.valueOf(elapsedTime)).append(
-        "ns] [Query Type: ").append(dbOperation).append("] [Query: ").append(query).append("]\n");
   }
 
 }
