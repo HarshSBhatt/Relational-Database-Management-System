@@ -66,17 +66,26 @@ public class QueryParser {
 
     String dbOperation = queryParts[0];
 
-    // Checking whether CREATE statement is for SCHEMA or TABLE
-    if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("SCHEMA")) {
-      dbOperation = "CREATE SCHEMA";
-    }
+    // Checking whether CREATE statement is for SCHEMA or TABLE or ERD
+    if (queryParts.length >= 2) {
+      if (queryParts[1].equalsIgnoreCase("SCHEMA")) {
+        if (queryParts.length > 2) {
+          throw new Exception("Error: Wrong query for create schema");
+        }
+        dbOperation = "CREATE SCHEMA";
+      }
 
-    if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("TABLE")) {
-      dbOperation = "CREATE TABLE";
-    }
+      if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("TABLE")) {
+        dbOperation = "CREATE TABLE";
+      }
 
-    if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("ERD")) {
-      dbOperation = "CREATE ERD";
+      if (queryParts[1].equalsIgnoreCase("ERD")) {
+        if (queryParts.length > 2) {
+          throw new Exception("Error: Wrong query for create erd");
+        }
+        dbOperation = "CREATE ERD";
+      }
+
     }
 
     // Logs related logic
