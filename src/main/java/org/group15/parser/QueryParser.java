@@ -86,6 +86,13 @@ public class QueryParser {
         dbOperation = "CREATE ERD";
       }
 
+      if (queryParts[1].equalsIgnoreCase("DUMP")) {
+        if (queryParts.length > 2) {
+          throw new Exception("Error: Wrong query for create dump");
+        }
+        dbOperation = "CREATE DUMP";
+      }
+
     }
 
     // Logs related logic
@@ -102,6 +109,9 @@ public class QueryParser {
        */
       case "CREATE ERD":
         System.out.println("Here in ERD case at QueryParser.java");
+        break;
+      case "CREATE DUMP":
+        System.out.println("Here in DUMP case at QueryParser.java");
         break;
       case "CREATE SCHEMA":
         size = queryParts.length;
