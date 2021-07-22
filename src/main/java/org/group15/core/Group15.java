@@ -61,10 +61,13 @@ public class Group15 {
         "first_name,address,country,role_id) " +
         "values (15,'Bhatt','Harsh','Gujarat','India',1)";
 
+    String createErd = "create erd";
+
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
 //    queryParser.parse(createTableQueryWithFK, username);
-    queryParser.parse(insertUserQuery.trim(), username);
+//    queryParser.parse(insertUserQuery.trim(), username);
+    queryParser.parse(createErd.trim(), username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();

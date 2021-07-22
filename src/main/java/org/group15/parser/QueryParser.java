@@ -1,5 +1,6 @@
 package org.group15.parser;
 
+import org.group15.database.ERD;
 import org.group15.database.Schema;
 import org.group15.database.Table;
 import org.group15.sql.Create;
@@ -32,6 +33,8 @@ public class QueryParser {
 
   Show showSQL;
 
+  ERD erd;
+
   public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter
       , FileWriter queryLogsWriter) {
     this.eventLogsWriter = eventLogsWriter;
@@ -42,6 +45,7 @@ public class QueryParser {
     insertSQL = new Insert(eventLogsWriter);
     selectSQL = new Select(eventLogsWriter);
     showSQL = new Show(eventLogsWriter);
+    erd = new ERD(eventLogsWriter);
   }
 
   public void parse(String query, String username) throws Exception {
@@ -71,6 +75,10 @@ public class QueryParser {
       dbOperation = "CREATE TABLE";
     }
 
+    if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("ERD")) {
+      dbOperation = "CREATE ERD";
+    }
+
     // Logs related logic
     Date date = new Date();
     // getTime() returns current time in milliseconds
@@ -83,6 +91,9 @@ public class QueryParser {
       /**
        * SCHEMA related operations
        */
+      case "CREATE ERD":
+        System.out.println("Here in ERD case at QueryParser.java");
+        break;
       case "CREATE SCHEMA":
         size = queryParts.length;
         isValidSyntax = createSQL.parseCreateSchemaStatement(size,
@@ -114,8 +125,7 @@ public class QueryParser {
        * TABLE related operations
        */
       case "CREATE TABLE":
-        selectedSchema = "harsh";
-        //  selectedSchema = schema.getSchemaName();
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -131,8 +141,7 @@ public class QueryParser {
         }
         break;
       case "INSERT":
-        selectedSchema = "harsh";
-        //  selectedSchema = schema.getSchemaName();
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
