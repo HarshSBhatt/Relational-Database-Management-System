@@ -11,12 +11,16 @@ import org.group15.util.AppConstants;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class QueryParser {
 
   FileWriter eventLogsWriter;
 
   FileWriter generalLogsWriter;
+
+  FileWriter queryLogsWriter;
 
   Schema schema = new Schema();
 
@@ -30,9 +34,11 @@ public class QueryParser {
 
   Show showSQL = new Show();
 
-  public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter) {
+  public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter
+      , FileWriter queryLogsWriter) {
     this.eventLogsWriter = eventLogsWriter;
     this.generalLogsWriter = generalLogsWriter;
+    this.queryLogsWriter = queryLogsWriter;
   }
 
   public void parse(String query, String username) throws Exception {
@@ -62,7 +68,13 @@ public class QueryParser {
       dbOperation = "CREATE TABLE";
     }
 
+    Date date = new Date();
+    // getTime() returns current time in milliseconds
+    long time = date.getTime();
+    // Passed the milliseconds to constructor of Timestamp class
+    Timestamp ts = new Timestamp(time);
     queryStartTime = System.nanoTime();
+
     switch (dbOperation.toUpperCase()) {
       /**
        * SCHEMA related operations
@@ -138,9 +150,10 @@ public class QueryParser {
     }
     queryEndTime = System.nanoTime();
     elapsedTime = queryEndTime - queryStartTime;
+    queryLogsWriter.append("[Timestamp: ").append(String.valueOf(ts)).append(
+        "] [Query Type: ").append(dbOperation).append("] [Query: ").append(query).append("]\n");
     generalLogsWriter.append("[Execution Time: ").append(String.valueOf(elapsedTime)).append(
         "ns] [Query Type: ").append(dbOperation).append("] [Query: ").append(query).append("]\n");
-    generalLogsWriter.close();
   }
 
 }

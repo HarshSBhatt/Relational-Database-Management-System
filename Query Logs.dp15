@@ -1,0 +1,2 @@
+[Timestamp: 2021-07-22 10:59:38.758] [Query Type: insert] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (7,'Bhatt','Harsh','Gujarat','India',1)]
+[Timestamp: 2021-07-22 11:00:15.807] [Query Type: insert] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (8,'Bhatt','Harsh','Gujarat','India',1)]

@@ -13,6 +13,8 @@ public class Group15 {
     File generalLogs = new File(AppConstants.GENERAL_LOG_FILENAME);
     // Default Event Log File
     File eventLogs = new File(AppConstants.EVENT_LOG_FILENAME);
+    // Default Query Log File
+    File queryLogs = new File(AppConstants.QUERY_LOG_FILENAME);
 
     if (generalLogs.createNewFile()) {
       System.out.println("New General Logs created!");
@@ -24,9 +26,11 @@ public class Group15 {
     // True indicates that data or text will be appended
     FileWriter eventLogsWriter = new FileWriter(eventLogs, true);
     FileWriter generalLogsWriter = new FileWriter(generalLogs, true);
+    FileWriter queryLogsWriter = new FileWriter(queryLogs, true);
 
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    QueryParser queryParser = new QueryParser(eventLogsWriter, generalLogsWriter);
+    QueryParser queryParser = new QueryParser(eventLogsWriter,
+        generalLogsWriter, queryLogsWriter);
 
     boolean valid = true;
 
@@ -51,7 +55,7 @@ public class Group15 {
 
     String insertUserQuery = "insert into users (user_id,last_name," +
         "first_name,address,country,role_id) " +
-        "values (3,'Bhatt','Harsh','Gujarat','India',5)";
+        "values (8,'Bhatt','Harsh','Gujarat','India',1)";
 
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
@@ -60,6 +64,7 @@ public class Group15 {
 
     eventLogsWriter.close();
     generalLogsWriter.close();
+    queryLogsWriter.close();
 
 
     /**
@@ -72,6 +77,7 @@ public class Group15 {
     //          valid = false;
     //          eventLogsWriter.close();
     //          generalLogsWriter.close();
+    //          queryLogsWriter.close();
     //        } else {
     //          queryParser.parse(input.trim(), username);
     //        }
