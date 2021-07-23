@@ -33,6 +33,41 @@ public class Table {
     this.tableName = tableName;
   }
 
+  public Column getColumnObjFromLine(String line) throws Exception {
+    Column column = new Column();
+    String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
+    for (String info : columnInfo) {
+      String[] columnKeyValue = info.split("=");
+      String columnKey = columnKeyValue[0];
+      switch (columnKey) {
+        case AppConstants.COLUMN_NAME:
+          column.setColumnName(columnKeyValue[1]);
+          break;
+        case AppConstants.COLUMN_DATA_TYPE:
+          column.setColumnDataType(columnKeyValue[1]);
+          break;
+        case AppConstants.COLUMN_SIZE:
+          column.setColumnSize(Integer.parseInt(columnKeyValue[1]));
+          break;
+        case AppConstants.FK:
+          column.setForeignKey(true);
+          String[] tableAndColumn = columnKeyValue[1].split("\\.");
+          String foreignTable = tableAndColumn[0];
+          String foreignColumn = tableAndColumn[1];
+          column.setForeignKeyTable(foreignTable);
+          column.setForeignKeyColumn(foreignColumn);
+          break;
+        case AppConstants.PK:
+          column.setPrimaryKey(true);
+          break;
+        default:
+          eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
+          throw new Exception("Unknown column metadata encountered: " + columnKey);
+      }
+    }
+    return column;
+  }
+
   public boolean hasValidForeignKey(Map<String, Column> tableColumns,
                                     String schemaName) throws IOException {
     for (String key : tableColumns.keySet()) {
@@ -173,7 +208,8 @@ public class Table {
     }
   }
 
-  public boolean insert(String schemaName, String tableName, String[] columnArray,
+  public boolean insert(String schemaName, String tableName, String[]
+      columnArray,
                         Map<String, Column> columnsDetails,
                         Column primaryKeyColumn, Column foreignKeyColumn) throws IOException {
 

@@ -1,6 +1,7 @@
 package org.group15.parser;
 
 import org.group15.database.ERD;
+import org.group15.database.SQLDump;
 import org.group15.database.Schema;
 import org.group15.database.Table;
 import org.group15.sql.Create;
@@ -35,6 +36,8 @@ public class QueryParser {
 
   ERD erd;
 
+  SQLDump sqlDump;
+
   public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter
       , FileWriter queryLogsWriter) {
     this.eventLogsWriter = eventLogsWriter;
@@ -46,6 +49,7 @@ public class QueryParser {
     selectSQL = new Select(eventLogsWriter);
     showSQL = new Show(eventLogsWriter);
     erd = new ERD(eventLogsWriter);
+    sqlDump = new SQLDump(eventLogsWriter);
   }
 
   public void parse(String query, String username) throws Exception {
@@ -75,7 +79,7 @@ public class QueryParser {
         dbOperation = "CREATE SCHEMA";
       }
 
-      if (queryParts.length >= 2 && queryParts[1].equalsIgnoreCase("TABLE")) {
+      if (queryParts[1].equalsIgnoreCase("TABLE")) {
         dbOperation = "CREATE TABLE";
       }
 
@@ -121,7 +125,18 @@ public class QueryParser {
         }
         break;
       case "CREATE DUMP":
-        System.out.println("Here in DUMP case at QueryParser.java");
+        selectedSchema = "harsh";
+//        selectedSchema = schema.getSchemaName();
+        if (selectedSchema == null) {
+          System.out.println("Error! Schema is not selected");
+        } else {
+          isValidSyntax = sqlDump.generateDump(selectedSchema);
+          if (isValidSyntax) {
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+            System.out.println("SQL Dump created successfully");
+          }
+        }
         break;
       case "CREATE SCHEMA":
         size = queryParts.length;

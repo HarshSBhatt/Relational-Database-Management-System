@@ -22,10 +22,13 @@ public class ERD {
 
   private List<Column> columns;
 
+  Table tableObj;
+
   public ERD(FileWriter eventLogsWriter) {
     this.columns = new ArrayList<>();
     this.eventLogsWriter = eventLogsWriter;
     this.fmtCon = new Formatter(System.out);
+    tableObj = new Table(eventLogsWriter);
   }
 
   public boolean generateERD(String schemaName) throws Exception {
@@ -74,37 +77,9 @@ public class ERD {
       // Here, we are reading all data from particular table
       String line;
       while ((line = br.readLine()) != null) {
-        Column column = new Column();
-        String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
-        for (String info : columnInfo) {
-          String[] columnKeyValue = info.split("=");
-          String columnKey = columnKeyValue[0];
-          switch (columnKey) {
-            case AppConstants.COLUMN_NAME:
-              column.setColumnName(columnKeyValue[1]);
-              break;
-            case AppConstants.COLUMN_DATA_TYPE:
-              column.setColumnDataType(columnKeyValue[1]);
-              break;
-            case AppConstants.COLUMN_SIZE:
-              column.setColumnSize(Integer.parseInt(columnKeyValue[1]));
-              break;
-            case AppConstants.FK:
-              column.setForeignKey(true);
-              String[] tableAndColumn = columnKeyValue[1].split("\\.");
-              String foreignTable = tableAndColumn[0];
-              String foreignColumn = tableAndColumn[1];
-              column.setForeignKeyTable(foreignTable);
-              column.setForeignKeyColumn(foreignColumn);
-              break;
-            case AppConstants.PK:
-              column.setPrimaryKey(true);
-              break;
-            default:
-              this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
-              throw new Exception("Unknown column metadata encountered: " + columnKey);
-          }
-        }
+        // Generating column obj from the line
+        Column column = tableObj.getColumnObjFromLine(line);
+
         this.eventLogsWriter.append("Metadata fetched successfully of " +
             "table: ").append(tableName).append(" while generating ERD").append("\n");
         this.columns.add(column);
