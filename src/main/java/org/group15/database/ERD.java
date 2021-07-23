@@ -102,9 +102,9 @@ public class ERD {
               this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
               throw new Exception("Unknown column metadata encountered: " + columnKey);
           }
-          this.eventLogsWriter.append("Metadata fetched successfully of " +
-              "table: ").append(tableName).append(" while generating ERD").append("\n");
         }
+        this.eventLogsWriter.append("Metadata fetched successfully of " +
+            "table: ").append(tableName).append(" while generating ERD").append("\n");
         this.columns.add(column);
       }
       writeERDToFile(schemaName, tableName, tablePath);
