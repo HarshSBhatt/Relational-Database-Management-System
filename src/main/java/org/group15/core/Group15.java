@@ -63,11 +63,13 @@ public class Group15 {
 
     String createErd = "create erd";
 
+    String createDump = "create dump";
+
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
 //    queryParser.parse(createTableQueryWithFK, username);
 //    queryParser.parse(insertUserQuery.trim(), username);
-    queryParser.parse(createErd.trim(), username);
+    queryParser.parse(createDump.trim(), username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();
