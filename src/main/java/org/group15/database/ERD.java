@@ -36,6 +36,14 @@ public class ERD {
     File schemaFolder = new File(schemaPath.concat("/table_metadata"));
     File[] tables = schemaFolder.listFiles();
 
+    if (!schemaFolder.exists()) {
+      throw new Exception("Database with name: " + schemaName + " not found");
+    }
+
+    if (tables.length < 1) {
+      throw new Exception("No tables exist in database with name: " + schemaName);
+    }
+
     this.erdFolder =
         new File(AppConstants.ERD_ROOT_FOLDER_PATH);
 
@@ -55,14 +63,6 @@ public class ERD {
 
     // Here, we will not append erd, but replace content of existing file  if file is not empty
     this.fmtFile = new Formatter(new FileOutputStream(tableFilePath));
-
-    if (!schemaFolder.exists()) {
-      throw new Exception("Database with name: " + schemaName + " not found");
-    }
-
-    if (tables.length < 1) {
-      throw new Exception("No tables exist in database with name: " + schemaName + " not found");
-    }
 
     // Looping through each table inside particular folder
     for (File table : tables) {
