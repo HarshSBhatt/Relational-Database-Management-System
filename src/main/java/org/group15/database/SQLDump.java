@@ -34,6 +34,14 @@ public class SQLDump {
     File schemaFolder = new File(schemaPath.concat("/table_metadata"));
     File[] tables = schemaFolder.listFiles();
 
+    if (!schemaFolder.exists()) {
+      throw new Exception("Database with name: " + schemaName + " not found");
+    }
+
+    if (tables.length < 1) {
+      throw new Exception("No tables exist in database with name: " + schemaName);
+    }
+
     this.dumpFolder =
         new File(AppConstants.DUMP_ROOT_FOLDER_PATH);
 
@@ -54,13 +62,6 @@ public class SQLDump {
     // Here, we will not append erd, but replace content of existing file  if file is not empty
     this.fmtFile = new Formatter(new FileOutputStream(tableFilePath));
 
-    if (!schemaFolder.exists()) {
-      throw new Exception("Database with name: " + schemaName + " not found");
-    }
-
-    if (tables.length < 1) {
-      throw new Exception("No tables exist in database with name: " + schemaName + " not found");
-    }
     // Looping through each table inside particular folder
     for (File table : tables) {
       String tableName = table.getName();
@@ -128,7 +129,7 @@ public class SQLDump {
       columnAndValueArray.put(column.getColumnName(), columnValues);
     }
 
-    i=0;
+    i = 0;
     dumpContent.append("Data types: (");
     for (Column column : this.columns) {
       if (i == this.columns.size() - 1) {
