@@ -125,8 +125,8 @@ public class QueryParser {
         }
         break;
       case "CREATE DUMP":
-        selectedSchema = "harsh";
-//        selectedSchema = schema.getSchemaName();
+        // selectedSchema = "harsh";
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -134,7 +134,6 @@ public class QueryParser {
           if (isValidSyntax) {
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");
-            System.out.println("SQL Dump created successfully");
           }
         }
         break;
