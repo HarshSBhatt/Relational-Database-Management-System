@@ -41,15 +41,17 @@ public class ERD {
     }
 
     // ERD file for particular schema
+    String tableFilePath =
+        AppConstants.ERD_ROOT_FOLDER_PATH + "/" + schemaName + ".dp15";
     this.erdFile =
-        new File(AppConstants.ERD_ROOT_FOLDER_PATH + "/" + schemaName + ".dp15");
+        new File(tableFilePath);
 
     if (this.erdFile.createNewFile()) {
       System.out.println("ERD file created!");
     }
 
     // Here, we will not append erd, but replace content of existing file  if file is not empty
-    this.fmtFile = new Formatter(new FileOutputStream(AppConstants.ERD_ROOT_FOLDER_PATH + "/" + schemaName + ".dp15"));
+    this.fmtFile = new Formatter(new FileOutputStream(tableFilePath));
 
     if (!schemaFolder.exists()) {
       throw new Exception("Database with name: " + schemaName + " not found");
