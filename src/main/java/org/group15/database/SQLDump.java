@@ -4,17 +4,15 @@ import org.group15.util.AppConstants;
 import org.group15.util.Helper;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.List;
+import java.util.*;
 
-public class ERD {
+public class SQLDump {
 
   FileWriter eventLogsWriter;
 
-  File erdFile;
+  File dumpFile;
 
-  File erdFolder;
+  File dumpFolder;
 
   Formatter fmtCon;
 
@@ -24,14 +22,14 @@ public class ERD {
 
   Table tableObj;
 
-  public ERD(FileWriter eventLogsWriter) {
+  public SQLDump(FileWriter eventLogsWriter) {
     this.columns = new ArrayList<>();
     this.eventLogsWriter = eventLogsWriter;
-    this.fmtCon = new Formatter(System.out);
     tableObj = new Table(eventLogsWriter);
+    this.fmtCon = new Formatter(System.out);
   }
 
-  public boolean generateERD(String schemaName) throws Exception {
+  public boolean generateDump(String schemaName) throws Exception {
     String schemaPath = Helper.getSchemaPath(schemaName);
     File schemaFolder = new File(schemaPath.concat("/table_metadata"));
     File[] tables = schemaFolder.listFiles();
@@ -44,21 +42,21 @@ public class ERD {
       throw new Exception("No tables exist in database with name: " + schemaName);
     }
 
-    this.erdFolder =
-        new File(AppConstants.ERD_ROOT_FOLDER_PATH);
+    this.dumpFolder =
+        new File(AppConstants.DUMP_ROOT_FOLDER_PATH);
 
-    if (this.erdFolder.mkdir()) {
-      System.out.println("ERD folder created!");
+    if (this.dumpFolder.mkdir()) {
+      System.out.println("DUMP folder created!");
     }
 
-    // ERD file for particular schema
+    // Dump file for particular schema
     String tableFilePath =
-        AppConstants.ERD_ROOT_FOLDER_PATH + "/" + schemaName + ".dp15";
-    this.erdFile =
+        AppConstants.DUMP_ROOT_FOLDER_PATH + "/" + schemaName + ".dp15";
+    this.dumpFile =
         new File(tableFilePath);
 
-    if (this.erdFile.createNewFile()) {
-      System.out.println("ERD file created!");
+    if (this.dumpFile.createNewFile()) {
+      System.out.println("DUMP file created!");
     }
 
     // Here, we will not append erd, but replace content of existing file  if file is not empty
@@ -81,19 +79,23 @@ public class ERD {
         Column column = tableObj.getColumnObjFromLine(line);
 
         this.eventLogsWriter.append("Metadata fetched successfully of " +
-            "table: ").append(tableName).append(" while generating ERD").append("\n");
+            "table: ").append(tableName).append(" while generating DUMP").append("\n");
         this.columns.add(column);
       }
-      writeERDToFile(schemaName, tableName, tablePath);
+      writeDumpToFile(schemaName, tableName, tablePath);
     }
+    System.out.println("SQL Dump created successfully");
     this.fmtCon.close();
     this.fmtFile.close();
     this.eventLogsWriter.append("All tables detail fetched successfully to " +
-        "generate ERD").append("\n");
+        "generate DUMP").append("\n");
     return true;
   }
 
-  private void writeERDToFile(String schemaName, String tableName, String tablePath) {
+  private void writeDumpToFile(String schemaName, String tableName,
+                               String tablePath) throws IOException {
+
+    Map<String, Object> columnAndValueArray = new HashMap<>();
 
     String sName = "Schema: ".concat(schemaName);
     String tName = "Table: ".concat(tableName);
@@ -106,43 +108,46 @@ public class ERD {
         "---------------------------------------------------------------------------------------------------------------------------------------------";
 
     this.fmtFile.format(lineSeparator.concat("\n"));
-    System.out.println(lineSeparator);
 
     this.fmtFile.format("%20s%30s%60s\n", sName, tName, tPath);
-    System.out.format("%20s%30s%60s\n", sName, tName, tPath);
 
     this.fmtFile.format(lineSeparator.concat("\n"));
-    System.out.println(lineSeparator);
 
-    this.fmtFile.format("%20s%20s%15s%15s%15s%20s%30s\n", "Column Name |", "Data " +
-            "type |", "Size |",
-        "Primary Key |", "Foreign Key |", "Foreign Column |", "Foreign Table |");
-    System.out.format("%20s%20s%15s%15s%15s%20s%30s\n", "Column Name |", "Data " +
-            "type |", "Size |",
-        "Primary Key |", "Foreign Key |", "Foreign Column |", "Foreign Table |");
-
-    this.fmtFile.format(headingSeparator.concat("\n"));
-    System.out.println(headingSeparator);
+    int i = 0;
+    StringBuilder dumpContent = new StringBuilder("Columns: (");
 
     for (Column column : this.columns) {
-      String columnName = column.getColumnName().concat(" |");
-      String columnDataType = column.getColumnDataType().concat(" |");
-      String size = String.valueOf(column.getColumnSize()).concat(" |");
-      String primaryKey = column.isPrimaryKey() ? "PK".concat(" |") : "- |";
-      String foreignKey = "- |", foreignColumn = "- |", foreignTable = "- |";
-      if (column.isForeignKey()) {
-        foreignKey = "FK |";
-        foreignColumn = column.getForeignKeyColumn().concat(" |");
-        foreignTable = column.getForeignKeyTable().concat(" |");
+      if (i == this.columns.size() - 1) {
+        dumpContent.append(column.getColumnName()).append(")\n");
+      } else {
+        dumpContent.append(column.getColumnName()).append(",");
       }
-      this.fmtFile.format("%20s%20s%15s%15s%15s%20s%30s\n", columnName,
-          columnDataType, size, primaryKey, foreignKey, foreignColumn, foreignTable);
-      System.out.format("%20s%20s%15s%15s%15s%20s%30s\n", columnName,
-          columnDataType, size, primaryKey, foreignKey, foreignColumn, foreignTable);
+      i++;
+      ArrayList<Object> columnValues =
+          tableObj.getValuesOfParticularColumn(schemaName,
+              tableName.split("\\.")[0], column);
+      columnAndValueArray.put(column.getColumnName(), columnValues);
     }
 
+    i = 0;
+    dumpContent.append("Data types: (");
+    for (Column column : this.columns) {
+      if (i == this.columns.size() - 1) {
+        dumpContent.append(column.getColumnDataType()).append(")\n");
+      } else {
+        dumpContent.append(column.getColumnDataType()).append(",");
+      }
+      i++;
+    }
+
+    this.fmtFile.format(String.valueOf(dumpContent).concat("\n"));
+    this.fmtFile.format(headingSeparator.concat("\n\n"));
+
+    for (String key : columnAndValueArray.keySet()) {
+      this.fmtFile.format(key.concat(": ").concat(String.valueOf(columnAndValueArray.get(key))).concat(
+          "\n"));
+    }
     this.fmtFile.format(headingSeparator.concat("\n"));
-    System.out.println(headingSeparator);
 
     // Emptied the current column data for the next iteration
     this.columns = new ArrayList<>();

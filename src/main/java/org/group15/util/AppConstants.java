@@ -4,6 +4,10 @@ public interface AppConstants {
 
   String ROOT_FOLDER_PATH = "schemas";
 
+  String ERD_ROOT_FOLDER_PATH = "erds";
+
+  String DUMP_ROOT_FOLDER_PATH = "dump";
+
   String DELIMITER_TOKEN = "@##@";
 
   String GENERAL_LOG_FILENAME = "General Logs.dp15";
