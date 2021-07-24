@@ -35,12 +35,14 @@ public class Alter {
     if (queryParts.length < 6 || queryParts.length > 8) {
       this.eventLogsWriter.append("Syntax error: Error while parsing alter " +
           "query").append("\n");
+      this.eventLogsWriter.close();
       throw new Exception("Syntax error: Error while parsing alter query");
     }
 
     if (!queryParts[1].equalsIgnoreCase("TABLE")) {
       this.eventLogsWriter.append("Syntax error: TABLE keyword not found " +
           "in Alter query").append("\n");
+      this.eventLogsWriter.close();
       throw new Exception("Syntax error: TABLE keyword not found in " +
           "Alter query");
     }
@@ -57,6 +59,7 @@ public class Alter {
         if (!queryParts[4].equalsIgnoreCase("COLUMN")) {
           this.eventLogsWriter.append("Syntax error: Unknown keyword " +
               "encountered while parsing alter table statement: ").append(queryParts[4]).append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Syntax error: Unknown keyword encountered while" +
               " parsing alter table statement: " + queryParts[4]);
         }
@@ -65,6 +68,7 @@ public class Alter {
       default:
         this.eventLogsWriter.append("Syntax error: Unknown keyword " +
             "encountered while parsing alter table statement: ").append(queryParts[3]).append("\n");
+        this.eventLogsWriter.close();
         throw new Exception("Syntax error: Unknown keyword encountered while" +
             " parsing alter table statement: " + queryParts[3]);
     }
@@ -78,6 +82,7 @@ public class Alter {
     if (!tableFile.exists()) {
       this.eventLogsWriter.append("Something went wrong! Table does not " +
           "exist: ").append(tableName).append("\n");
+      this.eventLogsWriter.close();
       throw new Exception("Something went wrong! Table does not exist: " + tableName);
     }
 
@@ -100,6 +105,7 @@ public class Alter {
         boolean exist = isColExist(existingColumnName, columns);
         if (!exist) {
           this.eventLogsWriter.append("Error: Unknown column: ").append(existingColumnName).append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Error: Unknown column: " + existingColumnName);
         }
 
@@ -108,6 +114,7 @@ public class Alter {
         if (!isDropped) {
           this.eventLogsWriter.append("Error: Something went wrong while " +
               "dropping the column").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Error: Something went wrong while dropping the column");
         }
       } else {
@@ -118,6 +125,7 @@ public class Alter {
         if (!validDataTypes.contains(dataTypeRelatedInfo[0])) {
           this.eventLogsWriter.append("Syntax error: Unknown data type " +
               "encountered while parsing alter table statement: ").append(dataTypeRelatedInfo[0]).append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Syntax error: Unknown data type encountered while" +
               " parsing alter table statement: " + dataTypeRelatedInfo[0]);
         }
@@ -126,6 +134,7 @@ public class Alter {
         boolean exist = Helper.isColumnExist(columns, newColumn);
         if (exist) {
           this.eventLogsWriter.append("Error: Column already exist: ").append(newColumn).append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Error: Column already exist: " + newColumn);
         }
         boolean isAdded = this.table.addColumn(schemaName, tableName,
@@ -133,6 +142,7 @@ public class Alter {
         if (!isAdded) {
           this.eventLogsWriter.append("Error: Something went wrong while " +
               "adding the column").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Error: Something went wrong while adding the column");
         }
       }
@@ -148,6 +158,7 @@ public class Alter {
       if (!validDataTypes.contains(dataTypeRelatedInfo[0])) {
         this.eventLogsWriter.append("Syntax error: Unknown data type " +
             "encountered while parsing alter table statement: ").append(dataTypeRelatedInfo[0]).append("\n");
+        this.eventLogsWriter.close();
         throw new Exception("Syntax error: Unknown data type encountered while" +
             " parsing alter table statement: " + dataTypeRelatedInfo[0]);
       }
@@ -156,6 +167,7 @@ public class Alter {
       boolean exist = isColExist(existingColumnName, columns);
       if (!exist) {
         this.eventLogsWriter.append("Error: Unknown column: ").append(existingColumnName).append("\n");
+        this.eventLogsWriter.close();
         throw new Exception("Error: Unknown column: " + existingColumnName);
       }
       boolean isChanged = this.table.changeColumn(schemaName, tableName,
@@ -163,6 +175,7 @@ public class Alter {
       if (!isChanged) {
         this.eventLogsWriter.append("Error: Something went wrong while " +
             "changing the column").append("\n");
+        this.eventLogsWriter.close();
         throw new Exception("Error: Something went wrong while changing the column");
       }
     }
@@ -179,10 +192,12 @@ public class Alter {
         if (column.isPrimaryKey()) {
           this.eventLogsWriter.append("Error: Primary key can not be " +
               "dropped").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Error: Primary key can not be dropped");
         } else if (column.isForeignKey()) {
           this.eventLogsWriter.append("Error: Foreign key can not be " +
               "dropped").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Error: Foreign key can not be dropped");
         }
       }
