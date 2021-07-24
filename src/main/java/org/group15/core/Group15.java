@@ -65,11 +65,19 @@ public class Group15 {
 
     String createDump = "create dump";
 
+    String alterAddTableQuery = "alter table users add income varchar(100)";
+    String alterDropTableQuery = "alter table users drop column last_name";
+    String alterChangeTableQuery = "alter table users change column last_name" +
+        " l_name varchar(100)";
+
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
 //    queryParser.parse(createTableQueryWithFK, username);
 //    queryParser.parse(insertUserQuery.trim(), username);
-    queryParser.parse(createDump.trim(), username);
+//    queryParser.parse(createDump.trim(), username);
+    queryParser.parse(alterDropTableQuery.trim(), username);
+//    queryParser.parse(alterDropTableQuery, username);
+//    queryParser.parse(alterChangeTableQuery, username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();

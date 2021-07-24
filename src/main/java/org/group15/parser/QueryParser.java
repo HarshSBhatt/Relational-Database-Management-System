@@ -4,10 +4,7 @@ import org.group15.database.ERD;
 import org.group15.database.SQLDump;
 import org.group15.database.Schema;
 import org.group15.database.Table;
-import org.group15.sql.Create;
-import org.group15.sql.Insert;
-import org.group15.sql.Select;
-import org.group15.sql.Show;
+import org.group15.sql.*;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -34,6 +31,8 @@ public class QueryParser {
 
   Show showSQL;
 
+  Alter alterSQL;
+
   ERD erd;
 
   SQLDump sqlDump;
@@ -48,6 +47,7 @@ public class QueryParser {
     insertSQL = new Insert(eventLogsWriter);
     selectSQL = new Select(eventLogsWriter);
     showSQL = new Show(eventLogsWriter);
+    alterSQL = new Alter(eventLogsWriter);
     erd = new ERD(eventLogsWriter);
     sqlDump = new SQLDump(eventLogsWriter);
   }
@@ -71,7 +71,7 @@ public class QueryParser {
     String dbOperation = queryParts[0];
 
     // Checking whether CREATE statement is for SCHEMA or TABLE or ERD
-    if (queryParts.length >= 2) {
+    if (queryParts.length >= 2 && dbOperation.equalsIgnoreCase("CREATE")) {
       if (queryParts[1].equalsIgnoreCase("SCHEMA")) {
         if (queryParts.length > 2) {
           throw new Exception("Error: Wrong query for create schema");
@@ -112,7 +112,9 @@ public class QueryParser {
        * SCHEMA related operations
        */
       case "CREATE ERD":
-        selectedSchema = schema.getSchemaName();
+//        selectedSchema = schema.getSchemaName();
+        // Hard coding schema name for testing
+        selectedSchema = "harsh";
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -125,8 +127,9 @@ public class QueryParser {
         }
         break;
       case "CREATE DUMP":
-        // selectedSchema = "harsh";
-        selectedSchema = schema.getSchemaName();
+//        selectedSchema = schema.getSchemaName();
+        // Hard coding schema name for testing
+        selectedSchema = "harsh";
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -168,7 +171,9 @@ public class QueryParser {
        * TABLE related operations
        */
       case "CREATE TABLE":
-        selectedSchema = schema.getSchemaName();
+//        selectedSchema = schema.getSchemaName();
+        // Hard coding schema name for testing
+        selectedSchema = "harsh";
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -184,7 +189,9 @@ public class QueryParser {
         }
         break;
       case "INSERT":
-        selectedSchema = schema.getSchemaName();
+//        selectedSchema = schema.getSchemaName();
+        // Hard coding schema name for testing
+        selectedSchema = "harsh";
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -197,6 +204,25 @@ public class QueryParser {
             tableName = queryParts[2].toLowerCase();
             table.setTableName(tableName);
             System.out.println("Record inserted successfully into table: " + tableName);
+          }
+        }
+        break;
+      case "ALTER":
+//        selectedSchema = schema.getSchemaName();
+        // Hard coding schema name for testing
+        selectedSchema = "harsh";
+        if (selectedSchema == null) {
+          System.out.println("Error! Schema is not selected");
+        } else {
+          isValidSyntax =
+              alterSQL.parseAlterTableStatement(query,
+                  selectedSchema);
+          if (isValidSyntax) {
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+            tableName = queryParts[2].toLowerCase();
+            table.setTableName(tableName);
+            System.out.println("Table: " + tableName + " altered successfully");
           }
         }
         break;
