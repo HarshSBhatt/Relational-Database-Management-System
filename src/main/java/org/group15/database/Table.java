@@ -33,6 +33,58 @@ public class Table {
     this.tableName = tableName;
   }
 
+  public Map<String, Column> getTableMetadataMap(String schemaName,
+                                                 String tableName) throws Exception {
+
+    Map<String, Column> columnsMetaData = new HashMap<>();
+    String path = Helper.getTableMetadataPath(schemaName, tableName);
+    File metadataFile = new File(path);
+
+    if (metadataFile.exists()) {
+      BufferedReader br =
+          new BufferedReader(new FileReader(metadataFile));
+
+      String line;
+
+      while ((line = br.readLine()) != null) {
+        Column column = new Column();
+        String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
+
+        //  Looping through file data and creating metadata of type COLUMN
+        for (String info : columnInfo) {
+          String[] columnKeyValue = info.split("=");
+          String columnKey = columnKeyValue[0];
+          if (columnKey.equalsIgnoreCase(AppConstants.COLUMN_NAME)) {
+            column.setColumnName(columnKeyValue[1]);
+          } else if (columnKey.equalsIgnoreCase(AppConstants.COLUMN_DATA_TYPE)) {
+            column.setColumnDataType(columnKeyValue[1]);
+          } else if (columnKey.equalsIgnoreCase(AppConstants.COLUMN_SIZE)) {
+            column.setColumnSize(Integer.parseInt(columnKeyValue[1]));
+          } else if (columnKey.equalsIgnoreCase(AppConstants.PK)) {
+            column.setPrimaryKey(true);
+          } else if (columnKey.equalsIgnoreCase(AppConstants.FK)) {
+            column.setForeignKey(true);
+            String[] tableAndColumn = columnKeyValue[1].split("\\.");
+            String foreignTable = tableAndColumn[0];
+            String foreignColumn = tableAndColumn[1];
+            column.setForeignKeyTable(foreignTable);
+            column.setForeignKeyColumn(foreignColumn);
+          } else if (columnKey.equalsIgnoreCase(AppConstants.AI)) {
+            column.setAutoIncrement(true);
+          } else {
+            this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
+            throw new Exception("Something went wrong near: " + columnKey);
+          }
+        }
+        columnsMetaData.put(column.getColumnName(), column);
+      }
+      br.close();
+      this.eventLogsWriter.append("Metadata fetched successfully for table: ").append(tableName).append("\n");
+      return columnsMetaData;
+    }
+    return columnsMetaData;
+  }
+
   public Column getColumnObjFromLine(String line) throws Exception {
     Column column = new Column();
     String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
@@ -270,11 +322,63 @@ public class Table {
       fileContent.append("\n");
       tableDataWriter.append(fileContent).close();
     } else {
-      this.eventLogsWriter.append("Something went wrong! File does not exist").append("\n");
-      System.out.println("Something went wrong! File does not exist");
+      this.eventLogsWriter.append("Something went wrong! Table does not " +
+          "exist").append("\n");
+      System.out.println("Something went wrong! Table does not exist");
       return false;
     }
     System.out.println("Inserted row successfully");
+    return true;
+  }
+
+  public boolean addColumn() {
+    return true;
+  }
+
+  public boolean dropColumn(String schemaName, String tableName,
+                            String columnNameToBeDropped) throws IOException {
+    StringBuilder newFileContent = new StringBuilder();
+
+    String tablePath = Helper.getTablePath(schemaName, tableName);
+
+    File tableFile = new File(tablePath);
+
+    FileWriter tableDataWriter;
+
+    if (tableFile.exists()) {
+      BufferedReader br =
+          new BufferedReader(new FileReader(tableFile));
+      String line;
+      while ((line = br.readLine()) != null) {
+        String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
+        int i = 0;
+        for (String info : columnInfo) {
+          String colName = info.split("=")[0];
+          if (!colName.equalsIgnoreCase(columnNameToBeDropped)) {
+            if (i == columnInfo.length - 1) {
+              newFileContent.append(info);
+            } else {
+              newFileContent.append(info).append(AppConstants.DELIMITER_TOKEN);
+            }
+          }
+          i++;
+        }
+        newFileContent.append("\n");
+      }
+
+      tableDataWriter = new FileWriter(tableFile);
+      tableDataWriter.write(String.valueOf(newFileContent));
+      tableDataWriter.close();
+    } else {
+      this.eventLogsWriter.append("Something went wrong! Table does not " +
+          "exist").append("\n");
+      System.out.println("Something went wrong! Table does not exist");
+    }
+    return true;
+  }
+
+  public boolean changeColumn(String schemaName, String tableName,
+                              String oldColumnName, String newColumnName) {
     return true;
   }
 
