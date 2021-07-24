@@ -1,41 +1,45 @@
 package org.group15.io;
 
+import org.group15.util.Helper;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 
 public class CustomLock {
 
-  FileChannel channel;
+  public void lock(String schemaName, String tableName) throws IOException {
+    String lockFolderPath = Helper.getLockFolderPath(schemaName);
+    String lockFilePath = Helper.getLockFilePath(schemaName, tableName);
 
-  FileLock lock;
+    File lockFolder = new File(lockFolderPath);
+    File lockFile = new File(lockFilePath);
 
-  public boolean acquireLock(File file) {
-    try {
-      channel = new RandomAccessFile(file, "rw").getChannel();
-      lock = channel.lock();
-      return true;
-    } catch (FileNotFoundException e) {
-      return false;
-    } catch (IOException e) {
-      return false;
+    if (!lockFolder.exists()) {
+      lockFolder.mkdirs();
+    }
+
+    if (!lockFile.exists()) {
+      lockFile.createNewFile();
     }
   }
 
-  public boolean releaseLock(File file) {
-    try {
-      this.channel = new RandomAccessFile(file, "rw").getChannel();
-      this.lock.release();
-      this.channel.close();
-      return true;
-    } catch (FileNotFoundException fileNotFoundException) {
-      return false;
-    } catch (IOException ioException) {
-      return false;
+  public void unlock(String schemaName, String tableName) throws InterruptedException {
+    String lockFilePath = Helper.getLockFilePath(schemaName, tableName);
+
+    File lockFile = new File(lockFilePath);
+
+    if (lockFile.exists()) {
+      Thread.sleep(5000);
+      lockFile.delete();
     }
+  }
+
+  public boolean isLocked(String schemaName, String tableName) {
+    String lockFilePath = Helper.getLockFilePath(schemaName, tableName);
+
+    File lockFile = new File(lockFilePath);
+
+    return lockFile.exists();
   }
 
 }

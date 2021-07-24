@@ -50,12 +50,14 @@ public class Insert {
 
         if (queryParts.length != 6) {
           this.eventLogsWriter.append("Syntax error: Error while parsing insert query").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Syntax error: Error while parsing insert query");
         }
 
         if (!queryParts[1].equalsIgnoreCase("INTO")) {
           this.eventLogsWriter.append("Syntax error: INTO keyword not found " +
               "in Insert query").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Syntax error: INTO keyword not found in " +
               "Insert query");
         }
@@ -63,6 +65,7 @@ public class Insert {
         if (!queryParts[4].equalsIgnoreCase("VALUES")) {
           this.eventLogsWriter.append("Syntax error: VALUES keyword not found" +
               " in Insert query").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Syntax error: VALUES keyword not found in " +
               "Insert query");
         }
@@ -74,6 +77,7 @@ public class Insert {
         if (!validatedValuesBetweenParenthesis(queryColumns)) {
           this.eventLogsWriter.append("Syntax error: Error while parsing " +
               "parenthesis of columns").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Syntax error: Error while parsing parenthesis " +
               "of columns");
         }
@@ -81,6 +85,7 @@ public class Insert {
         if (!validatedValuesBetweenParenthesis(queryValues)) {
           this.eventLogsWriter.append("Syntax error: Error while parsing " +
               "parenthesis of values").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Syntax error: Error while parsing parenthesis " +
               "of values");
         }
@@ -110,6 +115,7 @@ public class Insert {
                 if (!isDataWritten) {
                   this.eventLogsWriter.append("Error: Something went wrong " +
                       "while writing data to table").append("\n");
+                  this.eventLogsWriter.close();
                   throw new Exception("Error: Something went wrong while " +
                       "writing data to table");
                 }
@@ -118,34 +124,40 @@ public class Insert {
               } else {
                 this.eventLogsWriter.append("Error: Something went wrong while " +
                     "fetching table data").append("\n");
+                this.eventLogsWriter.close();
                 throw new Exception("Error: Something went wrong while " +
                     "fetching table data");
               }
             } else {
               this.eventLogsWriter.append("Error: Something went wrong while " +
                   "fetching table data").append("\n");
+              this.eventLogsWriter.close();
               throw new Exception("Error: Something went wrong while " +
                   "fetching table data");
             }
           } else {
             this.eventLogsWriter.append("Error: Columns and its value " +
                 "mismatch").append("\n");
+            this.eventLogsWriter.close();
             throw new Exception("Error: Columns and its value mismatch");
           }
         } else {
           this.eventLogsWriter.append("Error: Invalid table name").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Error: Invalid table name");
         }
 
       } else {
         this.eventLogsWriter.append("Syntax error: Error occurred due to " +
             "mismatch parenthesis").append("\n");
+        this.eventLogsWriter.close();
         throw new Exception("Syntax error: Error occurred due " +
             "to mismatch parenthesis");
       }
     } else {
       this.eventLogsWriter.append("Syntax error: Please check your syntax for" +
           " Insert query").append("\n");
+      this.eventLogsWriter.close();
       throw new Exception("Syntax error: Please check your syntax for Insert query");
     }
     return true;
@@ -191,6 +203,7 @@ public class Insert {
             column.setAutoIncrement(true);
           } else {
             this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
+            this.eventLogsWriter.close();
             throw new Exception("Something went wrong near: " + columnKey);
           }
         }
