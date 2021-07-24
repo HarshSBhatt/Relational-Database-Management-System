@@ -1,10 +1,10 @@
 package org.group15.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import org.group15.database.Column;
+
+import java.io.*;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Helper {
 
@@ -97,6 +97,17 @@ public class Helper {
       }
     }
     return newFileContent;
+  }
+
+  public static boolean isColumnExist(Map<String, Column> columns,
+                                      String existingColumnName) {
+    for (String key : columns.keySet()) {
+      Column column = columns.get(key);
+      if (column.getColumnName().equalsIgnoreCase(existingColumnName)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }
