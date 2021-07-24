@@ -155,7 +155,7 @@ public class QueryParser {
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
-          isValidSyntax = dataDictionary.generateDataDictionary(selectedSchema);
+          isValidSyntax = dataDictionary.generateDataDictionary();
           if (isValidSyntax) {
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");

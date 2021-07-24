@@ -31,17 +31,13 @@ public class DataDictionary {
     tableObj = new Table(eventLogsWriter);
   }
 
-  public boolean generateDataDictionary(String schemaName) throws Exception {
-    String schemaPath = Helper.getSchemaPath(schemaName);
-    File schemaFolder = new File(schemaPath.concat("/table_metadata"));
-    File[] tables = schemaFolder.listFiles();
+  public boolean generateDataDictionary() throws Exception {
 
-    if (!schemaFolder.exists()) {
-      throw new Exception("Database with name: " + schemaName + " not found");
-    }
+    File rootSchemaFolder = new File(AppConstants.ROOT_FOLDER_PATH);
+    File[] schemas = rootSchemaFolder.listFiles();
 
-    if (tables.length < 1) {
-      throw new Exception("No tables exist in database with name: " + schemaName);
+    if (schemas.length < 1) {
+      throw new Exception("No schemas exist");
     }
 
     this.ddFolder =
@@ -51,46 +47,58 @@ public class DataDictionary {
       System.out.println("Data Dictionary folder created!");
     }
 
-    // ERD file for particular schema
-    String tableFilePath =
-        AppConstants.DATA_DICTIONARY_ROOT_FOLDER_PATH + "/" + schemaName + ".dp15";
     this.ddFile =
-        new File(tableFilePath);
+        new File(AppConstants.DATA_DICTIONARY_ROOT_FOLDER_PATH +
+            "/data_dictionary.dp15");
 
     if (this.ddFile.createNewFile()) {
       System.out.println("Data Dictionary file created!");
     }
 
     // Here, we will not append dd, but replace content of existing file if file is not empty
-    this.fmtFile = new Formatter(new FileOutputStream(tableFilePath));
+    this.fmtFile = new Formatter(new FileOutputStream(ddFile));
 
-    // Looping through each table inside particular folder
-    for (File table : tables) {
-      String tableName = table.getName();
-      String tablePath = table.getPath();
-      // We will read the particular table based on the table path
-      File tableFile = new File(tablePath);
+    for (File schema : schemas) {
+      String schemaPath = Helper.getSchemaPath(schema.getName());
+      File schemaFolder = new File(schemaPath.concat("/table_metadata"));
+      File[] tables = schemaFolder.listFiles();
 
-      BufferedReader br =
-          new BufferedReader(new FileReader(tableFile));
-
-      // Here, we are reading all data from particular table
-      String line;
-      while ((line = br.readLine()) != null) {
-        // Generating column obj from the line
-        Column column = tableObj.getColumnObjFromLine(line);
-
-        this.eventLogsWriter.append("Metadata fetched successfully of " +
-            "table: ").append(tableName).append(" while generating Data " +
-            "Dictionary").append("\n");
-        this.columns.add(column);
+      if (!schemaFolder.exists()) {
+        throw new Exception("Database with name: " + schema.getName() + " not found");
       }
-      writeDDToFile(schemaName, tableName, tablePath);
+
+      if (tables.length >= 1) {
+
+        // Looping through each table inside particular folder
+        for (File table : tables) {
+          String tableName = table.getName();
+          String tablePath = table.getPath();
+          // We will read the particular table based on the table path
+          File tableFile = new File(tablePath);
+
+          BufferedReader br =
+              new BufferedReader(new FileReader(tableFile));
+
+          // Here, we are reading all data from particular table
+          String line;
+          while ((line = br.readLine()) != null) {
+            // Generating column obj from the line
+            Column column = tableObj.getColumnObjFromLine(line);
+
+            this.eventLogsWriter.append("Metadata fetched successfully of " +
+                "table: ").append(tableName).append(" while generating Data " +
+                "Dictionary").append("\n");
+            this.columns.add(column);
+          }
+          writeDDToFile(schema.getName(), tableName, tablePath);
+        }
+      }
     }
     this.fmtCon.close();
     this.fmtFile.close();
     this.eventLogsWriter.append("All tables detail fetched successfully to " +
         "generate ERD").append("\n");
+
     return true;
   }
 
