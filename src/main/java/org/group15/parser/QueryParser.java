@@ -1,9 +1,6 @@
 package org.group15.parser;
 
-import org.group15.database.ERD;
-import org.group15.database.SQLDump;
-import org.group15.database.Schema;
-import org.group15.database.Table;
+import org.group15.database.*;
 import org.group15.sql.*;
 
 import java.io.File;
@@ -37,6 +34,8 @@ public class QueryParser {
 
   SQLDump sqlDump;
 
+  DataDictionary dataDictionary;
+
   public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter
       , FileWriter queryLogsWriter) {
     this.eventLogsWriter = eventLogsWriter;
@@ -50,6 +49,7 @@ public class QueryParser {
     alterSQL = new Alter(eventLogsWriter);
     erd = new ERD(eventLogsWriter);
     sqlDump = new SQLDump(eventLogsWriter);
+    dataDictionary = new DataDictionary(eventLogsWriter);
   }
 
   public void parse(String query, String username) throws Exception {
@@ -97,6 +97,14 @@ public class QueryParser {
         dbOperation = "CREATE DUMP";
       }
 
+      if (queryParts[1].equalsIgnoreCase("DD")) {
+        if (queryParts.length > 2) {
+          throw new Exception("Error: Wrong query for create data dictionary");
+        }
+        dbOperation = "CREATE DD";
+      }
+
+
     }
 
     // Logs related logic
@@ -134,6 +142,20 @@ public class QueryParser {
           System.out.println("Error! Schema is not selected");
         } else {
           isValidSyntax = sqlDump.generateDump(selectedSchema);
+          if (isValidSyntax) {
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+          }
+        }
+        break;
+      case "CREATE DD":
+//        selectedSchema = schema.getSchemaName();
+        // Hard coding schema name for testing
+        selectedSchema = "harsh";
+        if (selectedSchema == null) {
+          System.out.println("Error! Schema is not selected");
+        } else {
+          isValidSyntax = dataDictionary.generateDataDictionary(selectedSchema);
           if (isValidSyntax) {
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");

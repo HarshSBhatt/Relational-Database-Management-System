@@ -8,6 +8,8 @@ public interface AppConstants {
 
   String DUMP_ROOT_FOLDER_PATH = "dump";
 
+  String DATA_DICTIONARY_ROOT_FOLDER_PATH = "data_dictionary";
+
   String DELIMITER_TOKEN = "@##@";
 
   String GENERAL_LOG_FILENAME = "General Logs.dp15";
