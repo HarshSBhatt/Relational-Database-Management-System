@@ -73,6 +73,7 @@ public class Table {
             column.setAutoIncrement(true);
           } else {
             this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
+            this.eventLogsWriter.close();
             throw new Exception("Something went wrong near: " + columnKey);
           }
         }
@@ -113,7 +114,8 @@ public class Table {
           column.setPrimaryKey(true);
           break;
         default:
-          eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
+          this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Unknown column metadata encountered: " + columnKey);
       }
     }
@@ -217,7 +219,7 @@ public class Table {
             if (column.getColumnSize() == 0) {
               fileContent.append("column_size=").append(255);
             } else {
-              fileContent.append("column_size=").append(column.getColumnSize());
+              fileContent.append("column_size=").append(Math.min(column.getColumnSize(), 255));
             }
             if (column.isPrimaryKey()) {
               if (pk < 1) {
@@ -225,6 +227,7 @@ public class Table {
                 pk++;
               } else {
                 this.eventLogsWriter.append("Table can not have more than one primary key").append("\n");
+                this.eventLogsWriter.close();
                 throw new Exception("Table can not have more than one primary " +
                     "key");
               }
@@ -235,6 +238,7 @@ public class Table {
                 ai++;
               } else {
                 this.eventLogsWriter.append("Table can not have more than one AUTO_INCREMENT field").append("\n");
+                this.eventLogsWriter.close();
                 throw new Exception("Table can not have more than one " +
                     "AUTO_INCREMENT field");
               }
@@ -248,14 +252,17 @@ public class Table {
           metadataWriter.close();
         } else {
           this.eventLogsWriter.append("Error occurred while creating table").append("\n");
+          this.eventLogsWriter.close();
           throw new Exception("Error occurred while creating table");
         }
       } else {
         this.eventLogsWriter.append("Error: Wrong foreign key constraint").append("\n");
+        this.eventLogsWriter.close();
         throw new Exception("Error: Wrong foreign key constraint");
       }
     } else {
       this.eventLogsWriter.append("Table already exists").append("\n");
+      this.eventLogsWriter.close();
       throw new Exception("Table already exists");
     }
   }
@@ -345,6 +352,7 @@ public class Table {
       this.eventLogsWriter.append("Something went wrong! Table does not " +
           "exist").append("\n");
       System.out.println("Something went wrong! Table does not exist");
+      return false;
     }
     return true;
   }
@@ -378,6 +386,7 @@ public class Table {
       this.eventLogsWriter.append("Something went wrong! Table does not " +
           "exist").append("\n");
       System.out.println("Something went wrong! Table does not exist");
+      return false;
     }
     return true;
   }
@@ -417,6 +426,7 @@ public class Table {
       this.eventLogsWriter.append("Something went wrong! Table does not " +
           "exist").append("\n");
       System.out.println("Something went wrong! Table does not exist");
+      return false;
     }
     return true;
   }
