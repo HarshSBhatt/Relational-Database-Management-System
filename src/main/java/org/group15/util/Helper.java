@@ -1,7 +1,10 @@
 package org.group15.util;
 
+import org.group15.database.Column;
+
+import java.io.*;
 import java.util.HashSet;
-import java.util.Locale;
+import java.util.Map;
 
 public class Helper {
 
@@ -60,6 +63,85 @@ public class Helper {
       }
     }
     return true;
+  }
+
+  public static StringBuilder replaceFileContent(File tableFile,
+                                                 String valueToBeReplaced,
+                                                 boolean isMetadataFile) throws IOException {
+    StringBuilder newFileContent = new StringBuilder();
+
+    BufferedReader br =
+        new BufferedReader(new FileReader(tableFile));
+
+    String line;
+    while ((line = br.readLine()) != null) {
+      String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
+      if (isMetadataFile) {
+        if (!line.contains(valueToBeReplaced.toLowerCase())) {
+          newFileContent.append(line).append("\n");
+        }
+      } else {
+        int i = 0;
+        for (String info : columnInfo) {
+          String colName = info.split("=")[0];
+          if (!colName.equalsIgnoreCase(valueToBeReplaced)) {
+            if (i == columnInfo.length - 1) {
+              newFileContent.append(info);
+            } else {
+              newFileContent.append(info).append(AppConstants.DELIMITER_TOKEN);
+            }
+          }
+          i++;
+        }
+        newFileContent.append("\n");
+      }
+    }
+    return newFileContent;
+  }
+
+  public static StringBuilder changeColumnNameInFile(File tableFile,
+                                                     String oldColumnName,
+                                                     String newColumnName) throws IOException {
+    StringBuilder newFileContent = new StringBuilder();
+
+    BufferedReader br =
+        new BufferedReader(new FileReader(tableFile));
+
+    String line;
+    while ((line = br.readLine()) != null) {
+      String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
+      int i = 0;
+      for (String info : columnInfo) {
+        String colName = info.split("=")[0];
+        if (colName.equalsIgnoreCase(oldColumnName)) {
+          if (i == columnInfo.length - 1) {
+            newFileContent.append(info.replaceAll(colName, newColumnName));
+          } else {
+            newFileContent.append(info.replaceAll(colName, newColumnName)).append(AppConstants.DELIMITER_TOKEN);
+          }
+        } else {
+          if (i == columnInfo.length - 1) {
+            newFileContent.append(info);
+          } else {
+            newFileContent.append(info).append(AppConstants.DELIMITER_TOKEN);
+          }
+        }
+        i++;
+      }
+      newFileContent.append("\n");
+    }
+    return newFileContent;
+  }
+
+  public static boolean isColumnExist(Map<String, Column> columns,
+                                      String existingColumnName) {
+    for (String key : columns.keySet()) {
+      Column column = columns.get(key);
+      if (column.getColumnName().equalsIgnoreCase(existingColumnName)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

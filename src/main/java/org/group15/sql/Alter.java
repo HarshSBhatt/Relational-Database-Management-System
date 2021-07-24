@@ -82,7 +82,7 @@ public class Alter {
     }
 
     String existingColumnName;
-    String newColumn = null;
+    String newColumn;
     // For eg: varchar(100) -> varchar 100, if int -> int
     String[] dataTypeRelatedInfo;
     HashSet<String> validDataTypes = Helper.getDataTypes();
@@ -97,32 +97,21 @@ public class Alter {
         existingColumnName = queryParts[queryParts.length - 1];
 
         // Query: alter table users drop column last_name
-        Set<String> keys = columns.keySet();
-        boolean exist = false;
-        for (String key : columns.keySet()) {
-          Column column = columns.get(key);
-          if (column.getColumnName().equalsIgnoreCase(existingColumnName)) {
-            exist = true;
-            if (column.isPrimaryKey()) {
-              this.eventLogsWriter.append("Error: Primary key can not be " +
-                  "dropped").append("\n");
-              throw new Exception("Error: Primary key can not be dropped");
-            } else if (column.isForeignKey()) {
-              this.eventLogsWriter.append("Error: Foreign key can not be " +
-                  "dropped").append("\n");
-              throw new Exception("Error: Foreign key can not be dropped");
-            } else {
-              this.table.dropColumn(schemaName, tableName, existingColumnName);
-            }
-          }
-        }
-
+        boolean exist = isColExist(existingColumnName, columns);
         if (!exist) {
           this.eventLogsWriter.append("Error: Unknown column: ").append(existingColumnName).append("\n");
           throw new Exception("Error: Unknown column: " + existingColumnName);
         }
+
+        boolean isDropped = this.table.dropColumn(schemaName, tableName,
+            existingColumnName);
+        if (!isDropped) {
+          this.eventLogsWriter.append("Error: Something went wrong while " +
+              "dropping the column").append("\n");
+          throw new Exception("Error: Something went wrong while dropping the column");
+        }
       } else {
-        existingColumnName = queryParts[4];
+        newColumn = queryParts[4];
         dataTypeRelatedInfo = queryParts[queryParts.length - 1].replaceAll("[^a" +
             "-zA-Z,0-9_]", " ").split(" ");
 
@@ -134,6 +123,18 @@ public class Alter {
         }
 
         // Query: alter table users add income varchar(100)
+        boolean exist = Helper.isColumnExist(columns, newColumn);
+        if (exist) {
+          this.eventLogsWriter.append("Error: Column already exist: ").append(newColumn).append("\n");
+          throw new Exception("Error: Column already exist: " + newColumn);
+        }
+        boolean isAdded = this.table.addColumn(schemaName, tableName,
+            newColumn, dataTypeRelatedInfo);
+        if (!isAdded) {
+          this.eventLogsWriter.append("Error: Something went wrong while " +
+              "adding the column").append("\n");
+          throw new Exception("Error: Something went wrong while adding the column");
+        }
       }
     }
 
@@ -152,11 +153,41 @@ public class Alter {
       }
 
       // Query: alter table users change column last_name l_name varchar(100)
-      System.out.println("Change query");
-
+      boolean exist = isColExist(existingColumnName, columns);
+      if (!exist) {
+        this.eventLogsWriter.append("Error: Unknown column: ").append(existingColumnName).append("\n");
+        throw new Exception("Error: Unknown column: " + existingColumnName);
+      }
+      boolean isChanged = this.table.changeColumn(schemaName, tableName,
+          existingColumnName, newColumn, dataTypeRelatedInfo);
+      if (!isChanged) {
+        this.eventLogsWriter.append("Error: Something went wrong while " +
+            "changing the column").append("\n");
+        throw new Exception("Error: Something went wrong while changing the column");
+      }
     }
 
     return true;
+  }
+
+  public boolean isColExist(String existingColumnName, Map<String, Column> columns) throws Exception {
+    boolean exist = false;
+    for (String key : columns.keySet()) {
+      Column column = columns.get(key);
+      if (column.getColumnName().equalsIgnoreCase(existingColumnName)) {
+        exist = true;
+        if (column.isPrimaryKey()) {
+          this.eventLogsWriter.append("Error: Primary key can not be " +
+              "dropped").append("\n");
+          throw new Exception("Error: Primary key can not be dropped");
+        } else if (column.isForeignKey()) {
+          this.eventLogsWriter.append("Error: Foreign key can not be " +
+              "dropped").append("\n");
+          throw new Exception("Error: Foreign key can not be dropped");
+        }
+      }
+    }
+    return exist;
   }
 
 }
