@@ -337,36 +337,28 @@ public class Table {
 
   public boolean dropColumn(String schemaName, String tableName,
                             String columnNameToBeDropped) throws IOException {
-    StringBuilder newFileContent = new StringBuilder();
 
     String tablePath = Helper.getTablePath(schemaName, tableName);
+    String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
 
     File tableFile = new File(tablePath);
+    File tableMetadataFile = new File(tableMetadataPath);
 
     FileWriter tableDataWriter;
+    StringBuilder newFileContent;
 
     if (tableFile.exists()) {
-      BufferedReader br =
-          new BufferedReader(new FileReader(tableFile));
-      String line;
-      while ((line = br.readLine()) != null) {
-        String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
-        int i = 0;
-        for (String info : columnInfo) {
-          String colName = info.split("=")[0];
-          if (!colName.equalsIgnoreCase(columnNameToBeDropped)) {
-            if (i == columnInfo.length - 1) {
-              newFileContent.append(info);
-            } else {
-              newFileContent.append(info).append(AppConstants.DELIMITER_TOKEN);
-            }
-          }
-          i++;
-        }
-        newFileContent.append("\n");
-      }
-
+      // Dropping column from actual table
+      newFileContent = Helper.replaceFileContent(tableFile,
+          columnNameToBeDropped, false);
       tableDataWriter = new FileWriter(tableFile);
+      tableDataWriter.write(String.valueOf(newFileContent));
+      tableDataWriter.close();
+
+      // Dropping column from metadata table
+      newFileContent = Helper.replaceFileContent(tableMetadataFile,
+          columnNameToBeDropped, true);
+      tableDataWriter = new FileWriter(tableMetadataFile);
       tableDataWriter.write(String.valueOf(newFileContent));
       tableDataWriter.close();
     } else {
