@@ -316,8 +316,6 @@ public class Table {
             fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
           }
         }
-
-
       }
       fileContent.append("\n");
       tableDataWriter.append(fileContent).close();
@@ -341,19 +339,8 @@ public class Table {
 
     if (tableMetadataFile.exists()) {
       FileWriter tableDataWriter = new FileWriter(tableMetadataFile, true);
-      fileContent.append("column_name=").append(columnNameToBeAdded).append(AppConstants.DELIMITER_TOKEN);
-      fileContent.append("column_data_type=").append(dataTypeRelatedInfo[0]).append(AppConstants.DELIMITER_TOKEN);
-      if (dataTypeRelatedInfo.length == 2) {
-        if (Integer.parseInt(dataTypeRelatedInfo[1]) >= 255) {
-          fileContent.append("column_size=").append(255);
-        } else {
-          fileContent.append("column_size=").append(Integer.parseInt(dataTypeRelatedInfo[1]));
-        }
-      } else {
-        fileContent.append("column_size=").append(255);
-      }
-      tableDataWriter.append(fileContent).append("\n");
-      tableDataWriter.close();
+      // Adding new column info to file
+      appendColumnInfoToFile(columnNameToBeAdded, dataTypeRelatedInfo, fileContent, tableDataWriter);
     } else {
       this.eventLogsWriter.append("Something went wrong! Table does not " +
           "exist").append("\n");
@@ -396,8 +383,54 @@ public class Table {
   }
 
   public boolean changeColumn(String schemaName, String tableName,
-                              String oldColumnName, String newColumnName) {
+                              String oldColumnName, String newColumnName,
+                              String[] dataTypeRelatedInfo) throws IOException {
+    StringBuilder fileContent = new StringBuilder();
+    String tablePath = Helper.getTablePath(schemaName, tableName);
+    String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
+
+    File tableFile = new File(tablePath);
+    File tableMetadataFile = new File(tableMetadataPath);
+
+    FileWriter tableDataWriter;
+    StringBuilder newFileContent;
+
+    if (tableFile.exists()) {
+      // Dropping column from metadata table
+      newFileContent = Helper.replaceFileContent(tableMetadataFile,
+          oldColumnName, true);
+      tableDataWriter = new FileWriter(tableMetadataFile);
+      tableDataWriter.write(String.valueOf(newFileContent));
+      tableDataWriter.close();
+
+      tableDataWriter = new FileWriter(tableMetadataFile, true);
+      // Adding new column info to file
+      appendColumnInfoToFile(newColumnName, dataTypeRelatedInfo, fileContent, tableDataWriter);
+
+      // Updating column name
+      StringBuilder updatedValue = Helper.changeColumnNameInFile(tableFile,
+          oldColumnName, newColumnName);
+      tableDataWriter = new FileWriter(tableFile);
+      tableDataWriter.write(String.valueOf(updatedValue));
+      tableDataWriter.close();
+    } else {
+      this.eventLogsWriter.append("Something went wrong! Table does not " +
+          "exist").append("\n");
+      System.out.println("Something went wrong! Table does not exist");
+    }
     return true;
+  }
+
+  public void appendColumnInfoToFile(String newColumnName, String[] dataTypeRelatedInfo, StringBuilder fileContent, FileWriter tableDataWriter) throws IOException {
+    fileContent.append("column_name=").append(newColumnName).append(AppConstants.DELIMITER_TOKEN);
+    fileContent.append("column_data_type=").append(dataTypeRelatedInfo[0]).append(AppConstants.DELIMITER_TOKEN);
+    if (dataTypeRelatedInfo.length == 2) {
+      fileContent.append("column_size=").append(Math.min(Integer.parseInt(dataTypeRelatedInfo[1]), 255));
+    } else {
+      fileContent.append("column_size=").append(255);
+    }
+    tableDataWriter.append(fileContent).append("\n");
+    tableDataWriter.close();
   }
 
 }
