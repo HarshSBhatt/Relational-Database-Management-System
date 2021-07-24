@@ -75,9 +75,9 @@ public class Group15 {
 //    queryParser.parse(createTableQueryWithFK, username);
 //    queryParser.parse(insertUserQuery.trim(), username);
 //    queryParser.parse(createDump.trim(), username);
-    queryParser.parse(alterDropTableQuery.trim(), username);
-//    queryParser.parse(alterDropTableQuery, username);
-//    queryParser.parse(alterChangeTableQuery, username);
+    queryParser.parse(alterAddTableQuery.trim(), username);
+//    queryParser.parse(alterDropTableQuery.trim(), username);
+//    queryParser.parse(alterChangeTableQuery.trim(), username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();

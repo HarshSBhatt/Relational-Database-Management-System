@@ -111,15 +111,20 @@ public class Alter {
               this.eventLogsWriter.append("Error: Foreign key can not be " +
                   "dropped").append("\n");
               throw new Exception("Error: Foreign key can not be dropped");
-            } else {
-              this.table.dropColumn(schemaName, tableName, existingColumnName);
             }
           }
         }
-
         if (!exist) {
           this.eventLogsWriter.append("Error: Unknown column: ").append(existingColumnName).append("\n");
           throw new Exception("Error: Unknown column: " + existingColumnName);
+        } else {
+          boolean isDropped = this.table.dropColumn(schemaName, tableName,
+              existingColumnName);
+          if (!isDropped) {
+            this.eventLogsWriter.append("Error: Something went wrong while " +
+                "dropping the column").append("\n");
+            throw new Exception("Error: Something went wrong while dropping the column");
+          }
         }
       } else {
         existingColumnName = queryParts[4];

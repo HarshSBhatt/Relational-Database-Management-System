@@ -1,7 +1,10 @@
 package org.group15.util;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashSet;
-import java.util.Locale;
 
 public class Helper {
 
@@ -60,6 +63,40 @@ public class Helper {
       }
     }
     return true;
+  }
+
+  public static StringBuilder replaceFileContent(File tableFile,
+                                                 String valueToBeReplaced,
+                                                 boolean isMetadataFile) throws IOException {
+    StringBuilder newFileContent = new StringBuilder();
+
+    BufferedReader br =
+        new BufferedReader(new FileReader(tableFile));
+
+    String line;
+    while ((line = br.readLine()) != null) {
+      String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
+      if (isMetadataFile) {
+        if (!line.contains(valueToBeReplaced.toLowerCase())) {
+          newFileContent.append(line).append("\n");
+        }
+      } else {
+        int i = 0;
+        for (String info : columnInfo) {
+          String colName = info.split("=")[0];
+          if (!colName.equalsIgnoreCase(valueToBeReplaced)) {
+            if (i == columnInfo.length - 1) {
+              newFileContent.append(info);
+            } else {
+              newFileContent.append(info).append(AppConstants.DELIMITER_TOKEN);
+            }
+          }
+          i++;
+        }
+        newFileContent.append("\n");
+      }
+    }
+    return newFileContent;
   }
 
 }
