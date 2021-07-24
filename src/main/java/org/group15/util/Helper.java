@@ -21,6 +21,14 @@ public class Helper {
     return AppConstants.ROOT_FOLDER_PATH + "/" + schemaName;
   }
 
+  public static String getLockFolderPath(String schemaName) {
+    return AppConstants.ROOT_FOLDER_PATH + "/" + schemaName + "/lock";
+  }
+
+  public static String getLockFilePath(String schemaName, String tableName) {
+    return AppConstants.ROOT_FOLDER_PATH + "/" + schemaName + "/lock/" + tableName + ".dp15";
+  }
+
   public static HashSet<String> getDataTypes() {
 
     HashSet<String> values = new HashSet<>();
