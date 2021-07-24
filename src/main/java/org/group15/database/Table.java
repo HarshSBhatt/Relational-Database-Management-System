@@ -1,5 +1,6 @@
 package org.group15.database;
 
+import org.group15.io.CustomLock;
 import org.group15.io.TableIO;
 import org.group15.util.AppConstants;
 import org.group15.util.Helper;
@@ -10,6 +11,8 @@ import java.util.*;
 public class Table {
 
   private String tableName;
+
+  CustomLock customLock = new CustomLock();
 
   TableIO tableIO = new TableIO();
 
@@ -198,79 +201,87 @@ public class Table {
 
   public void create(Map<String, Column> tableColumns, String schemaName,
                      String tableName) throws Exception {
-    if (!tableIO.isMetadataTableExist(schemaName, tableName)) {
-      if (hasValidForeignKey(tableColumns, schemaName)) {
-        StringBuilder fileContent = new StringBuilder();
-        String metaDataPath = Helper.getTableMetadataPath(schemaName,
-            tableName);
-        String tablePath = Helper.getTablePath(schemaName, tableName);
+    if (customLock.isLocked(schemaName, tableName)) {
+      System.out.println("Table: " + tableName + " is locked");
+      this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+          "locked").append("\n");
+    } else {
+      customLock.lock(schemaName, tableName);
+      if (!tableIO.isMetadataTableExist(schemaName, tableName)) {
+        if (hasValidForeignKey(tableColumns, schemaName)) {
+          StringBuilder fileContent = new StringBuilder();
+          String metaDataPath = Helper.getTableMetadataPath(schemaName,
+              tableName);
+          String tablePath = Helper.getTablePath(schemaName, tableName);
 
-        File metadataFile = new File(metaDataPath);
-        File tableFile = new File(tablePath);
+          File metadataFile = new File(metaDataPath);
+          File tableFile = new File(tablePath);
 
-        if (metadataFile.createNewFile() && tableFile.createNewFile()) {
-          int pk = 0;
-          int ai = 0;
-          FileWriter metadataWriter = new FileWriter(metadataFile, true);
-          for (String key : tableColumns.keySet()) {
-            Column column = tableColumns.get(key);
-            fileContent.append("column_name=").append(column.getColumnName()).append(AppConstants.DELIMITER_TOKEN);
-            fileContent.append("column_data_type=").append(column.getColumnDataType()).append(AppConstants.DELIMITER_TOKEN);
-            if (column.getColumnSize() == 0) {
-              fileContent.append("column_size=").append(255);
-            } else {
-              fileContent.append("column_size=").append(Math.min(column.getColumnSize(), 255));
-            }
-            if (column.isPrimaryKey()) {
-              if (pk < 1) {
-                fileContent.append(AppConstants.DELIMITER_TOKEN).append("PK");
-                pk++;
+          if (metadataFile.createNewFile() && tableFile.createNewFile()) {
+            int pk = 0;
+            int ai = 0;
+            FileWriter metadataWriter = new FileWriter(metadataFile, true);
+            for (String key : tableColumns.keySet()) {
+              Column column = tableColumns.get(key);
+              fileContent.append("column_name=").append(column.getColumnName()).append(AppConstants.DELIMITER_TOKEN);
+              fileContent.append("column_data_type=").append(column.getColumnDataType()).append(AppConstants.DELIMITER_TOKEN);
+              if (column.getColumnSize() == 0) {
+                fileContent.append("column_size=").append(255);
               } else {
-                this.eventLogsWriter.append("Table can not have more than one primary key").append("\n");
-                this.eventLogsWriter.close();
-                throw new Exception("Table can not have more than one primary " +
-                    "key");
+                fileContent.append("column_size=").append(Math.min(column.getColumnSize(), 255));
               }
-            }
-            if (column.isAutoIncrement()) {
-              if (ai < 1) {
-                fileContent.append(AppConstants.DELIMITER_TOKEN).append("AI");
-                ai++;
-              } else {
-                this.eventLogsWriter.append("Table can not have more than one AUTO_INCREMENT field").append("\n");
-                this.eventLogsWriter.close();
-                throw new Exception("Table can not have more than one " +
-                    "AUTO_INCREMENT field");
+              if (column.isPrimaryKey()) {
+                if (pk < 1) {
+                  fileContent.append(AppConstants.DELIMITER_TOKEN).append("PK");
+                  pk++;
+                } else {
+                  this.eventLogsWriter.append("Table can not have more than one primary key").append("\n");
+                  this.eventLogsWriter.close();
+                  throw new Exception("Table can not have more than one primary " +
+                      "key");
+                }
               }
+              if (column.isAutoIncrement()) {
+                if (ai < 1) {
+                  fileContent.append(AppConstants.DELIMITER_TOKEN).append("AI");
+                  ai++;
+                } else {
+                  this.eventLogsWriter.append("Table can not have more than one AUTO_INCREMENT field").append("\n");
+                  this.eventLogsWriter.close();
+                  throw new Exception("Table can not have more than one " +
+                      "AUTO_INCREMENT field");
+                }
+              }
+              if (column.isForeignKey()) {
+                fileContent.append(AppConstants.DELIMITER_TOKEN).append("FK=").append(column.getForeignKeyTable()).append(".").append(column.getForeignKeyColumn());
+              }
+              fileContent.append("\n");
             }
-            if (column.isForeignKey()) {
-              fileContent.append(AppConstants.DELIMITER_TOKEN).append("FK=").append(column.getForeignKeyTable()).append(".").append(column.getForeignKeyColumn());
-            }
-            fileContent.append("\n");
+            metadataWriter.append(fileContent);
+            metadataWriter.close();
+          } else {
+            this.eventLogsWriter.append("Error occurred while creating table").append("\n");
+            this.eventLogsWriter.close();
+            throw new Exception("Error occurred while creating table");
           }
-          metadataWriter.append(fileContent);
-          metadataWriter.close();
         } else {
-          this.eventLogsWriter.append("Error occurred while creating table").append("\n");
+          this.eventLogsWriter.append("Error: Wrong foreign key constraint").append("\n");
           this.eventLogsWriter.close();
-          throw new Exception("Error occurred while creating table");
+          throw new Exception("Error: Wrong foreign key constraint");
         }
       } else {
-        this.eventLogsWriter.append("Error: Wrong foreign key constraint").append("\n");
+        this.eventLogsWriter.append("Table already exists").append("\n");
         this.eventLogsWriter.close();
-        throw new Exception("Error: Wrong foreign key constraint");
+        throw new Exception("Table already exists");
       }
-    } else {
-      this.eventLogsWriter.append("Table already exists").append("\n");
-      this.eventLogsWriter.close();
-      throw new Exception("Table already exists");
+      customLock.unlock(schemaName, tableName);
     }
   }
 
   public boolean insert(String schemaName, String tableName, String[]
       columnArray,
                         Map<String, Column> columnsDetails,
-                        Column primaryKeyColumn, Column foreignKeyColumn) throws IOException {
+                        Column primaryKeyColumn, Column foreignKeyColumn) throws IOException, InterruptedException {
 
     StringBuilder fileContent = new StringBuilder();
 
@@ -278,157 +289,194 @@ public class Table {
 
     File tableFile = new File(tablePath);
 
-    if (tableFile.exists()) {
-      FileWriter tableDataWriter = new FileWriter(tableFile, true);
-      for (int i = 0; i < columnArray.length; i++) {
-        Column metadata = columnsDetails.get(columnArray[i]);
-        Object columnValue = metadata.getColumnValue();
-        ArrayList<Object> listOfAvailableValuesInTable;
+    if (customLock.isLocked(schemaName, tableName)) {
+      System.out.println("Table: " + tableName + " is locked");
+      this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+          "locked").append("\n");
+      return false;
+    } else {
+      customLock.lock(schemaName, tableName);
+      if (tableFile.exists()) {
+        FileWriter tableDataWriter = new FileWriter(tableFile, true);
+        for (int i = 0; i < columnArray.length; i++) {
+          Column metadata = columnsDetails.get(columnArray[i]);
+          Object columnValue = metadata.getColumnValue();
+          ArrayList<Object> listOfAvailableValuesInTable;
 
-        if (primaryKeyColumn != null && columnArray[i].equalsIgnoreCase(primaryKeyColumn.getColumnName())) {
-          listOfAvailableValuesInTable = getValuesOfParticularColumn(schemaName, tableName,
-              primaryKeyColumn);
+          if (primaryKeyColumn != null && columnArray[i].equalsIgnoreCase(primaryKeyColumn.getColumnName())) {
+            listOfAvailableValuesInTable = getValuesOfParticularColumn(schemaName, tableName,
+                primaryKeyColumn);
 
-          // If value is already present, then we will not insert
-          if (listOfAvailableValuesInTable.contains(columnValue)) {
-            this.eventLogsWriter.append("Insert fail: Primary key constraint violated").append("\n");
-            System.out.println("Insert fail: Primary key constraint violated");
-            return false;
-          }
-          if (i == columnArray.length - 1) {
-            fileContent.append(columnArray[i]).append("=").append(columnValue);
-          } else {
-            fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
-          }
-        } else if (foreignKeyColumn != null && columnArray[i].equalsIgnoreCase(foreignKeyColumn.getColumnName())) {
-          listOfAvailableValuesInTable = getValuesOfParticularColumn(schemaName,
-              foreignKeyColumn.getForeignKeyTable(),
-              foreignKeyColumn);
+            // If value is already present, then we will not insert
+            if (listOfAvailableValuesInTable.contains(columnValue)) {
+              this.eventLogsWriter.append("Insert fail: Primary key constraint violated").append("\n");
+              System.out.println("Insert fail: Primary key constraint violated");
+              return false;
+            }
+            if (i == columnArray.length - 1) {
+              fileContent.append(columnArray[i]).append("=").append(columnValue);
+            } else {
+              fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
+            }
+          } else if (foreignKeyColumn != null && columnArray[i].equalsIgnoreCase(foreignKeyColumn.getColumnName())) {
+            listOfAvailableValuesInTable = getValuesOfParticularColumn(schemaName,
+                foreignKeyColumn.getForeignKeyTable(),
+                foreignKeyColumn);
 
-          // If value is not present, then we will not insert, because it can not be referenced
-          if (!listOfAvailableValuesInTable.contains(columnValue)) {
-            this.eventLogsWriter.append("Insert fail: Foreign key constraint violated").append("\n");
-            System.out.println("Insert fail: Foreign key constraint violated");
-            return false;
-          }
-          if (i == columnArray.length - 1) {
-            fileContent.append(columnArray[i]).append("=").append(columnValue);
+            // If value is not present, then we will not insert, because it can not be referenced
+            if (!listOfAvailableValuesInTable.contains(columnValue)) {
+              this.eventLogsWriter.append("Insert fail: Foreign key constraint violated").append("\n");
+              System.out.println("Insert fail: Foreign key constraint violated");
+              return false;
+            }
+            if (i == columnArray.length - 1) {
+              fileContent.append(columnArray[i]).append("=").append(columnValue);
+            } else {
+              fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
+            }
           } else {
-            fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
-          }
-        } else {
-          if (i == columnArray.length - 1) {
-            fileContent.append(columnArray[i]).append("=").append(columnValue);
-          } else {
-            fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
+            if (i == columnArray.length - 1) {
+              fileContent.append(columnArray[i]).append("=").append(columnValue);
+            } else {
+              fileContent.append(columnArray[i]).append("=").append(columnValue).append(AppConstants.DELIMITER_TOKEN);
+            }
           }
         }
+        fileContent.append("\n");
+        tableDataWriter.append(fileContent).close();
+      } else {
+        this.eventLogsWriter.append("Something went wrong! Table does not " +
+            "exist").append("\n");
+        System.out.println("Something went wrong! Table does not exist");
+        return false;
       }
-      fileContent.append("\n");
-      tableDataWriter.append(fileContent).close();
-    } else {
-      this.eventLogsWriter.append("Something went wrong! Table does not " +
-          "exist").append("\n");
-      System.out.println("Something went wrong! Table does not exist");
-      return false;
+      System.out.println("Inserted row successfully");
+      customLock.unlock(schemaName, tableName);
+      return true;
     }
-    System.out.println("Inserted row successfully");
-    return true;
   }
 
   public boolean addColumn(String schemaName, String tableName,
-                           String columnNameToBeAdded, String[] dataTypeRelatedInfo) throws IOException {
-    StringBuilder fileContent = new StringBuilder();
-
-    String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
-
-    File tableMetadataFile = new File(tableMetadataPath);
-
-    if (tableMetadataFile.exists()) {
-      FileWriter tableDataWriter = new FileWriter(tableMetadataFile, true);
-      // Adding new column info to file
-      appendColumnInfoToFile(columnNameToBeAdded, dataTypeRelatedInfo, fileContent, tableDataWriter);
-    } else {
-      this.eventLogsWriter.append("Something went wrong! Table does not " +
-          "exist").append("\n");
-      System.out.println("Something went wrong! Table does not exist");
+                           String columnNameToBeAdded, String[] dataTypeRelatedInfo) throws IOException, InterruptedException {
+    if (customLock.isLocked(schemaName, tableName)) {
+      System.out.println("Table: " + tableName + " is locked");
+      this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+          "locked").append("\n");
       return false;
+    } else {
+      customLock.lock(schemaName, tableName);
+      StringBuilder fileContent = new StringBuilder();
+
+      String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
+
+      File tableMetadataFile = new File(tableMetadataPath);
+
+      if (tableMetadataFile.exists()) {
+        FileWriter tableDataWriter = new FileWriter(tableMetadataFile, true);
+        // Adding new column info to file
+        appendColumnInfoToFile(columnNameToBeAdded, dataTypeRelatedInfo, fileContent, tableDataWriter);
+      } else {
+        this.eventLogsWriter.append("Something went wrong! Table does not " +
+            "exist").append("\n");
+        System.out.println("Something went wrong! Table does not exist");
+        return false;
+      }
+      customLock.unlock(schemaName, tableName);
+      return true;
     }
-    return true;
   }
 
   public boolean dropColumn(String schemaName, String tableName,
-                            String columnNameToBeDropped) throws IOException {
-    String tablePath = Helper.getTablePath(schemaName, tableName);
-    String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
+                            String columnNameToBeDropped) throws IOException, InterruptedException {
 
-    File tableFile = new File(tablePath);
-    File tableMetadataFile = new File(tableMetadataPath);
-
-    FileWriter tableDataWriter;
-    StringBuilder newFileContent;
-
-    if (tableFile.exists()) {
-      // Dropping column from actual table
-      newFileContent = Helper.replaceFileContent(tableFile,
-          columnNameToBeDropped, false);
-      tableDataWriter = new FileWriter(tableFile);
-      tableDataWriter.write(String.valueOf(newFileContent));
-      tableDataWriter.close();
-
-      // Dropping column from metadata table
-      newFileContent = Helper.replaceFileContent(tableMetadataFile,
-          columnNameToBeDropped, true);
-      tableDataWriter = new FileWriter(tableMetadataFile);
-      tableDataWriter.write(String.valueOf(newFileContent));
-      tableDataWriter.close();
-    } else {
-      this.eventLogsWriter.append("Something went wrong! Table does not " +
-          "exist").append("\n");
-      System.out.println("Something went wrong! Table does not exist");
+    if (customLock.isLocked(schemaName, tableName)) {
+      System.out.println("Table: " + tableName + " is locked");
+      this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+          "locked").append("\n");
       return false;
+    } else {
+      customLock.lock(schemaName, tableName);
+      String tablePath = Helper.getTablePath(schemaName, tableName);
+      String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
+
+      File tableFile = new File(tablePath);
+      File tableMetadataFile = new File(tableMetadataPath);
+
+      FileWriter tableDataWriter;
+      StringBuilder newFileContent;
+
+      if (tableFile.exists()) {
+        // Dropping column from actual table
+        newFileContent = Helper.replaceFileContent(tableFile,
+            columnNameToBeDropped, false);
+        tableDataWriter = new FileWriter(tableFile);
+        tableDataWriter.write(String.valueOf(newFileContent));
+        tableDataWriter.close();
+
+        // Dropping column from metadata table
+        newFileContent = Helper.replaceFileContent(tableMetadataFile,
+            columnNameToBeDropped, true);
+        tableDataWriter = new FileWriter(tableMetadataFile);
+        tableDataWriter.write(String.valueOf(newFileContent));
+        tableDataWriter.close();
+      } else {
+        this.eventLogsWriter.append("Something went wrong! Table does not " +
+            "exist").append("\n");
+        System.out.println("Something went wrong! Table does not exist");
+        return false;
+      }
+      customLock.unlock(schemaName, tableName);
+      return true;
     }
-    return true;
   }
 
   public boolean changeColumn(String schemaName, String tableName,
                               String oldColumnName, String newColumnName,
-                              String[] dataTypeRelatedInfo) throws IOException {
-    StringBuilder fileContent = new StringBuilder();
-    String tablePath = Helper.getTablePath(schemaName, tableName);
-    String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
-
-    File tableFile = new File(tablePath);
-    File tableMetadataFile = new File(tableMetadataPath);
-
-    FileWriter tableDataWriter;
-    StringBuilder newFileContent;
-
-    if (tableFile.exists()) {
-      // Dropping column from metadata table
-      newFileContent = Helper.replaceFileContent(tableMetadataFile,
-          oldColumnName, true);
-      tableDataWriter = new FileWriter(tableMetadataFile);
-      tableDataWriter.write(String.valueOf(newFileContent));
-      tableDataWriter.close();
-
-      tableDataWriter = new FileWriter(tableMetadataFile, true);
-      // Adding new column info to file
-      appendColumnInfoToFile(newColumnName, dataTypeRelatedInfo, fileContent, tableDataWriter);
-
-      // Updating column name
-      StringBuilder updatedValue = Helper.changeColumnNameInFile(tableFile,
-          oldColumnName, newColumnName);
-      tableDataWriter = new FileWriter(tableFile);
-      tableDataWriter.write(String.valueOf(updatedValue));
-      tableDataWriter.close();
-    } else {
-      this.eventLogsWriter.append("Something went wrong! Table does not " +
-          "exist").append("\n");
-      System.out.println("Something went wrong! Table does not exist");
+                              String[] dataTypeRelatedInfo) throws IOException, InterruptedException {
+    if (customLock.isLocked(schemaName, tableName)) {
+      System.out.println("Table: " + tableName + " is locked");
+      this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+          "locked").append("\n");
       return false;
+    } else {
+      customLock.lock(schemaName, tableName);
+      StringBuilder fileContent = new StringBuilder();
+      String tablePath = Helper.getTablePath(schemaName, tableName);
+      String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
+
+      File tableFile = new File(tablePath);
+      File tableMetadataFile = new File(tableMetadataPath);
+
+      FileWriter tableDataWriter;
+      StringBuilder newFileContent;
+
+      if (tableFile.exists()) {
+        // Dropping column from metadata table
+        newFileContent = Helper.replaceFileContent(tableMetadataFile,
+            oldColumnName, true);
+        tableDataWriter = new FileWriter(tableMetadataFile);
+        tableDataWriter.write(String.valueOf(newFileContent));
+        tableDataWriter.close();
+
+        tableDataWriter = new FileWriter(tableMetadataFile, true);
+        // Adding new column info to file
+        appendColumnInfoToFile(newColumnName, dataTypeRelatedInfo, fileContent, tableDataWriter);
+
+        // Updating column name
+        StringBuilder updatedValue = Helper.changeColumnNameInFile(tableFile,
+            oldColumnName, newColumnName);
+        tableDataWriter = new FileWriter(tableFile);
+        tableDataWriter.write(String.valueOf(updatedValue));
+        tableDataWriter.close();
+      } else {
+        this.eventLogsWriter.append("Something went wrong! Table does not " +
+            "exist").append("\n");
+        System.out.println("Something went wrong! Table does not exist");
+        return false;
+      }
+      customLock.unlock(schemaName, tableName);
+      return true;
     }
-    return true;
   }
 
   public void appendColumnInfoToFile(String newColumnName, String[] dataTypeRelatedInfo, StringBuilder fileContent, FileWriter tableDataWriter) throws IOException {
