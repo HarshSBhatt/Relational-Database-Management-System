@@ -331,13 +331,39 @@ public class Table {
     return true;
   }
 
-  public boolean addColumn() {
+  public boolean addColumn(String schemaName, String tableName,
+                           String columnNameToBeAdded, String[] dataTypeRelatedInfo) throws IOException {
+    StringBuilder fileContent = new StringBuilder();
+
+    String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
+
+    File tableMetadataFile = new File(tableMetadataPath);
+
+    if (tableMetadataFile.exists()) {
+      FileWriter tableDataWriter = new FileWriter(tableMetadataFile, true);
+      fileContent.append("column_name=").append(columnNameToBeAdded).append(AppConstants.DELIMITER_TOKEN);
+      fileContent.append("column_data_type=").append(dataTypeRelatedInfo[0]).append(AppConstants.DELIMITER_TOKEN);
+      if (dataTypeRelatedInfo.length == 2) {
+        if (Integer.parseInt(dataTypeRelatedInfo[1]) >= 255) {
+          fileContent.append("column_size=").append(255);
+        } else {
+          fileContent.append("column_size=").append(Integer.parseInt(dataTypeRelatedInfo[1]));
+        }
+      } else {
+        fileContent.append("column_size=").append(255);
+      }
+      tableDataWriter.append(fileContent).append("\n");
+      tableDataWriter.close();
+    } else {
+      this.eventLogsWriter.append("Something went wrong! Table does not " +
+          "exist").append("\n");
+      System.out.println("Something went wrong! Table does not exist");
+    }
     return true;
   }
 
   public boolean dropColumn(String schemaName, String tableName,
                             String columnNameToBeDropped) throws IOException {
-
     String tablePath = Helper.getTablePath(schemaName, tableName);
     String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
 

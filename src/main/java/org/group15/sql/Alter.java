@@ -82,7 +82,7 @@ public class Alter {
     }
 
     String existingColumnName;
-    String newColumn = null;
+    String newColumn;
     // For eg: varchar(100) -> varchar 100, if int -> int
     String[] dataTypeRelatedInfo;
     HashSet<String> validDataTypes = Helper.getDataTypes();
@@ -117,17 +117,16 @@ public class Alter {
         if (!exist) {
           this.eventLogsWriter.append("Error: Unknown column: ").append(existingColumnName).append("\n");
           throw new Exception("Error: Unknown column: " + existingColumnName);
-        } else {
-          boolean isDropped = this.table.dropColumn(schemaName, tableName,
-              existingColumnName);
-          if (!isDropped) {
-            this.eventLogsWriter.append("Error: Something went wrong while " +
-                "dropping the column").append("\n");
-            throw new Exception("Error: Something went wrong while dropping the column");
-          }
+        }
+        boolean isDropped = this.table.dropColumn(schemaName, tableName,
+            existingColumnName);
+        if (!isDropped) {
+          this.eventLogsWriter.append("Error: Something went wrong while " +
+              "dropping the column").append("\n");
+          throw new Exception("Error: Something went wrong while dropping the column");
         }
       } else {
-        existingColumnName = queryParts[4];
+        newColumn = queryParts[4];
         dataTypeRelatedInfo = queryParts[queryParts.length - 1].replaceAll("[^a" +
             "-zA-Z,0-9_]", " ").split(" ");
 
@@ -139,6 +138,18 @@ public class Alter {
         }
 
         // Query: alter table users add income varchar(100)
+        boolean exist = Helper.isColumnExist(columns, newColumn);
+        if (exist) {
+          this.eventLogsWriter.append("Error: Column already exist: ").append(newColumn).append("\n");
+          throw new Exception("Error: Column already exist: " + newColumn);
+        }
+        boolean isAdded = this.table.addColumn(schemaName, tableName,
+            newColumn, dataTypeRelatedInfo);
+        if (!isAdded) {
+          this.eventLogsWriter.append("Error: Something went wrong while " +
+              "adding the column").append("\n");
+          throw new Exception("Error: Something went wrong while adding the column");
+        }
       }
     }
 
