@@ -79,6 +79,8 @@ public class Group15 {
 
     String dropQuery = "drop table roles";
 
+    String deleteQuery = "delete from users where first_name=Harsh_Test";
+
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
 //    queryParser.parse(createTableQueryWithFK, username);
@@ -89,7 +91,8 @@ public class Group15 {
 //    queryParser.parse(alterChangeTableQuery.trim(), username);
 //    queryParser.parse(createDataDictionary.trim(), username);
 //    queryParser.parse(selectQuery.trim(), username);
-    queryParser.parse(dropQuery.trim(), username);
+//    queryParser.parse(dropQuery.trim(), username);
+    queryParser.parse(deleteQuery.trim(), username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();
