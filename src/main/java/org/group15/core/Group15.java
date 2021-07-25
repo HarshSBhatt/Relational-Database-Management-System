@@ -41,83 +41,23 @@ public class Group15 {
 
     boolean valid = true;
 
-    /**
-     * Delete this when testing using user input
-     */
-    String roleDummyQuery = "create table roles (role_id int, role_name " +
-        "varchar(255), PRIMARY KEY (role_id))";
-
-    String createTableQueryWithoutFK = "create table Users (user_id int, " +
-        "last_name " +
-        "varchar(255), first_name varchar(255), address varchar(255), country" +
-        " varchar(255), PRIMARY KEY (user_id))";
-
-    String createTableQueryWithFK = "create table Users (user_id int, last_name varchar(255)," +
-        " first_name varchar(255), address varchar(255), country varchar(255)," +
-        " role_id int, PRIMARY KEY (user_id), FOREIGN KEY role_id" +
-        " REFERENCES roles (role_id))";
-
-    String insertQuery = "insert into roles (role_id,role_name) " +
-        "values (2,'User')";
-
-    String insertUserQuery = "insert into users (user_id,last_name," +
-        "first_name,address,country,role_id) " +
-        "values (15,'Bhatt','Harsh','Gujarat','India',1)";
-
-    String createErd = "create erd";
-
-    String createDump = "create dump";
-
-    String alterAddTableQuery = "alter table users add income varchar(100)";
-    String alterDropTableQuery = "alter table users drop column last_name";
-    String alterChangeTableQuery = "alter table users change column last_name" +
-        " l_name varchar(100)";
-    String createDataDictionary = "create dd";
-
-    String selectQuery = "select first_name,last_name,user_id from users " +
-        "where last_name='Bhatt' or user_id=1";
-
-    String dropQuery = "drop table roles";
-
-    String deleteQuery = "delete from users where first_name=Harsh_Test";
-
-//    queryParser.parse(roleDummyQuery, username);
-//    queryParser.parse(createTableQueryWithoutFK, username);
-//    queryParser.parse(createTableQueryWithFK, username);
-//    queryParser.parse(insertUserQuery.trim(), username);
-//    queryParser.parse(createDump.trim(), username);
-//    queryParser.parse(alterAddTableQuery.trim(), username);
-//    queryParser.parse(alterDropTableQuery.trim(), username);
-//    queryParser.parse(alterChangeTableQuery.trim(), username);
-//    queryParser.parse(createDataDictionary.trim(), username);
-//    queryParser.parse(selectQuery.trim(), username);
-//    queryParser.parse(dropQuery.trim(), username);
-//    queryParser.parse(deleteQuery.trim(), username);
-
-    eventLogsWriter.close();
-    generalLogsWriter.close();
-    queryLogsWriter.close();
-
-
-    /**
-     * Uncomment this when testing using user input
-     */
-    //    while (valid) {
-    //      try {
-    //        String input = br.readLine();
-    //        if (input.equalsIgnoreCase("exit")) {
-    //          valid = false;
-    //          eventLogsWriter.close();
-    //          generalLogsWriter.close();
-    //          queryLogsWriter.close();
-    //        } else {
-    //          queryParser.parse(input.trim(), username);
-    //        }
-    //      } catch (Exception e) {
-    //        System.out.println("Invalid Input!");
-    //        System.out.println(e.getMessage());
-    //      }
-    //    }
+    while (valid) {
+      try {
+        System.out.print("Enter Query: ");
+        String input = br.readLine();
+        if (input.equalsIgnoreCase("exit")) {
+          valid = false;
+          eventLogsWriter.close();
+          generalLogsWriter.close();
+          queryLogsWriter.close();
+        } else {
+          queryParser.parse(input.trim(), username);
+        }
+      } catch (Exception e) {
+        System.out.println("Invalid Input!");
+        System.out.println(e.getMessage());
+      }
+    }
   }
 
 }

@@ -29,7 +29,7 @@ public class CustomLock {
     File lockFile = new File(lockFilePath);
 
     if (lockFile.exists()) {
-      Thread.sleep(5000);
+      Thread.sleep(2000);
       lockFile.delete();
     }
   }
