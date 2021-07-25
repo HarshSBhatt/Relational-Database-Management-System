@@ -77,6 +77,8 @@ public class Group15 {
     String selectQuery = "select first_name,last_name,user_id from users " +
         "where last_name='Bhatt' or user_id=1";
 
+    String dropQuery = "drop table roles";
+
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
 //    queryParser.parse(createTableQueryWithFK, username);
@@ -86,7 +88,8 @@ public class Group15 {
 //    queryParser.parse(alterDropTableQuery.trim(), username);
 //    queryParser.parse(alterChangeTableQuery.trim(), username);
 //    queryParser.parse(createDataDictionary.trim(), username);
-    queryParser.parse(selectQuery.trim(), username);
+//    queryParser.parse(selectQuery.trim(), username);
+    queryParser.parse(dropQuery.trim(), username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();

@@ -1,6 +1,7 @@
 package org.group15.sql;
 
 import org.group15.database.Table;
+import org.group15.io.CustomLock;
 import org.group15.io.SchemaIO;
 import org.group15.io.TableIO;
 
@@ -19,11 +20,14 @@ public class Select {
 
   Table table;
 
+  CustomLock customLock;
+
   public Select(FileWriter eventLogsWriter) {
     this.schemaIO = new SchemaIO();
     this.tableIO = new TableIO();
     this.eventLogsWriter = eventLogsWriter;
     table = new Table(eventLogsWriter);
+    customLock = new CustomLock();
   }
 
   public boolean parseUseSchemaStatement(int size, String[] queryParts) throws IOException {
@@ -62,15 +66,32 @@ public class Select {
         String columns = conditionalMatcher.group(1).trim();
         String tableName = conditionalMatcher.group(2).trim();
         String conditions = conditionalMatcher.group(3).trim();
-
-        table.fetchTableInfo(columns, schemaName, tableName, conditions);
+        if (customLock.isLocked(schemaName, tableName)) {
+          System.out.println("Table: " + tableName + " is locked");
+          this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+              "locked").append("\n");
+          return false;
+        } else {
+          customLock.lock(schemaName, tableName);
+          table.fetchTableInfo(columns, schemaName, tableName, conditions);
+          customLock.lock(schemaName, tableName);
+        }
       }
     } else {
       if (nonConditionalMatcher.find()) {
         String columns = nonConditionalMatcher.group(1).trim();
         String tableName = nonConditionalMatcher.group(2).trim();
 
-        table.fetchTableInfo(columns, schemaName, tableName);
+        if (customLock.isLocked(schemaName, tableName)) {
+          System.out.println("Table: " + tableName + " is locked");
+          this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+              "locked").append("\n");
+          return false;
+        } else {
+          customLock.lock(schemaName, tableName);
+          table.fetchTableInfo(columns, schemaName, tableName);
+          customLock.lock(schemaName, tableName);
+        }
       }
     }
 

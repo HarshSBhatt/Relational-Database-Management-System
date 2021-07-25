@@ -30,6 +30,8 @@ public class QueryParser {
 
   Alter alterSQL;
 
+  Drop dropSQL;
+
   ERD erd;
 
   SQLDump sqlDump;
@@ -47,6 +49,7 @@ public class QueryParser {
     selectSQL = new Select(eventLogsWriter);
     showSQL = new Show(eventLogsWriter);
     alterSQL = new Alter(eventLogsWriter);
+    dropSQL = new Drop(eventLogsWriter);
     erd = new ERD(eventLogsWriter);
     sqlDump = new SQLDump(eventLogsWriter);
     dataDictionary = new DataDictionary(eventLogsWriter);
@@ -259,6 +262,24 @@ public class QueryParser {
               selectSQL.parseSelectStatement(query,
                   selectedSchema);
           if (isValidSyntax) {
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+          }
+        }
+        break;
+      case "DROP":
+//        selectedSchema = schema.getSchemaName();
+        // Hard coding schema name for testing
+        selectedSchema = "harsh";
+        if (selectedSchema == null) {
+          System.out.println("Error! Schema is not selected");
+        } else {
+          isValidSyntax =
+              dropSQL.parseDropTableStatement(query,
+                  selectedSchema);
+          if (isValidSyntax) {
+            System.out.println("Table: " + queryParts[2] + " dropped " +
+                "successfully from the schema: " + selectedSchema);
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");
           }
