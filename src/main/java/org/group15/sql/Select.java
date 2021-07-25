@@ -74,7 +74,7 @@ public class Select {
         } else {
           customLock.lock(schemaName, tableName);
           table.fetchTableInfo(columns, schemaName, tableName, conditions);
-          customLock.lock(schemaName, tableName);
+          customLock.unlock(schemaName, tableName);
         }
       }
     } else {
@@ -90,7 +90,7 @@ public class Select {
         } else {
           customLock.lock(schemaName, tableName);
           table.fetchTableInfo(columns, schemaName, tableName);
-          customLock.lock(schemaName, tableName);
+          customLock.unlock(schemaName, tableName);
         }
       }
     }
