@@ -129,9 +129,7 @@ public class QueryParser {
        * SCHEMA related operations
        */
       case "CREATE ERD":
-//        selectedSchema = schema.getSchemaName();
-        // Hard coding schema name for testing
-        selectedSchema = "harsh";
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -144,9 +142,7 @@ public class QueryParser {
         }
         break;
       case "CREATE DUMP":
-//        selectedSchema = schema.getSchemaName();
-        // Hard coding schema name for testing
-        selectedSchema = "harsh";
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -158,17 +154,10 @@ public class QueryParser {
         }
         break;
       case "CREATE DD":
-//        selectedSchema = schema.getSchemaName();
-        // Hard coding schema name for testing
-        selectedSchema = "harsh";
-        if (selectedSchema == null) {
-          System.out.println("Error! Schema is not selected");
-        } else {
-          isValidSyntax = dataDictionary.generateDataDictionary();
-          if (isValidSyntax) {
-            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
-                ": ").append(query).append("]\n");
-          }
+        isValidSyntax = dataDictionary.generateDataDictionary();
+        if (isValidSyntax) {
+          eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+              ": ").append(query).append("]\n");
         }
         break;
       case "CREATE SCHEMA":
@@ -202,9 +191,7 @@ public class QueryParser {
        * TABLE related operations
        */
       case "CREATE TABLE":
-//        selectedSchema = schema.getSchemaName();
-        // Hard coding schema name for testing
-        selectedSchema = "harsh";
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -220,9 +207,7 @@ public class QueryParser {
         }
         break;
       case "INSERT":
-//        selectedSchema = schema.getSchemaName();
-        // Hard coding schema name for testing
-        selectedSchema = "harsh";
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -239,9 +224,7 @@ public class QueryParser {
         }
         break;
       case "ALTER":
-//        selectedSchema = schema.getSchemaName();
-        // Hard coding schema name for testing
-        selectedSchema = "harsh";
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -258,9 +241,7 @@ public class QueryParser {
         }
         break;
       case "SELECT":
-//        selectedSchema = schema.getSchemaName();
-        // Hard coding schema name for testing
-        selectedSchema = "harsh";
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -274,9 +255,7 @@ public class QueryParser {
         }
         break;
       case "DROP":
-//        selectedSchema = schema.getSchemaName();
-        // Hard coding schema name for testing
-        selectedSchema = "harsh";
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -292,9 +271,7 @@ public class QueryParser {
         }
         break;
       case "DELETE":
-//        selectedSchema = schema.getSchemaName();
-        // Hard coding schema name for testing
-        selectedSchema = "harsh";
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
@@ -316,9 +293,7 @@ public class QueryParser {
         }
         break;
       case "UPDATE":
-//        selectedSchema = schema.getSchemaName();
-        // Hard coding schema name for testing
-        selectedSchema = "harsh";
+        selectedSchema = schema.getSchemaName();
         if (selectedSchema == null) {
           System.out.println("Error! Schema is not selected");
         } else {
