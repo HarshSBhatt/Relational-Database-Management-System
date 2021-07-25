@@ -90,3 +90,125 @@ Metadata fetched successfully for table: users
 Table values fetched for table: users
 Delete operation done on: users Rows affected: 0
 [User: abc] [Query: delete from users where first_name=Harsh_Test]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Column: user_ids does not exist in table: users! Please check your query
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Harsh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Harsh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Table: users is locked
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Table: users is locked
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Update operation done on: users Rows affected: 6
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Update operation done on: users Rows affected: 2
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Update operation done on: users Rows affected: 2
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Update operation done on: users Rows affected: 6
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Update operation done on: users Rows affected: 36
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where first_name='Harsh']
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Update operation done on: users Rows affected: 6
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where first_name='Harsh']
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Update operation done on: users Rows affected: 0
+[User: abc] [Query: update users set first_name='Test' , last_name = 'Ramesh' where first_name='Harshwsasas']
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Update operation done on: users Rows affected: 1
+[User: abc] [Query: update users set first_name='Test' where user_id=1]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Update operation done on: users Rows affected: 1
+[User: abc] [Query: update users set first_namse='Test' where user_id=1]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Column: first_namse does not exist in table: users! Please check your query
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Update operation done on: users Rows affected: 1
+[User: abc] [Query: update users set first_name='Test' where user_id=1]

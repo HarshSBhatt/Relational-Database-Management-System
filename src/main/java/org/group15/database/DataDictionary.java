@@ -36,6 +36,10 @@ public class DataDictionary {
     File rootSchemaFolder = new File(AppConstants.ROOT_FOLDER_PATH);
     File[] schemas = rootSchemaFolder.listFiles();
 
+    if (!rootSchemaFolder.exists()) {
+      throw new Exception("No schemas exist");
+    }
+
     if (schemas.length < 1) {
       throw new Exception("No schemas exist");
     }
