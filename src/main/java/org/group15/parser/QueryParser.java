@@ -32,6 +32,8 @@ public class QueryParser {
 
   Drop dropSQL;
 
+  Delete deleteSQL;
+
   ERD erd;
 
   SQLDump sqlDump;
@@ -50,6 +52,7 @@ public class QueryParser {
     showSQL = new Show(eventLogsWriter);
     alterSQL = new Alter(eventLogsWriter);
     dropSQL = new Drop(eventLogsWriter);
+    deleteSQL = new Delete(eventLogsWriter);
     erd = new ERD(eventLogsWriter);
     sqlDump = new SQLDump(eventLogsWriter);
     dataDictionary = new DataDictionary(eventLogsWriter);
@@ -280,6 +283,30 @@ public class QueryParser {
           if (isValidSyntax) {
             System.out.println("Table: " + queryParts[2] + " dropped " +
                 "successfully from the schema: " + selectedSchema);
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+          }
+        }
+        break;
+      case "DELETE":
+//        selectedSchema = schema.getSchemaName();
+        // Hard coding schema name for testing
+        selectedSchema = "harsh";
+        if (selectedSchema == null) {
+          System.out.println("Error! Schema is not selected");
+        } else {
+          isValidSyntax =
+              deleteSQL.parseDeleteStatement(query,
+                  selectedSchema);
+          if (isValidSyntax) {
+            System.out.println("Delete operation performed successfully in " +
+                "table: " + queryParts[2]);
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+          } else {
+            System.out.println("Something went wrong while deleting row(s) in" +
+                " table: " + queryParts[2] + "! Please check your query " +
+                "syntax");
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");
           }
