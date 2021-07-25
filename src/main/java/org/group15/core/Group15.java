@@ -82,7 +82,7 @@ public class Group15 {
     String deleteQuery = "delete from users where first_name=Harsh_Test";
 
     String updateQuery = "update users set first_name='Harsh' where " +
-        "user_ids=2";
+        "user_id=2";
 
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
