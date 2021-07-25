@@ -36,6 +36,91 @@ public class Table {
     this.tableName = tableName;
   }
 
+  public List<Map<String, Object>> getTableValues(String schemaName,
+                                                  String tableName,
+                                                  Map<String, Column> tableColumnsDetails) throws Exception {
+    String path = Helper.getTablePath(schemaName, tableName);
+    File tableFile = new File(path);
+
+    if (tableFile.exists()) {
+      BufferedReader br =
+          new BufferedReader(new FileReader(tableFile));
+
+      String line;
+      while ((line = br.readLine()) != null) {
+        String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
+        Map<String, Object> colAndVal = new HashMap<>();
+
+        //  Looping through file data and creating column name and its value map
+        for (String info : columnInfo) {
+          String[] columnKeyValue = info.split("=");
+          colAndVal.put(columnKeyValue[0], columnKeyValue[1]);
+        }
+        // If some column has null or empty values then we will mark it with DASH
+        for (String columnName : tableColumnsDetails.keySet()) {
+          if (!(colAndVal.containsKey(columnName))) {
+            colAndVal.put(columnName, "-");
+          }
+        }
+        tableValues.add(colAndVal);
+      }
+      br.close();
+      this.eventLogsWriter.append("Table values fetched for table: ").append(tableName).append("\n");
+
+    } else {
+      this.eventLogsWriter.append("Something went wrong! Table does not " +
+          "exist").append("\n");
+      this.eventLogsWriter.close();
+      throw new Exception("Table: " + tableName + " does not exist");
+    }
+    return tableValues;
+  }
+
+  public List<Map<String, Object>> getTableValues(String schemaName,
+                                                  String tableName,
+                                                  Map<String, Column> tableColumnsDetails, Set<String> requiredColumnNames) throws Exception {
+    String path = Helper.getTablePath(schemaName, tableName);
+    File tableFile = new File(path);
+
+    if (tableFile.exists()) {
+      BufferedReader br =
+          new BufferedReader(new FileReader(tableFile));
+
+      String line;
+      while ((line = br.readLine()) != null) {
+        String[] columnInfo = line.split(AppConstants.DELIMITER_TOKEN);
+        Map<String, Object> colAndVal = new HashMap<>();
+
+        //  Looping through file data and creating column name and its value map
+        for (String info : columnInfo) {
+          String[] columnKeyValue = info.split("=");
+          // Getting only required columns asked by user
+          if (requiredColumnNames.contains(columnKeyValue[0])) {
+            colAndVal.put(columnKeyValue[0], columnKeyValue[1]);
+          }
+        }
+        // If some column has null or empty values then we will mark it with DASH
+        for (String columnName : tableColumnsDetails.keySet()) {
+          if (requiredColumnNames.contains(columnName)) {
+            if (!(colAndVal.containsKey(columnName))) {
+              colAndVal.put(columnName, "-");
+            }
+          }
+        }
+        tableValues.add(colAndVal);
+      }
+      br.close();
+      this.eventLogsWriter.append("Table values fetched for table: ").append(tableName).append("\n");
+
+    } else {
+      this.eventLogsWriter.append("Something went wrong! Table does not " +
+          "exist").append("\n");
+      this.eventLogsWriter.close();
+      throw new Exception("Table: " + tableName + " does not exist");
+    }
+    return tableValues;
+  }
+
   public Map<String, Column> getTableMetadataMap(String schemaName,
                                                  String tableName) throws Exception {
 
@@ -477,6 +562,180 @@ public class Table {
       customLock.unlock(schemaName, tableName);
       return true;
     }
+  }
+
+  public void fetchTableInfo(String columns,
+                             String schemaName, String tableName) throws Exception {
+
+    Map<String, Column> tableColumnsDetails = getTableMetadataMap(schemaName,
+        tableName);
+
+    if (columns.equalsIgnoreCase("*")) {
+      List<Map<String, Object>> mappedValues = getTableValues(schemaName,
+          tableName, tableColumnsDetails);
+
+      Helper.printTable(mappedValues);
+    } else {
+      Set<String> columnNamesInQuery =
+          new LinkedHashSet<>(Arrays.asList(columns.split(",\\s*")));
+
+      Set<String> columnsNamesInActualTable = tableColumnsDetails.keySet();
+
+      if (columnsNamesInActualTable.containsAll(columnNamesInQuery)) {
+        List<Map<String, Object>> mappedValues = getTableValues(schemaName,
+            tableName, tableColumnsDetails, columnNamesInQuery);
+
+        Helper.printTable(mappedValues);
+      } else {
+        this.eventLogsWriter.append("One of the column does not exist in " +
+            "table: ").append(tableName).append("! Please check your query").append("\n");
+        this.eventLogsWriter.close();
+        throw new Exception("One of the column does not exist in table: " + tableName +
+            "! Please check your query");
+      }
+    }
+  }
+
+  public void fetchTableInfo(String columns, String schemaName, String tableName, String conditions) throws Exception {
+    Map<String, Column> tableColumnsDetails = getTableMetadataMap(schemaName,
+        tableName);
+
+    if (columns.equalsIgnoreCase("*")) {
+      List<Map<String, Object>> mappedValues = getTableValues(schemaName,
+          tableName, tableColumnsDetails);
+
+      printTableValues(columns, tableName, conditions, tableColumnsDetails,
+          mappedValues, true);
+    } else {
+      Set<String> columnNamesInQuery =
+          new LinkedHashSet<>(Arrays.asList(columns.split(",\\s*")));
+
+      Set<String> columnsNamesInActualTable = tableColumnsDetails.keySet();
+
+      if (columnsNamesInActualTable.containsAll(columnNamesInQuery)) {
+        List<Map<String, Object>> mappedValues = getTableValues(schemaName,
+            tableName, tableColumnsDetails, columnNamesInQuery);
+
+        printTableValues(columns, tableName, conditions, tableColumnsDetails,
+            mappedValues, false);
+
+      } else {
+        this.eventLogsWriter.append("One of the column does not exist in " +
+            "table: ").append(tableName).append("! Please check your query").append("\n");
+        this.eventLogsWriter.close();
+        throw new Exception("One of the column does not exist in table: " + tableName +
+            "! Please check your query");
+      }
+    }
+  }
+
+  public void printTableValues(String columns, String tableName,
+                               String conditions,
+                               Map<String, Column> tableColumnsDetails,
+                               List<Map<String, Object>> mappedValues,
+                               boolean isAllOperation) throws Exception {
+    List<String> conditionList;
+
+    Map<String, String> conditionMap = new HashMap<>();
+
+    conditionList = Arrays.asList(conditions.trim().split(
+        "\\s+"));
+
+    if (conditionList.size() > 1) {
+      if (conditions.toUpperCase().contains("AND")) {
+
+        conditionList = Arrays.asList(conditions.trim().split(
+            "and"));
+
+        extractConditionAndPrintTable(tableName, tableColumnsDetails,
+            conditionList, conditionMap, mappedValues, columns, false, isAllOperation);
+      } else if (conditions.toUpperCase().contains("OR")) {
+
+        conditionList = Arrays.asList(conditions.trim().split(
+            "or"));
+
+        extractConditionAndPrintTable(tableName, tableColumnsDetails,
+            conditionList, conditionMap, mappedValues, columns, true, isAllOperation);
+      } else {
+        this.eventLogsWriter.append("Condition mentioned is wrong! Please " +
+            "check your query").append("\n");
+        this.eventLogsWriter.close();
+        throw new Exception("Condition mentioned is wrong! Please " +
+            "check your query! Please check your query");
+      }
+    } else {
+      conditionList = Arrays.asList(conditions.trim().split(
+          "or"));
+
+      extractConditionAndPrintTable(tableName, tableColumnsDetails,
+          conditionList, conditionMap, mappedValues, columns, true, isAllOperation);
+    }
+  }
+
+  public void extractConditionAndPrintTable(String tableName, Map<String,
+      Column> tableColumnsDetails, List<String> conditionList, Map<String,
+      String> conditionMap, List<Map<String, Object>> mappedValues,
+                                            String columns,
+                                            boolean isOrCondition,
+                                            boolean isAllOperation) throws Exception {
+    for (String condition : conditionList) {
+      List<String> conditionColAndVAl = Arrays.asList(condition.split("="));
+      conditionMap.put(conditionColAndVAl.get(0).trim(),
+          conditionColAndVAl.get(1).trim().replaceAll("[^0-9a-zA-Z]+"
+              , ""));
+
+      boolean isColExist = Helper.isColumnExist(tableColumnsDetails,
+          conditionColAndVAl.get(0).trim());
+
+      if (!isColExist) {
+        this.eventLogsWriter.append("Column: ").append(conditionColAndVAl.get(0).trim()).append(" does not exist in " +
+            "table: ").append(tableName).append("! Please check your query").append("\n");
+        this.eventLogsWriter.close();
+        throw new Exception("Column: " + conditionColAndVAl.get(0).trim() + " does not exist in table: " + tableName +
+            "! Please check your query");
+      }
+    }
+
+    List<Map<String, Object>> tableReturnValues = new ArrayList<>();
+    for (Map<String, Object> mappedValueMap : mappedValues) {
+      boolean isConditionMatched = conditionChecker(conditionMap,
+          mappedValueMap, isOrCondition);
+
+      if (isConditionMatched) {
+        List<String> columnsList;
+        if (isAllOperation) {
+          Set<String> colNames = tableColumnsDetails.keySet();
+          columnsList = Helper.convertSetToList(colNames);
+        } else {
+          columnsList = Arrays.asList(columns.split(","));
+        }
+        mappedValueMap.keySet().retainAll(columnsList);
+        tableReturnValues.add(mappedValueMap);
+      }
+    }
+
+    Helper.printTable(tableReturnValues);
+  }
+
+  private boolean conditionChecker(Map<String, String> conditionMap,
+                                   Map<String, Object> mappedValueMap, boolean isOrCondition) {
+    boolean flag = false;
+    for (String key : conditionMap.keySet()) {
+      if (isOrCondition) {
+        if ((mappedValueMap.get(key).equals(conditionMap.get(key)))) {
+          flag = true;
+        }
+      } else {
+        if ((mappedValueMap.get(key).equals(conditionMap.get(key)))) {
+          flag = true;
+        } else {
+          flag = false;
+          break;
+        }
+      }
+
+    }
+    return flag;
   }
 
   public void appendColumnInfoToFile(String newColumnName, String[] dataTypeRelatedInfo, StringBuilder fileContent, FileWriter tableDataWriter) throws IOException {

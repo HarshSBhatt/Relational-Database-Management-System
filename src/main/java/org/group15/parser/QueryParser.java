@@ -248,6 +248,22 @@ public class QueryParser {
           }
         }
         break;
+      case "SELECT":
+//        selectedSchema = schema.getSchemaName();
+        // Hard coding schema name for testing
+        selectedSchema = "harsh";
+        if (selectedSchema == null) {
+          System.out.println("Error! Schema is not selected");
+        } else {
+          isValidSyntax =
+              selectSQL.parseSelectStatement(query,
+                  selectedSchema);
+          if (isValidSyntax) {
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+          }
+        }
+        break;
       default:
         System.out.println("Unexpected query: " + dbOperation);
         break;

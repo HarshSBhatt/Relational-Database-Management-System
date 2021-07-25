@@ -3,7 +3,10 @@ package org.group15.core;
 import org.group15.parser.QueryParser;
 import org.group15.util.AppConstants;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
 
 public class Group15 {
 
@@ -71,6 +74,9 @@ public class Group15 {
         " l_name varchar(100)";
     String createDataDictionary = "create dd";
 
+    String selectQuery = "select first_name,last_name,user_id from users " +
+        "where last_name='Bhatt' or user_id=1";
+
 //    queryParser.parse(roleDummyQuery, username);
 //    queryParser.parse(createTableQueryWithoutFK, username);
 //    queryParser.parse(createTableQueryWithFK, username);
@@ -79,7 +85,8 @@ public class Group15 {
 //    queryParser.parse(alterAddTableQuery.trim(), username);
 //    queryParser.parse(alterDropTableQuery.trim(), username);
 //    queryParser.parse(alterChangeTableQuery.trim(), username);
-    queryParser.parse(createDataDictionary.trim(), username);
+//    queryParser.parse(createDataDictionary.trim(), username);
+    queryParser.parse(selectQuery.trim(), username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();
