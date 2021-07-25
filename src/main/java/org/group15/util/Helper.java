@@ -2,9 +2,11 @@ package org.group15.util;
 
 import org.group15.database.Column;
 
-import java.io.*;
-import java.util.HashSet;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 public class Helper {
 
@@ -150,6 +152,42 @@ public class Helper {
       }
     }
     return false;
+  }
+
+  public static void printTable(List<Map<String, Object>> values) {
+    String lineSeparator =
+        "=============================================================================================================================================";
+
+    if (values.isEmpty()) {
+      System.out.println("No rows returned");
+    } else {
+      int i = 0;
+      for (Map<String, Object> val : values) {
+        Set<String> colNames = val.keySet();
+        if (i == 0) {
+          for (String colName : colNames) {
+            System.out.format("%20s", colName.concat(" |"));
+          }
+          System.out.println("\n" + lineSeparator);
+          for (String colName : colNames) {
+            System.out.format("%20s", String.valueOf(val.get(colName)).concat(" |"));
+          }
+          System.out.print("\n");
+        } else {
+          for (String colName : colNames) {
+            System.out.format("%20s", String.valueOf(val.get(colName)).concat(" |"));
+          }
+          System.out.print("\n");
+        }
+        i++;
+      }
+      System.out.println(lineSeparator);
+    }
+  }
+
+  public static <T> List<T> convertSetToList(Set<T> set) {
+    // return the list
+    return new ArrayList<>(set);
   }
 
 }
