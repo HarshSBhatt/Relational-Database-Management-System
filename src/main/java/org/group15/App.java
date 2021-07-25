@@ -17,8 +17,8 @@ public class App {
     /**
      * Delete this when testing using user input
      */
-    String username1 = "abc";
-    group15.rdbmsProvider(username1);
+//    String username1 = "abc";
+//    group15.rdbmsProvider(username1);
 
 
     /**

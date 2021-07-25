@@ -75,3 +75,6 @@
 [Execution Time: 7701800ns] [Query Type: insert] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (6,'Bhatt','Harsh','Gujarat','India',1)]
 [Execution Time: 65374000ns] [Query Type: insert] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (7,'Bhatt','Harsh','Gujarat','India',1)]
 [Execution Time: 5709400ns] [Query Type: insert] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (8,'Bhatt','Harsh','Gujarat','India',1)]
+[Execution Time: 6586500ns] [Database Stat: No Schema was selected! Database stat can not be retrieved]
+[Execution Time: 5008046900ns] [Database Stat: No Schema was selected! Database stat can not be retrieved]
+[Execution Time: 5011297400ns] [Database Stat: No Schema was selected! Database stat can not be retrieved]

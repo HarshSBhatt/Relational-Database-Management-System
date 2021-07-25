@@ -92,7 +92,7 @@ public class Group15 {
 //    queryParser.parse(createDataDictionary.trim(), username);
 //    queryParser.parse(selectQuery.trim(), username);
 //    queryParser.parse(dropQuery.trim(), username);
-    queryParser.parse(deleteQuery.trim(), username);
+//    queryParser.parse(deleteQuery.trim(), username);
 
     eventLogsWriter.close();
     generalLogsWriter.close();
