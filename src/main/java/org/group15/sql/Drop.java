@@ -18,7 +18,7 @@ public class Drop {
   public boolean parseDropTableStatement(String query, String schemaName) throws Exception {
     String[] queryParts = query.split("\\s+");
 
-    if (queryParts.length < 3) {
+    if (queryParts.length != 3) {
       this.eventLogsWriter.append("Syntax error: Error while parsing drop " +
           "table query").append("\n");
       this.eventLogsWriter.close();
@@ -32,18 +32,10 @@ public class Drop {
       throw new Exception("Syntax error: TABLE keyword not found in " +
           "drop table query");
     }
-    if(queryParts.length == 3){
-      String tableName = queryParts[2];
 
-      return table.dropTable(schemaName, tableName);
-    }
-    else{
-      for(int i =2; i < queryParts.length; i++){
-        String tableName = queryParts[i];
-        tableName = tableName.replaceAll(",$", "");
-        table.dropTable(schemaName, tableName);
-      }
-    }
-    return true;
+    String tableName = queryParts[2];
+
+    return table.dropTable(schemaName, tableName);
   }
+
 }

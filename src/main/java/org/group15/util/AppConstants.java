@@ -1,8 +1,5 @@
 package org.group15.util;
 
-import java.util.Map;
-import java.util.stream.Stream;
-
 public interface AppConstants {
 
   String ROOT_FOLDER_PATH = "schemas";
@@ -40,10 +37,4 @@ public interface AppConstants {
   String AI = "AI";
 
 }
-
-
-/**
- * An interface for handling column constraints.
- */
-
 

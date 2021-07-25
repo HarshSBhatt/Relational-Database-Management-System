@@ -754,6 +754,93 @@ public class Table {
     }
   }
 
+  public boolean update(String schemaName, String tableName, String columns,
+                        String[] conditionString) throws Exception {
+    if (conditionString.length != 2) {
+      return false;
+    }
+    String conditionColName = conditionString[0];
+    String conditionColValue = conditionString[1];
+    System.out.println(conditionColName);
+    System.out.println(conditionColValue);
+    if (customLock.isLocked(schemaName, tableName)) {
+      System.out.println("Table: " + tableName + " is locked");
+      this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+          "locked").append("\n");
+      return false;
+    } else {
+      customLock.lock(schemaName, tableName);
+      StringBuilder fileContent = new StringBuilder();
+
+      String tablePath = Helper.getTablePath(schemaName, tableName);
+      File tableFile = new File(tablePath);
+
+      if (tableFile.exists()) {
+        Map<String, Column> tableColumnsDetails = getTableMetadataMap(schemaName,
+            tableName);
+
+        List<Map<String, Object>> mappedValues = getTableValues(schemaName,
+            tableName, tableColumnsDetails);
+
+        boolean isColExist = Helper.isColumnExist(tableColumnsDetails,
+            conditionColName.trim());
+
+        if (!isColExist) {
+          this.eventLogsWriter.append("Column: ").append(conditionColName.trim()).append(" does not exist in " +
+              "table: ").append(tableName).append("! Please check your query").append("\n");
+          this.eventLogsWriter.close();
+          customLock.unlock(schemaName, tableName);
+          throw new Exception("Column: " + conditionColName.trim() + " does not exist in table: " + tableName +
+              "! Please check your query");
+        }
+
+//        Map<String,
+//            String> conditionMap = new HashMap<>();
+//
+//        conditionMap.put(conditionColName,
+//            conditionColValue.trim().replaceAll("[^0-9a-zA-Z]+"
+//                , ""));
+
+//        int rowsAffected = 0;
+//        for (Map<String, Object> mappedValueMap : mappedValues) {
+//          boolean isConditionMatched = conditionChecker(conditionMap,
+//              mappedValueMap, false);
+//          if (!isConditionMatched) {
+//            int i = 0;
+//            for (String key : mappedValueMap.keySet()) {
+//              if (i == mappedValueMap.size() - 1) {
+//                fileContent.append(key).append("=").append(mappedValueMap.get(key));
+//              } else {
+//                fileContent.append(key).append("=").append(mappedValueMap.get(key)).append(AppConstants.DELIMITER_TOKEN);
+//              }
+//              i++;
+//            }
+//            fileContent.append("\n");
+//          } else {
+//            rowsAffected++;
+//          }
+//        }
+
+//        if (rowsAffected > 0) {
+//          FileWriter tableDataWriter = new FileWriter(tableFile);
+//          tableDataWriter.write(String.valueOf(fileContent));
+//          tableDataWriter.close();
+//        }
+
+//        this.eventLogsWriter.append("Delete operation done on: ").append(tableName).append(" Rows affected: ").append(String.valueOf(rowsAffected)).append("\n");
+//        System.out.println("Rows affected: " + rowsAffected);
+      } else {
+        this.eventLogsWriter.append("Something went wrong! Table does not " +
+            "exist").append("\n");
+        System.out.println("Something went wrong! Table does not exist");
+        return false;
+      }
+      customLock.unlock(schemaName, tableName);
+      return true;
+    }
+  }
+
+
   public boolean addColumn(String schemaName, String tableName,
                            String columnNameToBeAdded, String[] dataTypeRelatedInfo) throws IOException, InterruptedException {
     if (customLock.isLocked(schemaName, tableName)) {
