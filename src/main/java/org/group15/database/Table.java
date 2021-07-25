@@ -284,6 +284,127 @@ public class Table {
     }
   }
 
+  public void printTableValues(String columns, String tableName,
+                               String conditions,
+                               Map<String, Column> tableColumnsDetails,
+                               List<Map<String, Object>> mappedValues,
+                               boolean isAllOperation) throws Exception {
+    List<String> conditionList;
+
+    Map<String, String> conditionMap = new HashMap<>();
+
+    conditionList = Arrays.asList(conditions.trim().split(
+        "\\s+"));
+
+    if (conditionList.size() > 1) {
+      if (conditions.toUpperCase().contains("AND")) {
+
+        conditionList = Arrays.asList(conditions.trim().split(
+            "and"));
+
+        extractConditionAndPrintTable(tableName, tableColumnsDetails,
+            conditionList, conditionMap, mappedValues, columns, false, isAllOperation);
+      } else if (conditions.toUpperCase().contains("OR")) {
+
+        conditionList = Arrays.asList(conditions.trim().split(
+            "or"));
+
+        extractConditionAndPrintTable(tableName, tableColumnsDetails,
+            conditionList, conditionMap, mappedValues, columns, true, isAllOperation);
+      } else {
+        this.eventLogsWriter.append("Condition mentioned is wrong! Please " +
+            "check your query").append("\n");
+        this.eventLogsWriter.close();
+        throw new Exception("Condition mentioned is wrong! Please " +
+            "check your query! Please check your query");
+      }
+    } else {
+      conditionList = Arrays.asList(conditions.trim().split(
+          "or"));
+
+      extractConditionAndPrintTable(tableName, tableColumnsDetails,
+          conditionList, conditionMap, mappedValues, columns, true, isAllOperation);
+    }
+  }
+
+  public void extractConditionAndPrintTable(String tableName, Map<String,
+      Column> tableColumnsDetails, List<String> conditionList, Map<String,
+      String> conditionMap, List<Map<String, Object>> mappedValues,
+                                            String columns,
+                                            boolean isOrCondition,
+                                            boolean isAllOperation) throws Exception {
+    for (String condition : conditionList) {
+      List<String> conditionColAndVAl = Arrays.asList(condition.split("="));
+      conditionMap.put(conditionColAndVAl.get(0).trim(),
+          conditionColAndVAl.get(1).trim().replaceAll("[^0-9a-zA-Z]+"
+              , ""));
+
+      boolean isColExist = Helper.isColumnExist(tableColumnsDetails,
+          conditionColAndVAl.get(0).trim());
+
+      if (!isColExist) {
+        this.eventLogsWriter.append("Column: ").append(conditionColAndVAl.get(0).trim()).append(" does not exist in " +
+            "table: ").append(tableName).append("! Please check your query").append("\n");
+        this.eventLogsWriter.close();
+        throw new Exception("Column: " + conditionColAndVAl.get(0).trim() + " does not exist in table: " + tableName +
+            "! Please check your query");
+      }
+    }
+
+    List<Map<String, Object>> tableReturnValues = new ArrayList<>();
+    for (Map<String, Object> mappedValueMap : mappedValues) {
+      boolean isConditionMatched = conditionChecker(conditionMap,
+          mappedValueMap, isOrCondition);
+
+      if (isConditionMatched) {
+        List<String> columnsList;
+        if (isAllOperation) {
+          Set<String> colNames = tableColumnsDetails.keySet();
+          columnsList = Helper.convertSetToList(colNames);
+        } else {
+          columnsList = Arrays.asList(columns.split(","));
+        }
+        mappedValueMap.keySet().retainAll(columnsList);
+        tableReturnValues.add(mappedValueMap);
+      }
+    }
+
+    Helper.printTable(tableReturnValues);
+  }
+
+  private boolean conditionChecker(Map<String, String> conditionMap,
+                                   Map<String, Object> mappedValueMap, boolean isOrCondition) {
+    boolean flag = false;
+    for (String key : conditionMap.keySet()) {
+      if (isOrCondition) {
+        if ((mappedValueMap.get(key).equals(conditionMap.get(key)))) {
+          flag = true;
+        }
+      } else {
+        if ((mappedValueMap.get(key).equals(conditionMap.get(key)))) {
+          flag = true;
+        } else {
+          flag = false;
+          break;
+        }
+      }
+
+    }
+    return flag;
+  }
+
+  public void appendColumnInfoToFile(String newColumnName, String[] dataTypeRelatedInfo, StringBuilder fileContent, FileWriter tableDataWriter) throws IOException {
+    fileContent.append("column_name=").append(newColumnName).append(AppConstants.DELIMITER_TOKEN);
+    fileContent.append("column_data_type=").append(dataTypeRelatedInfo[0]).append(AppConstants.DELIMITER_TOKEN);
+    if (dataTypeRelatedInfo.length == 2) {
+      fileContent.append("column_size=").append(Math.min(Integer.parseInt(dataTypeRelatedInfo[1]), 255));
+    } else {
+      fileContent.append("column_size=").append(255);
+    }
+    tableDataWriter.append(fileContent).append("\n");
+    tableDataWriter.close();
+  }
+
   public void create(Map<String, Column> tableColumns, String schemaName,
                      String tableName) throws Exception {
     if (customLock.isLocked(schemaName, tableName)) {
@@ -536,6 +657,89 @@ public class Table {
     }
   }
 
+  public boolean delete(String schemaName, String tableName, String[] conditionString) throws Exception {
+    if (conditionString.length != 2) {
+      return false;
+    }
+    String conditionColName = conditionString[0];
+    String conditionColValue = conditionString[1];
+
+    if (customLock.isLocked(schemaName, tableName)) {
+      System.out.println("Table: " + tableName + " is locked");
+      this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+          "locked").append("\n");
+      return false;
+    } else {
+      customLock.lock(schemaName, tableName);
+      StringBuilder fileContent = new StringBuilder();
+
+      String tablePath = Helper.getTablePath(schemaName, tableName);
+      File tableFile = new File(tablePath);
+
+      if (tableFile.exists()) {
+        Map<String, Column> tableColumnsDetails = getTableMetadataMap(schemaName,
+            tableName);
+
+        List<Map<String, Object>> mappedValues = getTableValues(schemaName,
+            tableName, tableColumnsDetails);
+
+        boolean isColExist = Helper.isColumnExist(tableColumnsDetails,
+            conditionColName.trim());
+
+        if (!isColExist) {
+          this.eventLogsWriter.append("Column: ").append(conditionColName.trim()).append(" does not exist in " +
+              "table: ").append(tableName).append("! Please check your query").append("\n");
+          this.eventLogsWriter.close();
+          throw new Exception("Column: " + conditionColName.trim() + " does not exist in table: " + tableName +
+              "! Please check your query");
+        }
+
+        Map<String,
+            String> conditionMap = new HashMap<>();
+
+        conditionMap.put(conditionColName,
+            conditionColValue.trim().replaceAll("[^0-9a-zA-Z]+"
+                , ""));
+
+        int rowsAffected = 0;
+        for (Map<String, Object> mappedValueMap : mappedValues) {
+          boolean isConditionMatched = conditionChecker(conditionMap,
+              mappedValueMap, false);
+          if (!isConditionMatched) {
+            int i = 0;
+            for (String key : mappedValueMap.keySet()) {
+              if (i == mappedValueMap.size() - 1) {
+                fileContent.append(key).append("=").append(mappedValueMap.get(key));
+              } else {
+                fileContent.append(key).append("=").append(mappedValueMap.get(key)).append(AppConstants.DELIMITER_TOKEN);
+              }
+              i++;
+            }
+            fileContent.append("\n");
+          } else {
+            rowsAffected++;
+          }
+        }
+
+        if (rowsAffected > 0) {
+          FileWriter tableDataWriter = new FileWriter(tableFile);
+          tableDataWriter.write(String.valueOf(fileContent));
+          tableDataWriter.close();
+        }
+
+        this.eventLogsWriter.append("Delete operation done on: ").append(tableName).append(" Rows affected: ").append(String.valueOf(rowsAffected)).append("\n");
+        System.out.println("Rows affected: " + rowsAffected);
+      } else {
+        this.eventLogsWriter.append("Something went wrong! Table does not " +
+            "exist").append("\n");
+        System.out.println("Something went wrong! Table does not exist");
+        return false;
+      }
+      customLock.unlock(schemaName, tableName);
+      return true;
+    }
+  }
+
   public boolean addColumn(String schemaName, String tableName,
                            String columnNameToBeAdded, String[] dataTypeRelatedInfo) throws IOException, InterruptedException {
     if (customLock.isLocked(schemaName, tableName)) {
@@ -722,127 +926,6 @@ public class Table {
             "! Please check your query");
       }
     }
-  }
-
-  public void printTableValues(String columns, String tableName,
-                               String conditions,
-                               Map<String, Column> tableColumnsDetails,
-                               List<Map<String, Object>> mappedValues,
-                               boolean isAllOperation) throws Exception {
-    List<String> conditionList;
-
-    Map<String, String> conditionMap = new HashMap<>();
-
-    conditionList = Arrays.asList(conditions.trim().split(
-        "\\s+"));
-
-    if (conditionList.size() > 1) {
-      if (conditions.toUpperCase().contains("AND")) {
-
-        conditionList = Arrays.asList(conditions.trim().split(
-            "and"));
-
-        extractConditionAndPrintTable(tableName, tableColumnsDetails,
-            conditionList, conditionMap, mappedValues, columns, false, isAllOperation);
-      } else if (conditions.toUpperCase().contains("OR")) {
-
-        conditionList = Arrays.asList(conditions.trim().split(
-            "or"));
-
-        extractConditionAndPrintTable(tableName, tableColumnsDetails,
-            conditionList, conditionMap, mappedValues, columns, true, isAllOperation);
-      } else {
-        this.eventLogsWriter.append("Condition mentioned is wrong! Please " +
-            "check your query").append("\n");
-        this.eventLogsWriter.close();
-        throw new Exception("Condition mentioned is wrong! Please " +
-            "check your query! Please check your query");
-      }
-    } else {
-      conditionList = Arrays.asList(conditions.trim().split(
-          "or"));
-
-      extractConditionAndPrintTable(tableName, tableColumnsDetails,
-          conditionList, conditionMap, mappedValues, columns, true, isAllOperation);
-    }
-  }
-
-  public void extractConditionAndPrintTable(String tableName, Map<String,
-      Column> tableColumnsDetails, List<String> conditionList, Map<String,
-      String> conditionMap, List<Map<String, Object>> mappedValues,
-                                            String columns,
-                                            boolean isOrCondition,
-                                            boolean isAllOperation) throws Exception {
-    for (String condition : conditionList) {
-      List<String> conditionColAndVAl = Arrays.asList(condition.split("="));
-      conditionMap.put(conditionColAndVAl.get(0).trim(),
-          conditionColAndVAl.get(1).trim().replaceAll("[^0-9a-zA-Z]+"
-              , ""));
-
-      boolean isColExist = Helper.isColumnExist(tableColumnsDetails,
-          conditionColAndVAl.get(0).trim());
-
-      if (!isColExist) {
-        this.eventLogsWriter.append("Column: ").append(conditionColAndVAl.get(0).trim()).append(" does not exist in " +
-            "table: ").append(tableName).append("! Please check your query").append("\n");
-        this.eventLogsWriter.close();
-        throw new Exception("Column: " + conditionColAndVAl.get(0).trim() + " does not exist in table: " + tableName +
-            "! Please check your query");
-      }
-    }
-
-    List<Map<String, Object>> tableReturnValues = new ArrayList<>();
-    for (Map<String, Object> mappedValueMap : mappedValues) {
-      boolean isConditionMatched = conditionChecker(conditionMap,
-          mappedValueMap, isOrCondition);
-
-      if (isConditionMatched) {
-        List<String> columnsList;
-        if (isAllOperation) {
-          Set<String> colNames = tableColumnsDetails.keySet();
-          columnsList = Helper.convertSetToList(colNames);
-        } else {
-          columnsList = Arrays.asList(columns.split(","));
-        }
-        mappedValueMap.keySet().retainAll(columnsList);
-        tableReturnValues.add(mappedValueMap);
-      }
-    }
-
-    Helper.printTable(tableReturnValues);
-  }
-
-  private boolean conditionChecker(Map<String, String> conditionMap,
-                                   Map<String, Object> mappedValueMap, boolean isOrCondition) {
-    boolean flag = false;
-    for (String key : conditionMap.keySet()) {
-      if (isOrCondition) {
-        if ((mappedValueMap.get(key).equals(conditionMap.get(key)))) {
-          flag = true;
-        }
-      } else {
-        if ((mappedValueMap.get(key).equals(conditionMap.get(key)))) {
-          flag = true;
-        } else {
-          flag = false;
-          break;
-        }
-      }
-
-    }
-    return flag;
-  }
-
-  public void appendColumnInfoToFile(String newColumnName, String[] dataTypeRelatedInfo, StringBuilder fileContent, FileWriter tableDataWriter) throws IOException {
-    fileContent.append("column_name=").append(newColumnName).append(AppConstants.DELIMITER_TOKEN);
-    fileContent.append("column_data_type=").append(dataTypeRelatedInfo[0]).append(AppConstants.DELIMITER_TOKEN);
-    if (dataTypeRelatedInfo.length == 2) {
-      fileContent.append("column_size=").append(Math.min(Integer.parseInt(dataTypeRelatedInfo[1]), 255));
-    } else {
-      fileContent.append("column_size=").append(255);
-    }
-    tableDataWriter.append(fileContent).append("\n");
-    tableDataWriter.close();
   }
 
 }
