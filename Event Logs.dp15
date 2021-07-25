@@ -72,3 +72,21 @@
 [User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (6,'Bhatt','Harsh','Gujarat','India',1)]
 [User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (7,'Bhatt','Harsh','Gujarat','India',1)]
 [User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (8,'Bhatt','Harsh','Gujarat','India',1)]
+Metadata fetched successfully for table: users
+Columns and its value validated successfully
+[User: abc] [Query: update users set first_name='Harsh' where user_id=2]
+Metadata fetched successfully for table: users
+[User: abc] [Query: update users set first_name='Harsh' where user_id=2]
+Metadata fetched successfully for table: users
+[User: abc] [Query: update users set first_name='Harsh' where user_id=2]
+[User: abc] [Query: update users set first_name=    'Harsh' where user_id=2]
+[User: abc] [Query: update users set first_name=    'Harsh' where user_id=   2]
+[User: abc] [Query: update users set first_name='Harsh' where user_id=      2]
+[User: abc] [Query: update users set first_name='Harsh' where user_id=      2]
+[User: abc] [Query: update users set first_name=   'Harsh' where user_id=2]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Column: user_ids does not exist in table: users! Please check your query
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Column: user_ids does not exist in table: users! Please check your query
