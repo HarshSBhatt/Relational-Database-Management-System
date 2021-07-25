@@ -441,6 +441,101 @@ public class Table {
     }
   }
 
+  public boolean dropTable(String schemaName, String tableName) throws Exception {
+    String schemaPath = Helper.getSchemaPath(schemaName);
+    String tableMetadataPath = Helper.getTableMetadataPath(schemaName,
+        tableName);
+    String tableValuePath = Helper.getTablePath(schemaName, tableName);
+
+    File schemaFolder = new File(schemaPath.concat("/table_metadata"));
+    File[] tables = schemaFolder.listFiles();
+
+    if (!schemaFolder.exists()) {
+      this.eventLogsWriter.append("Something went wrong! Database: ").append(schemaName).append(" ").append("does not exist").append("\n");
+      this.eventLogsWriter.close();
+      throw new Exception("Database with name: " + schemaName + " not found");
+    }
+
+    if (!tableIO.isTableExist(schemaName, tableName) || !tableIO.isMetadataTableExist(schemaName, tableName)) {
+      this.eventLogsWriter.append("Something went wrong! Table: ").append(tableName).append(" ").append("does not exist").append("\n");
+      this.eventLogsWriter.close();
+      throw new Exception("Table with name: " + tableName + " not found");
+    }
+
+    if (customLock.isLocked(schemaName, tableName)) {
+      System.out.println("Table: " + tableName + " is locked");
+      this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+          "locked").append("\n");
+      return false;
+    } else {
+      customLock.lock(schemaName, tableName);
+      File tableMetadataFile = new File(tableMetadataPath);
+      File tableValueFile = new File(tableValuePath);
+
+      BufferedReader br =
+          new BufferedReader(new FileReader(tableMetadataFile));
+
+      // Here, we are reading all data from particular table
+      String columnName = null;
+      String line;
+      while ((line = br.readLine()) != null) {
+        // Generating column obj from the line
+        Column column = getColumnObjFromLine(line);
+        if (column.isPrimaryKey()) {
+          columnName = column.getColumnName();
+        }
+      }
+      br.close();
+
+      if (columnName == null) {
+        if (tableMetadataFile.delete()) {
+          tableValueFile.delete();
+        }
+      } else {
+        String foreignKeyColumnName = null;
+        String foreignKeyTableName = null;
+
+        for (File table : tables) {
+          String currentTableName = table.getName().split("\\.")[0];
+          String tablePath = table.getPath();
+
+          // We will read the particular table based on the table path
+          File tableFile = new File(tablePath);
+          if (!currentTableName.equalsIgnoreCase(tableName)) {
+            BufferedReader bufferedReader =
+                new BufferedReader(new FileReader(tableFile));
+
+            // Here, we are reading all data from particular table
+            String currentTableLine;
+
+            while ((currentTableLine = bufferedReader.readLine()) != null) {
+              // Generating column obj from the line
+              Column column = getColumnObjFromLine(currentTableLine);
+              if (column.isForeignKey()) {
+                foreignKeyColumnName = column.getForeignKeyColumn();
+                foreignKeyTableName = column.getForeignKeyTable();
+                if (foreignKeyColumnName.equals(columnName) && foreignKeyTableName.equals(tableName)) {
+                  this.eventLogsWriter.append("Foreign key violation! Table: ").append(tableName).append(" can not be dropped").append(
+                      "\n");
+                  this.eventLogsWriter.close();
+                  throw new Exception("Foreign key violation! Table: " + tableName + " can not be dropped");
+                }
+              }
+            }
+            bufferedReader.close();
+          }
+        }
+        if (foreignKeyColumnName == null && foreignKeyTableName == null) {
+          if (tableMetadataFile.delete()) {
+            tableValueFile.delete();
+          }
+        }
+      }
+      customLock.unlock(schemaName, tableName);
+      return true;
+    }
+  }
+
   public boolean addColumn(String schemaName, String tableName,
                            String columnNameToBeAdded, String[] dataTypeRelatedInfo) throws IOException, InterruptedException {
     if (customLock.isLocked(schemaName, tableName)) {
