@@ -71,6 +71,7 @@ public class Table {
       this.eventLogsWriter.append("Something went wrong! Table does not " +
           "exist").append("\n");
       this.eventLogsWriter.close();
+      customLock.unlock(schemaName, tableName);
       throw new Exception("Table: " + tableName + " does not exist");
     }
     return tableValues;
@@ -116,6 +117,7 @@ public class Table {
       this.eventLogsWriter.append("Something went wrong! Table does not " +
           "exist").append("\n");
       this.eventLogsWriter.close();
+      customLock.unlock(schemaName, tableName);
       throw new Exception("Table: " + tableName + " does not exist");
     }
     return tableValues;
@@ -162,6 +164,7 @@ public class Table {
           } else {
             this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
             this.eventLogsWriter.close();
+            customLock.unlock(schemaName, tableName);
             throw new Exception("Something went wrong near: " + columnKey);
           }
         }
@@ -203,8 +206,6 @@ public class Table {
           break;
         default:
           this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
-          this.eventLogsWriter.close();
-          throw new Exception("Unknown column metadata encountered: " + columnKey);
       }
     }
     return column;
@@ -284,7 +285,8 @@ public class Table {
     }
   }
 
-  public void printTableValues(String columns, String tableName,
+  public void printTableValues(String columns, String schemaName,
+                               String tableName,
                                String conditions,
                                Map<String, Column> tableColumnsDetails,
                                List<Map<String, Object>> mappedValues,
@@ -302,19 +304,20 @@ public class Table {
         conditionList = Arrays.asList(conditions.trim().split(
             "and"));
 
-        extractConditionAndPrintTable(tableName, tableColumnsDetails,
+        extractConditionAndPrintTable(schemaName, tableName, tableColumnsDetails,
             conditionList, conditionMap, mappedValues, columns, false, isAllOperation);
       } else if (conditions.toUpperCase().contains("OR")) {
 
         conditionList = Arrays.asList(conditions.trim().split(
             "or"));
 
-        extractConditionAndPrintTable(tableName, tableColumnsDetails,
+        extractConditionAndPrintTable(schemaName, tableName, tableColumnsDetails,
             conditionList, conditionMap, mappedValues, columns, true, isAllOperation);
       } else {
         this.eventLogsWriter.append("Condition mentioned is wrong! Please " +
             "check your query").append("\n");
         this.eventLogsWriter.close();
+        customLock.unlock(schemaName, tableName);
         throw new Exception("Condition mentioned is wrong! Please " +
             "check your query! Please check your query");
       }
@@ -322,13 +325,14 @@ public class Table {
       conditionList = Arrays.asList(conditions.trim().split(
           "or"));
 
-      extractConditionAndPrintTable(tableName, tableColumnsDetails,
+      extractConditionAndPrintTable(schemaName, tableName, tableColumnsDetails,
           conditionList, conditionMap, mappedValues, columns, true, isAllOperation);
     }
   }
 
-  public void extractConditionAndPrintTable(String tableName, Map<String,
-      Column> tableColumnsDetails, List<String> conditionList, Map<String,
+  public void extractConditionAndPrintTable(String schemaName, String tableName,
+                                            Map<String,
+                                                Column> tableColumnsDetails, List<String> conditionList, Map<String,
       String> conditionMap, List<Map<String, Object>> mappedValues,
                                             String columns,
                                             boolean isOrCondition,
@@ -346,6 +350,7 @@ public class Table {
         this.eventLogsWriter.append("Column: ").append(conditionColAndVAl.get(0).trim()).append(" does not exist in " +
             "table: ").append(tableName).append("! Please check your query").append("\n");
         this.eventLogsWriter.close();
+        customLock.unlock(schemaName, tableName);
         throw new Exception("Column: " + conditionColAndVAl.get(0).trim() + " does not exist in table: " + tableName +
             "! Please check your query");
       }
@@ -443,6 +448,7 @@ public class Table {
                 } else {
                   this.eventLogsWriter.append("Table can not have more than one primary key").append("\n");
                   this.eventLogsWriter.close();
+                  customLock.unlock(schemaName, tableName);
                   throw new Exception("Table can not have more than one primary " +
                       "key");
                 }
@@ -454,6 +460,7 @@ public class Table {
                 } else {
                   this.eventLogsWriter.append("Table can not have more than one AUTO_INCREMENT field").append("\n");
                   this.eventLogsWriter.close();
+                  customLock.unlock(schemaName, tableName);
                   throw new Exception("Table can not have more than one " +
                       "AUTO_INCREMENT field");
                 }
@@ -468,16 +475,19 @@ public class Table {
           } else {
             this.eventLogsWriter.append("Error occurred while creating table").append("\n");
             this.eventLogsWriter.close();
+            customLock.unlock(schemaName, tableName);
             throw new Exception("Error occurred while creating table");
           }
         } else {
           this.eventLogsWriter.append("Error: Wrong foreign key constraint").append("\n");
           this.eventLogsWriter.close();
+          customLock.unlock(schemaName, tableName);
           throw new Exception("Error: Wrong foreign key constraint");
         }
       } else {
         this.eventLogsWriter.append("Table already exists").append("\n");
         this.eventLogsWriter.close();
+        customLock.unlock(schemaName, tableName);
         throw new Exception("Table already exists");
       }
       customLock.unlock(schemaName, tableName);
@@ -574,12 +584,14 @@ public class Table {
     if (!schemaFolder.exists()) {
       this.eventLogsWriter.append("Something went wrong! Database: ").append(schemaName).append(" ").append("does not exist").append("\n");
       this.eventLogsWriter.close();
+      customLock.unlock(schemaName, tableName);
       throw new Exception("Database with name: " + schemaName + " not found");
     }
 
     if (!tableIO.isTableExist(schemaName, tableName) || !tableIO.isMetadataTableExist(schemaName, tableName)) {
       this.eventLogsWriter.append("Something went wrong! Table: ").append(tableName).append(" ").append("does not exist").append("\n");
       this.eventLogsWriter.close();
+      customLock.unlock(schemaName, tableName);
       throw new Exception("Table with name: " + tableName + " not found");
     }
 
@@ -614,7 +626,7 @@ public class Table {
         }
       } else {
         String foreignKeyColumnName = null;
-        String foreignKeyTableName = null;
+        String foreignKeyTableName;
 
         for (File table : tables) {
           String currentTableName = table.getName().split("\\.")[0];
@@ -639,6 +651,7 @@ public class Table {
                   this.eventLogsWriter.append("Foreign key violation! Table: ").append(tableName).append(" can not be dropped").append(
                       "\n");
                   this.eventLogsWriter.close();
+                  customLock.unlock(schemaName, tableName);
                   throw new Exception("Foreign key violation! Table: " + tableName + " can not be dropped");
                 }
               }
@@ -646,7 +659,7 @@ public class Table {
             bufferedReader.close();
           }
         }
-        if (foreignKeyColumnName == null && foreignKeyTableName == null) {
+        if (foreignKeyColumnName == null) {
           if (tableMetadataFile.delete()) {
             tableValueFile.delete();
           }
@@ -690,6 +703,7 @@ public class Table {
           this.eventLogsWriter.append("Column: ").append(conditionColName.trim()).append(" does not exist in " +
               "table: ").append(tableName).append("! Please check your query").append("\n");
           this.eventLogsWriter.close();
+          customLock.unlock(schemaName, tableName);
           throw new Exception("Column: " + conditionColName.trim() + " does not exist in table: " + tableName +
               "! Please check your query");
         }
@@ -889,6 +903,7 @@ public class Table {
         this.eventLogsWriter.append("One of the column does not exist in " +
             "table: ").append(tableName).append("! Please check your query").append("\n");
         this.eventLogsWriter.close();
+        customLock.unlock(schemaName, tableName);
         throw new Exception("One of the column does not exist in table: " + tableName +
             "! Please check your query");
       }
@@ -903,7 +918,7 @@ public class Table {
       List<Map<String, Object>> mappedValues = getTableValues(schemaName,
           tableName, tableColumnsDetails);
 
-      printTableValues(columns, tableName, conditions, tableColumnsDetails,
+      printTableValues(columns, schemaName, tableName, conditions, tableColumnsDetails,
           mappedValues, true);
     } else {
       Set<String> columnNamesInQuery =
@@ -915,13 +930,15 @@ public class Table {
         List<Map<String, Object>> mappedValues = getTableValues(schemaName,
             tableName, tableColumnsDetails, columnNamesInQuery);
 
-        printTableValues(columns, tableName, conditions, tableColumnsDetails,
+        printTableValues(columns, schemaName, tableName, conditions,
+            tableColumnsDetails,
             mappedValues, false);
 
       } else {
         this.eventLogsWriter.append("One of the column does not exist in " +
             "table: ").append(tableName).append("! Please check your query").append("\n");
         this.eventLogsWriter.close();
+        customLock.unlock(schemaName, tableName);
         throw new Exception("One of the column does not exist in table: " + tableName +
             "! Please check your query");
       }
