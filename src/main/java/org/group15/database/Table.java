@@ -462,70 +462,78 @@ public class Table {
       throw new Exception("Table with name: " + tableName + " not found");
     }
 
-    File tableMetadataFile = new File(tableMetadataPath);
-    File tableValueFile = new File(tableValuePath);
-
-    BufferedReader br =
-        new BufferedReader(new FileReader(tableMetadataFile));
-
-    // Here, we are reading all data from particular table
-    String columnName = null;
-    String line;
-    while ((line = br.readLine()) != null) {
-      // Generating column obj from the line
-      Column column = getColumnObjFromLine(line);
-      if (column.isPrimaryKey()) {
-        columnName = column.getColumnName();
-      }
-    }
-    br.close();
-
-    if (columnName == null) {
-      if (tableMetadataFile.delete()) {
-        tableValueFile.delete();
-      }
+    if (customLock.isLocked(schemaName, tableName)) {
+      System.out.println("Table: " + tableName + " is locked");
+      this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
+          "locked").append("\n");
+      return false;
     } else {
-      String foreignKeyColumnName = null;
-      String foreignKeyTableName = null;
+      customLock.lock(schemaName, tableName);
+      File tableMetadataFile = new File(tableMetadataPath);
+      File tableValueFile = new File(tableValuePath);
 
-      for (File table : tables) {
-        String currentTableName = table.getName().split("\\.")[0];
-        String tablePath = table.getPath();
+      BufferedReader br =
+          new BufferedReader(new FileReader(tableMetadataFile));
 
-        // We will read the particular table based on the table path
-        File tableFile = new File(tablePath);
-        if (!currentTableName.equalsIgnoreCase(tableName)) {
-          BufferedReader bufferedReader =
-              new BufferedReader(new FileReader(tableFile));
-
-          // Here, we are reading all data from particular table
-          String currentTableLine;
-
-          while ((currentTableLine = bufferedReader.readLine()) != null) {
-            // Generating column obj from the line
-            Column column = getColumnObjFromLine(currentTableLine);
-            if (column.isForeignKey()) {
-              foreignKeyColumnName = column.getForeignKeyColumn();
-              foreignKeyTableName = column.getForeignKeyTable();
-              if (foreignKeyColumnName.equals(columnName) && foreignKeyTableName.equals(tableName)) {
-                this.eventLogsWriter.append("Foreign key violation! Table: ").append(tableName).append(" can not be dropped").append(
-                    "\n");
-                this.eventLogsWriter.close();
-                throw new Exception("Foreign key violation! Table: " + tableName + " can not be dropped");
-              }
-            }
-          }
-          bufferedReader.close();
+      // Here, we are reading all data from particular table
+      String columnName = null;
+      String line;
+      while ((line = br.readLine()) != null) {
+        // Generating column obj from the line
+        Column column = getColumnObjFromLine(line);
+        if (column.isPrimaryKey()) {
+          columnName = column.getColumnName();
         }
       }
-      if (foreignKeyColumnName == null && foreignKeyTableName == null) {
+      br.close();
+
+      if (columnName == null) {
         if (tableMetadataFile.delete()) {
           tableValueFile.delete();
         }
-      }
-    }
+      } else {
+        String foreignKeyColumnName = null;
+        String foreignKeyTableName = null;
 
-    return true;
+        for (File table : tables) {
+          String currentTableName = table.getName().split("\\.")[0];
+          String tablePath = table.getPath();
+
+          // We will read the particular table based on the table path
+          File tableFile = new File(tablePath);
+          if (!currentTableName.equalsIgnoreCase(tableName)) {
+            BufferedReader bufferedReader =
+                new BufferedReader(new FileReader(tableFile));
+
+            // Here, we are reading all data from particular table
+            String currentTableLine;
+
+            while ((currentTableLine = bufferedReader.readLine()) != null) {
+              // Generating column obj from the line
+              Column column = getColumnObjFromLine(currentTableLine);
+              if (column.isForeignKey()) {
+                foreignKeyColumnName = column.getForeignKeyColumn();
+                foreignKeyTableName = column.getForeignKeyTable();
+                if (foreignKeyColumnName.equals(columnName) && foreignKeyTableName.equals(tableName)) {
+                  this.eventLogsWriter.append("Foreign key violation! Table: ").append(tableName).append(" can not be dropped").append(
+                      "\n");
+                  this.eventLogsWriter.close();
+                  throw new Exception("Foreign key violation! Table: " + tableName + " can not be dropped");
+                }
+              }
+            }
+            bufferedReader.close();
+          }
+        }
+        if (foreignKeyColumnName == null && foreignKeyTableName == null) {
+          if (tableMetadataFile.delete()) {
+            tableValueFile.delete();
+          }
+        }
+      }
+      customLock.unlock(schemaName, tableName);
+      return true;
+    }
   }
 
   public boolean addColumn(String schemaName, String tableName,
