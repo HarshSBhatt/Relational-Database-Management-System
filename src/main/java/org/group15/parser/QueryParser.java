@@ -34,6 +34,8 @@ public class QueryParser {
 
   Delete deleteSQL;
 
+  Update updateSQL;
+
   ERD erd;
 
   SQLDump sqlDump;
@@ -53,6 +55,7 @@ public class QueryParser {
     alterSQL = new Alter(eventLogsWriter);
     dropSQL = new Drop(eventLogsWriter);
     deleteSQL = new Delete(eventLogsWriter);
+    updateSQL = new Update(eventLogsWriter);
     erd = new ERD(eventLogsWriter);
     sqlDump = new SQLDump(eventLogsWriter);
     dataDictionary = new DataDictionary(eventLogsWriter);
@@ -305,7 +308,31 @@ public class QueryParser {
                 ": ").append(query).append("]\n");
           } else {
             System.out.println("Something went wrong while deleting row(s) in" +
-                " table: " + queryParts[2] + "! Please check your query " +
+                " table! Please check your query " +
+                "syntax");
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+          }
+        }
+        break;
+      case "UPDATE":
+//        selectedSchema = schema.getSchemaName();
+        // Hard coding schema name for testing
+        selectedSchema = "harsh";
+        if (selectedSchema == null) {
+          System.out.println("Error! Schema is not selected");
+        } else {
+          isValidSyntax =
+              updateSQL.parseUpdateTableStatement(query,
+                  selectedSchema);
+          if (isValidSyntax) {
+            System.out.println("Update operation performed successfully in " +
+                "table: " + queryParts[1]);
+            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+                ": ").append(query).append("]\n");
+          } else {
+            System.out.println("Something went wrong while updating row(s) in" +
+                " table! Please check your query " +
                 "syntax");
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");

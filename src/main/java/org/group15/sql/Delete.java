@@ -18,7 +18,6 @@ public class Delete {
   }
 
   public boolean parseDeleteStatement(String query, String schemaName) throws Exception {
-    String[] queryParts = query.split("\\s+");
     Pattern deletePattern = Pattern.compile("delete\\s+from\\s+" +
             "(.*?)\\s*where\\s+(.*?)$",
         Pattern.CASE_INSENSITIVE);

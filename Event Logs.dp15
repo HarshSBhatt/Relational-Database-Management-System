@@ -72,3 +72,21 @@
 [User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (6,'Bhatt','Harsh','Gujarat','India',1)]
 [User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (7,'Bhatt','Harsh','Gujarat','India',1)]
 [User: abc] [Query: insert into users (user_id,last_name,first_name,address,country,role_id) values (8,'Bhatt','Harsh','Gujarat','India',1)]
+Metadata fetched successfully of table: roles.dp15 while generating DUMP
+Metadata fetched successfully of table: roles.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+All tables detail fetched successfully to generate DUMP
+[User: abc] [Query: create dump]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Delete operation done on: users Rows affected: 0
+[User: abc] [Query: delete from users where first_name=Harsh_Test]
+Metadata fetched successfully for table: users
+Table values fetched for table: users
+Delete operation done on: users Rows affected: 0
+[User: abc] [Query: delete from users where first_name=Harsh_Test]
