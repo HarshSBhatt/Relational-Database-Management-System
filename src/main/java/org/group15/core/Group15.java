@@ -46,15 +46,14 @@ public class Group15 {
         System.out.print("Enter Query: ");
         String input = br.readLine();
         if (input.equalsIgnoreCase("exit")) {
-          valid = false;
           eventLogsWriter.close();
           generalLogsWriter.close();
           queryLogsWriter.close();
+          valid = false;
         } else {
           queryParser.parse(input.trim(), username);
         }
       } catch (Exception e) {
-        System.out.println("Invalid Input!");
         System.out.println(e.getMessage());
       }
     }

@@ -16,8 +16,6 @@ public class ERD {
 
   File erdFolder;
 
-  Formatter fmtCon;
-
   Formatter fmtFile;
 
   private List<Column> columns;
@@ -27,7 +25,6 @@ public class ERD {
   public ERD(FileWriter eventLogsWriter) {
     this.columns = new ArrayList<>();
     this.eventLogsWriter = eventLogsWriter;
-    this.fmtCon = new Formatter(System.out);
     tableObj = new Table(eventLogsWriter);
   }
 
@@ -87,7 +84,6 @@ public class ERD {
       br.close();
       writeERDToFile(schemaName, tableName, tablePath);
     }
-    this.fmtCon.close();
     this.fmtFile.close();
     this.eventLogsWriter.append("All tables detail fetched successfully to " +
         "generate ERD").append("\n");

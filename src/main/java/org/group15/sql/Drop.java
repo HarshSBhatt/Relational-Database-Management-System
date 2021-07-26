@@ -21,14 +21,12 @@ public class Drop {
     if (queryParts.length != 3) {
       this.eventLogsWriter.append("Syntax error: Error while parsing drop " +
           "table query").append("\n");
-      this.eventLogsWriter.close();
       throw new Exception("Syntax error: Error while parsing drop table query");
     }
 
     if (!queryParts[1].equalsIgnoreCase("TABLE")) {
       this.eventLogsWriter.append("Syntax error: TABLE keyword not found " +
           "in drop table query").append("\n");
-      this.eventLogsWriter.close();
       throw new Exception("Syntax error: TABLE keyword not found in " +
           "drop table query");
     }
