@@ -862,7 +862,7 @@ public class Table {
           fileContent.append("\n");
         }
 
-        int finalAffectedRows = rowsAffected == 0 ? 0 : rowsAffected / 6;
+        int finalAffectedRows = rowsAffected == 0 ? 0 : rowsAffected / mappedValues.size();
 
         if (finalAffectedRows > 0) {
           FileWriter tableDataWriter = new FileWriter(tableFile);
