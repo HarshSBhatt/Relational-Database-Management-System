@@ -1,0 +1,55 @@
+1. create table roles (role_id int, role_name varchar(255), PRIMARY KEY (role_id))
+		
+2. create table Users (user_id int, last_name varchar(100), first_name varchar(100), address varchar(255), country varchar(100), PRIMARY KEY (user_id))
+
+3. create table Users (user_id int, last_name varchar(100), first_name varchar(100), address varchar(255), country varchar(100), role_id int, PRIMARY KEY (user_id), FOREIGN KEY role_id REFERENCES roles (role_id))
+
+// Note: Assumption is made to not have whitespace in column names and column values
+
+4. insert into roles (role_id,role_name) values (1,'SuperAdmin');
+
+5. insert into roles (role_id,role_name) values (2,'Admin');
+
+6. insert into roles (role_id,role_name) values (3,'User');
+
+7. insert into users (user_id,last_name,first_name,address,country,role_id) values (1,'Bhatt','Harsh','Gujarat','India',3)
+
+8. insert into users (user_id,last_name,first_name,address,country,role_id) values (2,'Valand','Raj','Gujarat','India',2)
+
+9. insert into users (user_id,last_name,first_name,address,country,role_id) values (3,'Taneja','Seedak','Punjab','India',1)
+
+10. alter table users add city varchar(100)
+
+11. alter table users drop column last_name
+
+12. alter table users change column last_name surname varchar(100)
+
+13. drop table roles
+
+14. drop table users
+
+15. delete from users where user_id=1 (Assumption is made to not have whitespace between column name and column value)
+
+16. update users set first_name='Test' where user_id=1
+
+17. select first_name,last_name,user_id from users where last_name='Bhatt' or user_id=2
+
+18. select country,city from users where last_name='Bhatt' and user_id=1
+
+19. select country,city from users where last_name='Bhatt' and user_id=2 (0 rows will be returned)
+
+20. select first_name,last_name,city from users
+
+21. select * from users where last_name='Bhatt' or user_id=2
+
+22. select * from users where last_name='Bhatt' and user_id=1
+
+23. select * from users where last_name='Bhatt' and user_id=2 (0 rows will be returned)
+
+24. select * from users
+
+25. create erd
+
+26. create dump
+
+27. create dd

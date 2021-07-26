@@ -281,15 +281,13 @@ public class QueryParser {
           if (isValidSyntax) {
             System.out.println("Delete operation performed successfully in " +
                 "table: " + queryParts[2]);
-            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
-                ": ").append(query).append("]\n");
           } else {
             System.out.println("Something went wrong while deleting row(s) in" +
                 " table! Please check your query " +
                 "syntax");
-            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
-                ": ").append(query).append("]\n");
           }
+          eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+              ": ").append(query).append("]\n");
         }
         break;
       case "UPDATE":
@@ -303,15 +301,13 @@ public class QueryParser {
           if (isValidSyntax) {
             System.out.println("Update operation performed successfully in " +
                 "table: " + queryParts[1]);
-            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
-                ": ").append(query).append("]\n");
           } else {
             System.out.println("Something went wrong while updating row(s) in" +
                 " table! Please check your query " +
                 "syntax");
-            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
-                ": ").append(query).append("]\n");
           }
+          eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+              ": ").append(query).append("]\n");
         }
         break;
       default:
