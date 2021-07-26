@@ -71,7 +71,6 @@ public class Table {
     } else {
       this.eventLogsWriter.append("Something went wrong! Table does not " +
           "exist").append("\n");
-      this.eventLogsWriter.close();
       customLock.unlock(schemaName, tableName);
       throw new Exception("Table: " + tableName + " does not exist");
     }
@@ -123,7 +122,6 @@ public class Table {
     } else {
       this.eventLogsWriter.append("Something went wrong! Table does not " +
           "exist").append("\n");
-      this.eventLogsWriter.close();
       customLock.unlock(schemaName, tableName);
       throw new Exception("Table: " + tableName + " does not exist");
     }
@@ -170,7 +168,6 @@ public class Table {
             column.setAutoIncrement(true);
           } else {
             this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
-            this.eventLogsWriter.close();
             customLock.unlock(schemaName, tableName);
             throw new Exception("Something went wrong near: " + columnKey);
           }
@@ -323,7 +320,6 @@ public class Table {
       } else {
         this.eventLogsWriter.append("Condition mentioned is wrong! Please " +
             "check your query").append("\n");
-        this.eventLogsWriter.close();
         customLock.unlock(schemaName, tableName);
         throw new Exception("Condition mentioned is wrong! Please " +
             "check your query! Please check your query");
@@ -356,7 +352,6 @@ public class Table {
       if (!isColExist) {
         this.eventLogsWriter.append("Column: ").append(conditionColAndVAl.get(0).trim()).append(" does not exist in " +
             "table: ").append(tableName).append("! Please check your query").append("\n");
-        this.eventLogsWriter.close();
         customLock.unlock(schemaName, tableName);
         throw new Exception("Column: " + conditionColAndVAl.get(0).trim() + " does not exist in table: " + tableName +
             "! Please check your query");
@@ -455,7 +450,6 @@ public class Table {
                   pk++;
                 } else {
                   this.eventLogsWriter.append("Table can not have more than one primary key").append("\n");
-                  this.eventLogsWriter.close();
                   customLock.unlock(schemaName, tableName);
                   throw new Exception("Table can not have more than one primary " +
                       "key");
@@ -467,7 +461,6 @@ public class Table {
                   ai++;
                 } else {
                   this.eventLogsWriter.append("Table can not have more than one AUTO_INCREMENT field").append("\n");
-                  this.eventLogsWriter.close();
                   customLock.unlock(schemaName, tableName);
                   throw new Exception("Table can not have more than one " +
                       "AUTO_INCREMENT field");
@@ -482,19 +475,16 @@ public class Table {
             metadataWriter.close();
           } else {
             this.eventLogsWriter.append("Error occurred while creating table").append("\n");
-            this.eventLogsWriter.close();
             customLock.unlock(schemaName, tableName);
             throw new Exception("Error occurred while creating table");
           }
         } else {
           this.eventLogsWriter.append("Error: Wrong foreign key constraint").append("\n");
-          this.eventLogsWriter.close();
           customLock.unlock(schemaName, tableName);
           throw new Exception("Error: Wrong foreign key constraint");
         }
       } else {
         this.eventLogsWriter.append("Table already exists").append("\n");
-        this.eventLogsWriter.close();
         customLock.unlock(schemaName, tableName);
         throw new Exception("Table already exists");
       }
@@ -591,14 +581,12 @@ public class Table {
 
     if (!schemaFolder.exists()) {
       this.eventLogsWriter.append("Something went wrong! Database: ").append(schemaName).append(" ").append("does not exist").append("\n");
-      this.eventLogsWriter.close();
       customLock.unlock(schemaName, tableName);
       throw new Exception("Database with name: " + schemaName + " not found");
     }
 
     if (!tableIO.isTableExist(schemaName, tableName) || !tableIO.isMetadataTableExist(schemaName, tableName)) {
       this.eventLogsWriter.append("Something went wrong! Table: ").append(tableName).append(" ").append("does not exist").append("\n");
-      this.eventLogsWriter.close();
       customLock.unlock(schemaName, tableName);
       throw new Exception("Table with name: " + tableName + " not found");
     }
@@ -658,7 +646,6 @@ public class Table {
                 if (foreignKeyColumnName.equals(columnName) && foreignKeyTableName.equals(tableName)) {
                   this.eventLogsWriter.append("Foreign key violation! Table: ").append(tableName).append(" can not be dropped").append(
                       "\n");
-                  this.eventLogsWriter.close();
                   customLock.unlock(schemaName, tableName);
                   throw new Exception("Foreign key violation! Table: " + tableName + " can not be dropped");
                 }
@@ -710,7 +697,6 @@ public class Table {
         if (!isColExist) {
           this.eventLogsWriter.append("Column: ").append(conditionColName.trim()).append(" does not exist in " +
               "table: ").append(tableName).append("! Please check your query").append("\n");
-          this.eventLogsWriter.close();
           customLock.unlock(schemaName, tableName);
           throw new Exception("Column: " + conditionColName.trim() + " does not exist in table: " + tableName +
               "! Please check your query");
@@ -795,7 +781,6 @@ public class Table {
         if (!isColExist) {
           this.eventLogsWriter.append("Column: ").append(conditionColName.trim()).append(" does not exist in " +
               "table: ").append(tableName).append("! Please check your query").append("\n");
-          this.eventLogsWriter.close();
           customLock.unlock(schemaName, tableName);
           throw new Exception("Column: " + conditionColName.trim() + " does not exist in table: " + tableName +
               "! Please check your query");
@@ -821,7 +806,6 @@ public class Table {
           } else {
             this.eventLogsWriter.append("Column: ").append(colAndValString[0].trim()).append(" does not exist in " +
                 "table: ").append(tableName).append("! Please check your query").append("\n");
-            this.eventLogsWriter.close();
             customLock.unlock(schemaName, tableName);
             throw new Exception("Column: " + colAndValString[0].trim() + " " +
                 "does not exist in table: " + tableName +
@@ -1033,7 +1017,6 @@ public class Table {
       } else {
         this.eventLogsWriter.append("One of the column does not exist in " +
             "table: ").append(tableName).append("! Please check your query").append("\n");
-        this.eventLogsWriter.close();
         customLock.unlock(schemaName, tableName);
         throw new Exception("One of the column does not exist in table: " + tableName +
             "! Please check your query");
@@ -1068,7 +1051,6 @@ public class Table {
       } else {
         this.eventLogsWriter.append("One of the column does not exist in " +
             "table: ").append(tableName).append("! Please check your query").append("\n");
-        this.eventLogsWriter.close();
         customLock.unlock(schemaName, tableName);
         throw new Exception("One of the column does not exist in table: " + tableName +
             "! Please check your query");
