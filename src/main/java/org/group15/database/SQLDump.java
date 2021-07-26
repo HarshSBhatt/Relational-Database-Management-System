@@ -82,6 +82,7 @@ public class SQLDump {
             "table: ").append(tableName).append(" while generating DUMP").append("\n");
         this.columns.add(column);
       }
+      br.close();
       writeDumpToFile(schemaName, tableName, tablePath);
     }
     System.out.println("SQL Dump created successfully");

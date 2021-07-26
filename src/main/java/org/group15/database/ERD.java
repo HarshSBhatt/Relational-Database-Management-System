@@ -84,6 +84,7 @@ public class ERD {
             "table: ").append(tableName).append(" while generating ERD").append("\n");
         this.columns.add(column);
       }
+      br.close();
       writeERDToFile(schemaName, tableName, tablePath);
     }
     this.fmtCon.close();
