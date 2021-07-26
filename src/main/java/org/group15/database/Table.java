@@ -43,6 +43,7 @@ public class Table {
     File tableFile = new File(path);
 
     if (tableFile.exists()) {
+      this.tableValues = new ArrayList<>();
       BufferedReader br =
           new BufferedReader(new FileReader(tableFile));
 
@@ -79,11 +80,12 @@ public class Table {
 
   public List<Map<String, Object>> getTableValues(String schemaName,
                                                   String tableName,
-                                                  Map<String, Column> tableColumnsDetails, Set<String> requiredColumnNames) throws Exception {
+                                                  Map<String, Column> tableColumnsDetails, Set<String> requiredColumnNames, boolean isWithCondition) throws Exception {
     String path = Helper.getTablePath(schemaName, tableName);
     File tableFile = new File(path);
 
     if (tableFile.exists()) {
+      this.tableValues = new ArrayList<>();
       BufferedReader br =
           new BufferedReader(new FileReader(tableFile));
 
@@ -96,15 +98,20 @@ public class Table {
         for (String info : columnInfo) {
           String[] columnKeyValue = info.split("=");
           // Getting only required columns asked by user
-          if (requiredColumnNames.contains(columnKeyValue[0])) {
+          if (isWithCondition) {
             colAndVal.put(columnKeyValue[0], columnKeyValue[1]);
+          } else {
+            if (requiredColumnNames.contains(columnKeyValue[0])) {
+              colAndVal.put(columnKeyValue[0], columnKeyValue[1]);
+            }
           }
+
         }
         // If some column has null or empty values then we will mark it with DASH
         for (String columnName : tableColumnsDetails.keySet()) {
           if (requiredColumnNames.contains(columnName)) {
             if (!(colAndVal.containsKey(columnName))) {
-              colAndVal.put(columnName, "-");
+              colAndVal.put(columnName, "NULL");
             }
           }
         }
@@ -381,6 +388,7 @@ public class Table {
                                    Map<String, Object> mappedValueMap, boolean isOrCondition) {
     boolean flag = false;
     for (String key : conditionMap.keySet()) {
+
       if (isOrCondition) {
         if ((mappedValueMap.get(key).equals(conditionMap.get(key)))) {
           flag = true;
@@ -1018,7 +1026,8 @@ public class Table {
 
       if (columnsNamesInActualTable.containsAll(columnNamesInQuery)) {
         List<Map<String, Object>> mappedValues = getTableValues(schemaName,
-            tableName, tableColumnsDetails, columnNamesInQuery);
+            tableName, tableColumnsDetails, columnNamesInQuery,
+            false);
 
         Helper.printTable(mappedValues);
       } else {
@@ -1050,7 +1059,7 @@ public class Table {
 
       if (columnsNamesInActualTable.containsAll(columnNamesInQuery)) {
         List<Map<String, Object>> mappedValues = getTableValues(schemaName,
-            tableName, tableColumnsDetails, columnNamesInQuery);
+            tableName, tableColumnsDetails, columnNamesInQuery, true);
 
         printTableValues(columns, schemaName, tableName, conditions,
             tableColumnsDetails,

@@ -94,6 +94,7 @@ public class DataDictionary {
                 "Dictionary").append("\n");
             this.columns.add(column);
           }
+          br.close();
           writeDDToFile(schema.getName(), tableName, tablePath);
         }
       }
