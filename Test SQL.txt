@@ -6,11 +6,11 @@
 
 // Note: Assumption is made to not have whitespace in column names and column values
 
-4. insert into roles (role_id,role_name) values (1,'SuperAdmin');
+4. insert into roles (role_id,role_name) values (1,'SuperAdmin')
 
-5. insert into roles (role_id,role_name) values (2,'Admin');
+5. insert into roles (role_id,role_name) values (2,'Admin')
 
-6. insert into roles (role_id,role_name) values (3,'User');
+6. insert into roles (role_id,role_name) values (3,'User')
 
 7. insert into users (user_id,last_name,first_name,address,country,role_id) values (1,'Bhatt','Harsh','Gujarat','India',3)
 
@@ -34,11 +34,11 @@
 
 17. select first_name,last_name,user_id from users where last_name='Bhatt' or user_id=2
 
-18. select country,city from users where last_name='Bhatt' and user_id=1
+18. select country from users where last_name='Bhatt' and user_id=1
 
-19. select country,city from users where last_name='Bhatt' and user_id=2 (0 rows will be returned)
+19. select country from users where last_name='Bhatt' and user_id=2 (0 rows will be returned)
 
-20. select first_name,last_name,city from users
+20. select first_name,last_name from users
 
 21. select * from users where last_name='Bhatt' or user_id=2
 

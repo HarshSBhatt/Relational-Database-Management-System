@@ -82,7 +82,7 @@ public class QueryParser {
     // Checking whether CREATE statement is for SCHEMA or TABLE or ERD
     if (queryParts.length >= 2 && dbOperation.equalsIgnoreCase("CREATE")) {
       if (queryParts[1].equalsIgnoreCase("SCHEMA")) {
-        if (queryParts.length > 2) {
+        if (queryParts.length > 3) {
           throw new Exception("Error: Wrong query for create schema");
         }
         dbOperation = "CREATE SCHEMA";
