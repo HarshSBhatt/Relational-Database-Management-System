@@ -2,12 +2,15 @@ package org.group15.sql;
 
 import org.group15.database.Column;
 import org.group15.database.Table;
+import org.group15.io.CustomLock;
 import org.group15.io.TableIO;
 import org.group15.util.AppConstants;
 import org.group15.util.Helper;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class Insert {
 
@@ -23,6 +26,8 @@ public class Insert {
 
   Table table;
 
+  CustomLock customLock;
+
   public Insert(FileWriter eventLogsWriter) {
     this.tableIO = new TableIO();
     this.columns = new HashMap<>();
@@ -30,6 +35,7 @@ public class Insert {
     this.foreignKeyColumn = null;
     this.eventLogsWriter = eventLogsWriter;
     table = new Table(eventLogsWriter);
+    customLock = new CustomLock();
   }
 
   /**
@@ -50,14 +56,12 @@ public class Insert {
 
         if (queryParts.length != 6) {
           this.eventLogsWriter.append("Syntax error: Error while parsing insert query").append("\n");
-          this.eventLogsWriter.close();
           throw new Exception("Syntax error: Error while parsing insert query");
         }
 
         if (!queryParts[1].equalsIgnoreCase("INTO")) {
           this.eventLogsWriter.append("Syntax error: INTO keyword not found " +
               "in Insert query").append("\n");
-          this.eventLogsWriter.close();
           throw new Exception("Syntax error: INTO keyword not found in " +
               "Insert query");
         }
@@ -65,7 +69,6 @@ public class Insert {
         if (!queryParts[4].equalsIgnoreCase("VALUES")) {
           this.eventLogsWriter.append("Syntax error: VALUES keyword not found" +
               " in Insert query").append("\n");
-          this.eventLogsWriter.close();
           throw new Exception("Syntax error: VALUES keyword not found in " +
               "Insert query");
         }
@@ -77,7 +80,6 @@ public class Insert {
         if (!validatedValuesBetweenParenthesis(queryColumns)) {
           this.eventLogsWriter.append("Syntax error: Error while parsing " +
               "parenthesis of columns").append("\n");
-          this.eventLogsWriter.close();
           throw new Exception("Syntax error: Error while parsing parenthesis " +
               "of columns");
         }
@@ -85,7 +87,6 @@ public class Insert {
         if (!validatedValuesBetweenParenthesis(queryValues)) {
           this.eventLogsWriter.append("Syntax error: Error while parsing " +
               "parenthesis of values").append("\n");
-          this.eventLogsWriter.close();
           throw new Exception("Syntax error: Error while parsing parenthesis " +
               "of values");
         }
@@ -113,9 +114,9 @@ public class Insert {
                     columnsArray, this.columns, this.primaryKeyColumn, this.foreignKeyColumn);
 
                 if (!isDataWritten) {
+                  customLock.unlock(schemaName, tableName);
                   this.eventLogsWriter.append("Error: Something went wrong " +
                       "while writing data to table").append("\n");
-                  this.eventLogsWriter.close();
                   throw new Exception("Error: Something went wrong while " +
                       "writing data to table");
                 }
@@ -124,40 +125,34 @@ public class Insert {
               } else {
                 this.eventLogsWriter.append("Error: Something went wrong while " +
                     "fetching table data").append("\n");
-                this.eventLogsWriter.close();
                 throw new Exception("Error: Something went wrong while " +
                     "fetching table data");
               }
             } else {
               this.eventLogsWriter.append("Error: Something went wrong while " +
                   "fetching table data").append("\n");
-              this.eventLogsWriter.close();
               throw new Exception("Error: Something went wrong while " +
                   "fetching table data");
             }
           } else {
             this.eventLogsWriter.append("Error: Columns and its value " +
                 "mismatch").append("\n");
-            this.eventLogsWriter.close();
             throw new Exception("Error: Columns and its value mismatch");
           }
         } else {
           this.eventLogsWriter.append("Error: Invalid table name").append("\n");
-          this.eventLogsWriter.close();
           throw new Exception("Error: Invalid table name");
         }
 
       } else {
         this.eventLogsWriter.append("Syntax error: Error occurred due to " +
             "mismatch parenthesis").append("\n");
-        this.eventLogsWriter.close();
         throw new Exception("Syntax error: Error occurred due " +
             "to mismatch parenthesis");
       }
     } else {
       this.eventLogsWriter.append("Syntax error: Please check your syntax for" +
           " Insert query").append("\n");
-      this.eventLogsWriter.close();
       throw new Exception("Syntax error: Please check your syntax for Insert query");
     }
     return true;
@@ -203,7 +198,6 @@ public class Insert {
             column.setAutoIncrement(true);
           } else {
             this.eventLogsWriter.append("Something went wrong near: ").append(columnKey).append("\n");
-            this.eventLogsWriter.close();
             throw new Exception("Something went wrong near: " + columnKey);
           }
         }

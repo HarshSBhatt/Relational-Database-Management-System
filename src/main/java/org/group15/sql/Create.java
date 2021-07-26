@@ -85,7 +85,6 @@ public class Create {
                 tableColumns.put(columnName, primaryKeyColObj);
               } else {
                 this.eventLogsWriter.append("Syntax error: Error occurred while parsing primary key syntax").append("\n");
-                this.eventLogsWriter.close();
                 throw new Exception("Syntax error: Error occurred while " +
                     "parsing primary key syntax");
               }
@@ -103,7 +102,6 @@ public class Create {
               } else {
                 this.eventLogsWriter.append("Syntax error: Error occurred " +
                     "while parsing foreign key syntax").append("\n");
-                this.eventLogsWriter.close();
                 throw new Exception("Syntax error: Error occurred while " +
                     "parsing foreign key syntax");
               }
@@ -119,7 +117,6 @@ public class Create {
                 if (!validDataTypes.contains(columnDataType)) {
                   this.eventLogsWriter.append("Unknown Datatype: ").append(columnDataType).append(
                       "\n");
-                  this.eventLogsWriter.close();
                   throw new Exception("Unknown Datatype: " + columnDataType);
                 }
                 tableColumn.setColumnName(columnName);
@@ -134,7 +131,6 @@ public class Create {
               } else {
                 this.eventLogsWriter.append("Syntax error: Error occurred " +
                     "while parsing table columns").append("\n");
-                this.eventLogsWriter.close();
                 throw new Exception("Syntax error: Error occurred while " +
                     "parsing table columns");
               }
@@ -147,13 +143,11 @@ public class Create {
       } else {
         this.eventLogsWriter.append("Syntax error: Syntax error: Error " +
             "occurred due to mismatch parenthesis").append("\n");
-        this.eventLogsWriter.close();
         throw new Exception("Syntax error: Syntax error: Error occurred due " +
             "to mismatch parenthesis");
       }
     } else {
       this.eventLogsWriter.append("Syntax error: Please check your syntax for Create Table").append("\n");
-      this.eventLogsWriter.close();
       throw new Exception("Syntax error: Please check your syntax for Create Table");
     }
     return isValidSyntax;

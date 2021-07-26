@@ -14,8 +14,6 @@ public class SQLDump {
 
   File dumpFolder;
 
-  Formatter fmtCon;
-
   Formatter fmtFile;
 
   private List<Column> columns;
@@ -26,7 +24,6 @@ public class SQLDump {
     this.columns = new ArrayList<>();
     this.eventLogsWriter = eventLogsWriter;
     tableObj = new Table(eventLogsWriter);
-    this.fmtCon = new Formatter(System.out);
   }
 
   public boolean generateDump(String schemaName) throws Exception {
@@ -86,7 +83,6 @@ public class SQLDump {
       writeDumpToFile(schemaName, tableName, tablePath);
     }
     System.out.println("SQL Dump created successfully");
-    this.fmtCon.close();
     this.fmtFile.close();
     this.eventLogsWriter.append("All tables detail fetched successfully to " +
         "generate DUMP").append("\n");
