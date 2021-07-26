@@ -1,6 +1,7 @@
 package org.group15.sql;
 
 import org.group15.database.Table;
+import org.group15.io.TableIO;
 
 import java.io.FileWriter;
 
@@ -38,6 +39,16 @@ public class Drop {
       return table.dropTable(schemaName, tableName);
     }
     else{
+      TableIO tableIO = new TableIO();
+      for(int i = 2; i < queryParts.length; i++){
+        String tableName = queryParts[i];
+
+        if (!tableIO.isTableExist(schemaName, tableName) || !tableIO.isMetadataTableExist(schemaName, tableName)) {
+          this.eventLogsWriter.append("Something went wrong! Table: ").append(tableName).append(" ").append("does not exist").append("\n");
+          this.eventLogsWriter.close();
+          throw new Exception("Table with name: " + tableName + " not found");
+        }
+      }
       for(int i =2; i < queryParts.length; i++){
         String tableName = queryParts[i];
         tableName = tableName.replaceAll(",$", "");
