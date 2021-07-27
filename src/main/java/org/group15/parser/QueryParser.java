@@ -262,12 +262,14 @@ public class QueryParser {
           isValidSyntax =
               dropSQL.parseDropTableStatement(query,
                   selectedSchema);
-          if (isValidSyntax) {
+          if (isValidSyntax && queryParts.length == 3) {
             System.out.println("Table: " + queryParts[2] + " dropped " +
                 "successfully from the schema: " + selectedSchema);
-            eventLogsWriter.append("[User: ").append(username).append("] [Query" +
-                ": ").append(query).append("]\n");
+          } else {
+            System.out.println("Tables dropped successfully from the schema: " + selectedSchema);
           }
+          eventLogsWriter.append("[User: ").append(username).append("] [Query" +
+              ": ").append(query).append("]\n");
         }
         break;
       case "DELETE":
