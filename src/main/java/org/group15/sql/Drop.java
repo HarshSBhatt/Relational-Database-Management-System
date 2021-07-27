@@ -31,6 +31,7 @@ public class Drop {
       throw new Exception("Syntax error: TABLE keyword not found in " +
           "drop table query");
     }
+
     if (queryParts.length == 3) {
       String tableName = queryParts[2];
 
