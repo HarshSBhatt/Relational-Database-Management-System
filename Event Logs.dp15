@@ -1,0 +1,62 @@
+Schema listed successfully
+[User: raj] [Query: show databases]
+Schema created with name: group15
+[User: raj] [Query: create schema group15]
+Schema created with name: dal
+[User: raj] [Query: create schema dal]
+Schema: group1 does not exist
+Schema: group15 selected
+[User: raj] [Query: use group15]
+Foreign key check is performed successfully
+Table: roles created in schema: group15
+[User: raj] [Query: create table roles (role_id int, role_name varchar(255), PRIMARY KEY (role_id))]
+Metadata fetched successfully for table: roles
+Columns and its value validated successfully
+Data inserted successfully in the table: roles
+[User: raj] [Query: insert into roles (role_id,role_name) values (1,'SuperAdmin')]
+Metadata fetched successfully for table: roles
+Columns and its value validated successfully
+Data inserted successfully in the table: roles
+[User: raj] [Query: insert into roles (role_id,role_name) values (2,'Admin')]
+Metadata fetched successfully for table: roles
+Columns and its value validated successfully
+Data inserted successfully in the table: roles
+[User: raj] [Query: insert into roles (role_id,role_name) values (3,'User')]
+Metadata fetched successfully for table: roles
+Columns and its value validated successfully
+Insert fail: Primary key constraint violated
+Error: Something went wrong while writing data to table
+Schema: group15 selected
+[User: harsh] [Query: use group15]
+Table: users created in schema: group15
+[User: harsh] [Query: create table Users (user_id int, last_name varchar(100), first_name varchar(100), address varchar(255), country varchar(100), role_id int, PRIMARY KEY (user_id), FOREIGN KEY role_id REFERENCES roles (role_id))]
+Metadata fetched successfully of table: roles.dp15 while generating ERD
+Metadata fetched successfully of table: roles.dp15 while generating ERD
+Metadata fetched successfully of table: users.dp15 while generating ERD
+Metadata fetched successfully of table: users.dp15 while generating ERD
+Metadata fetched successfully of table: users.dp15 while generating ERD
+Metadata fetched successfully of table: users.dp15 while generating ERD
+Metadata fetched successfully of table: users.dp15 while generating ERD
+Metadata fetched successfully of table: users.dp15 while generating ERD
+All tables detail fetched successfully to generate ERD
+[User: harsh] [Query: create erd]
+Metadata fetched successfully of table: roles.dp15 while generating Data Dictionary
+Metadata fetched successfully of table: roles.dp15 while generating Data Dictionary
+Metadata fetched successfully of table: users.dp15 while generating Data Dictionary
+Metadata fetched successfully of table: users.dp15 while generating Data Dictionary
+Metadata fetched successfully of table: users.dp15 while generating Data Dictionary
+Metadata fetched successfully of table: users.dp15 while generating Data Dictionary
+Metadata fetched successfully of table: users.dp15 while generating Data Dictionary
+Metadata fetched successfully of table: users.dp15 while generating Data Dictionary
+All tables detail fetched successfully to generate ERD
+[User: harsh] [Query: create dd]
+Metadata fetched successfully of table: roles.dp15 while generating DUMP
+Metadata fetched successfully of table: roles.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+Metadata fetched successfully of table: users.dp15 while generating DUMP
+All tables detail fetched successfully to generate DUMP
+[User: harsh] [Query: create dump]
