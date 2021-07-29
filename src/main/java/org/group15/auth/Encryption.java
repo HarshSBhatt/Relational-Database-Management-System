@@ -4,6 +4,8 @@ public class Encryption {
 
   int shiftKey;
 
+  // Citation: https://www.sanfoundry.com/java-program-implement-caesar-cypher
+
   public static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
   public Encryption(int shiftKey) {
