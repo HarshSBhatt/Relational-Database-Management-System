@@ -22,32 +22,43 @@ public class Select {
 
   CustomLock customLock;
 
-  public Select(FileWriter eventLogsWriter) {
+  boolean isTransaction;
+
+  boolean isBulkOperation;
+
+  public Select(FileWriter eventLogsWriter, boolean isTransaction, boolean isBulkOperation) {
     this.schemaIO = new SchemaIO();
     this.tableIO = new TableIO();
     this.eventLogsWriter = eventLogsWriter;
+    this.isTransaction = isTransaction;
+    this.isBulkOperation = isBulkOperation;
     table = new Table(eventLogsWriter);
     customLock = new CustomLock();
   }
 
   public boolean parseUseSchemaStatement(int size, String[] queryParts) throws IOException {
     if (size == 2) {
-      String schemaName = queryParts[1].toLowerCase();
-      if (schemaIO.isExist(schemaName)) {
-        System.out.println(schemaName + " selected");
-        this.eventLogsWriter.append("Schema: ").append(schemaName).append(" " +
-            "selected").append("\n");
-        return true;
+      if (!isTransaction) {
+        String schemaName = queryParts[1].toLowerCase();
+        if (schemaIO.isExist(schemaName)) {
+          System.out.println(schemaName + " selected");
+          this.eventLogsWriter.append("Schema: ").append(schemaName).append(" " +
+              "selected").append("\n");
+          return true;
+        } else {
+          this.eventLogsWriter.append("Schema: ").append(schemaName).append(" does " +
+              "not exist").append("\n");
+          System.out.println("Schema: " + schemaName + " does not exist");
+          return false;
+        }
       } else {
-        this.eventLogsWriter.append("Schema: ").append(schemaName).append(" does " +
-            "not exist").append("\n");
-        System.out.println("Schema: " + schemaName + " does not exist");
+        return true;
       }
     } else {
       this.eventLogsWriter.append("Syntax error: Please check your syntax for USE Schema").append("\n");
       System.out.println("Syntax error: Please check your syntax for USE Schema");
+      return false;
     }
-    return false;
   }
 
   public boolean parseSelectStatement(String query, String schemaName) throws Exception {
@@ -66,15 +77,17 @@ public class Select {
         String columns = conditionalMatcher.group(1).trim();
         String tableName = conditionalMatcher.group(2).trim();
         String conditions = conditionalMatcher.group(3).trim();
-        if (customLock.isLocked(schemaName, tableName)) {
+        if (customLock.isLocked(schemaName, tableName) && !isBulkOperation) {
           System.out.println("Table: " + tableName + " is locked");
           this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
               "locked").append("\n");
           return false;
         } else {
-          customLock.lock(schemaName, tableName);
-          table.fetchTableInfo(columns, schemaName, tableName, conditions);
-          customLock.unlock(schemaName, tableName);
+          if (!isTransaction) {
+            customLock.lock(schemaName, tableName);
+            table.fetchTableInfo(columns, schemaName, tableName, conditions);
+            customLock.unlock(schemaName, tableName);
+          }
         }
       }
     } else {
@@ -82,15 +95,17 @@ public class Select {
         String columns = nonConditionalMatcher.group(1).trim();
         String tableName = nonConditionalMatcher.group(2).trim();
 
-        if (customLock.isLocked(schemaName, tableName)) {
+        if (customLock.isLocked(schemaName, tableName) && !isBulkOperation) {
           System.out.println("Table: " + tableName + " is locked");
           this.eventLogsWriter.append("Table: ").append(tableName).append(" is " +
               "locked").append("\n");
           return false;
         } else {
-          customLock.lock(schemaName, tableName);
-          table.fetchTableInfo(columns, schemaName, tableName);
-          customLock.unlock(schemaName, tableName);
+          if (!isTransaction) {
+            customLock.lock(schemaName, tableName);
+            table.fetchTableInfo(columns, schemaName, tableName);
+            customLock.unlock(schemaName, tableName);
+          }
         }
       }
     }

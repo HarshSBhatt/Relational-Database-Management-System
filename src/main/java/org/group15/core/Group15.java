@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Group15 {
 
@@ -36,8 +38,21 @@ public class Group15 {
     FileWriter queryLogsWriter = new FileWriter(queryLogs, true);
 
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    QueryParser queryParser = new QueryParser(eventLogsWriter,
-        generalLogsWriter, queryLogsWriter);
+
+    List<String> queries = new ArrayList<>();
+
+
+    QueryParser queryParserWithoutCommit =
+        new QueryParser(eventLogsWriter,
+            generalLogsWriter, queryLogsWriter, true, false);
+
+    QueryParser queryParserWithCommit =
+        new QueryParser(eventLogsWriter,
+            generalLogsWriter, queryLogsWriter, false, false);
+
+    QueryParser queryParserWithCommitAndBulkOperation =
+        new QueryParser(eventLogsWriter,
+            generalLogsWriter, queryLogsWriter, false, true);
 
     boolean valid = true;
 
@@ -45,13 +60,41 @@ public class Group15 {
       try {
         System.out.print("Enter Query: ");
         String input = br.readLine();
-        if (input.equalsIgnoreCase("exit")) {
+        boolean transaction;
+        if (input.equalsIgnoreCase("START TRANSACTION")) {
+          transaction = true;
+          while (transaction) {
+            System.out.print("Enter Transaction Query: ");
+            String transactionInput = br.readLine();
+            if (transactionInput.equalsIgnoreCase("COMMIT")) {
+              if (queries.size() > 0) {
+                for (String query : queries) {
+                  queryParserWithoutCommit.parse(query, username);
+                }
+
+                for (String query : queries) {
+                  queryParserWithCommitAndBulkOperation.parse(query, username);
+                }
+              } else {
+                System.out.println("No queries to execute in this transaction");
+              }
+              transaction = false;
+            } else if (transactionInput.equalsIgnoreCase("ROLLBACK")) {
+              System.out.println("Transaction is successfully rolled back. To" +
+                  " close program, type 'exit'");
+              transaction = false;
+              queries.removeAll(queries);
+            } else {
+              queries.add(transactionInput);
+            }
+          }
+        } else if (input.equalsIgnoreCase("EXIT")) {
           eventLogsWriter.close();
           generalLogsWriter.close();
           queryLogsWriter.close();
           valid = false;
         } else {
-          queryParser.parse(input.trim(), username);
+          queryParserWithCommit.parse(input.trim(), username);
         }
       } catch (Exception e) {
         System.out.println(e.getMessage());

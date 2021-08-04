@@ -1,6 +1,7 @@
 package org.group15.sql;
 
 import org.group15.database.Table;
+
 import java.io.FileWriter;
 
 public class Drop {
@@ -9,8 +10,14 @@ public class Drop {
 
   Table table;
 
-  public Drop(FileWriter eventLogsWriter) {
+  boolean isTransaction;
+
+  boolean isBulkOperation;
+
+  public Drop(FileWriter eventLogsWriter, boolean isTransaction, boolean isBulkOperation) {
     this.eventLogsWriter = eventLogsWriter;
+    this.isTransaction = isTransaction;
+    this.isBulkOperation = isBulkOperation;
     table = new Table(eventLogsWriter);
   }
 
@@ -29,7 +36,10 @@ public class Drop {
 
     String tableName = queryParts[2];
 
-    return table.dropTable(schemaName, tableName);
+    if (!isTransaction) {
+      return table.dropTable(schemaName, tableName, isBulkOperation);
+    }
+    return true;
   }
 
 }

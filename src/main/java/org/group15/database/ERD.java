@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
+import java.util.Set;
 
 public class ERD {
 
@@ -90,17 +91,17 @@ public class ERD {
     return true;
   }
 
-  private void writeERDToFile(String schemaName, String tableName, String tablePath) {
+  private void writeERDToFile(String schemaName, String tableName, String tablePath) throws IOException {
 
     String sName = "Schema: ".concat(schemaName);
     String tName = "Table: ".concat(tableName);
     String tPath = "Path: ".concat(tablePath);
 
     String lineSeparator =
-        "=============================================================================================================================================";
+        "==================================================================================================================================================";
 
     String headingSeparator =
-        "---------------------------------------------------------------------------------------------------------------------------------------------";
+        "--------------------------------------------------------------------------------------------------------------------------------------------------";
 
     this.fmtFile.format(lineSeparator.concat("\n"));
     System.out.println(lineSeparator);
@@ -111,12 +112,16 @@ public class ERD {
     this.fmtFile.format(lineSeparator.concat("\n"));
     System.out.println(lineSeparator);
 
-    this.fmtFile.format("%20s%20s%15s%15s%15s%20s%30s\n", "Column Name |", "Data " +
+    this.fmtFile.format("%20s%20s%15s%15s%15s%20s%20s%20s\n", "Column Name |",
+        "Data " +
             "type |", "Size |",
-        "Primary Key |", "Foreign Key |", "Foreign Column |", "Foreign Table |");
-    System.out.format("%20s%20s%15s%15s%15s%20s%30s\n", "Column Name |", "Data " +
+        "Primary Key |", "Foreign Key |", "Foreign Column |", "Foreign Table " +
+            "|", "Cardinality |");
+    System.out.format("%20s%20s%15s%15s%15s%20s%20s%20s\n", "Column Name |",
+        "Data " +
             "type |", "Size |",
-        "Primary Key |", "Foreign Key |", "Foreign Column |", "Foreign Table |");
+        "Primary Key |", "Foreign Key |", "Foreign Column |", "Foreign Table " +
+            "|", "Cardinality |");
 
     this.fmtFile.format(headingSeparator.concat("\n"));
     System.out.println(headingSeparator);
@@ -126,16 +131,29 @@ public class ERD {
       String columnDataType = column.getColumnDataType().concat(" |");
       String size = String.valueOf(column.getColumnSize()).concat(" |");
       String primaryKey = column.isPrimaryKey() ? "PK".concat(" |") : "- |";
-      String foreignKey = "- |", foreignColumn = "- |", foreignTable = "- |";
+      String foreignKey = "- |", foreignColumn = "- |", foreignTable = "- |",
+          cardinality = "- |";
+
       if (column.isForeignKey()) {
         foreignKey = "FK |";
         foreignColumn = column.getForeignKeyColumn().concat(" |");
         foreignTable = column.getForeignKeyTable().concat(" |");
+
+        ArrayList<Object> foreignValues =
+            tableObj.getValuesOfParticularColumn(schemaName, tableName.split(
+                "\\.")[0],
+                column);
+        Set<Object> uniqueValues = Helper.convertListToSet(foreignValues);
+        cardinality = uniqueValues.size() == foreignValues.size() ? "1" +
+            ":1 |" : "1:N |";
       }
-      this.fmtFile.format("%20s%20s%15s%15s%15s%20s%30s\n", columnName,
-          columnDataType, size, primaryKey, foreignKey, foreignColumn, foreignTable);
-      System.out.format("%20s%20s%15s%15s%15s%20s%30s\n", columnName,
-          columnDataType, size, primaryKey, foreignKey, foreignColumn, foreignTable);
+
+      this.fmtFile.format("%20s%20s%15s%15s%15s%20s%20s%20s\n", columnName,
+          columnDataType, size, primaryKey, foreignKey, foreignColumn,
+          foreignTable, cardinality);
+      System.out.format("%20s%20s%15s%15s%15s%20s%20s%20s\n", columnName,
+          columnDataType, size, primaryKey, foreignKey, foreignColumn,
+          foreignTable, cardinality);
     }
 
     this.fmtFile.format(headingSeparator.concat("\n"));

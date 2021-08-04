@@ -12,15 +12,16 @@ role_id: [1, 2, 3]
 =============================================================================================================================================
      Schema: group15             Table: users.dp15             Path: schemas\group15\table_metadata\users.dp15
 =============================================================================================================================================
-Columns: (country,address,user_id,role_id,last_name,first_name)
-Data types: (varchar,varchar,int,int,varchar,varchar)
+Columns: (country,address,user_id,role_id,last_name,first_name,city)
+Data types: (varchar,varchar,int,int,varchar,varchar,varchar)
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
-country: []
-address: []
-user_id: []
-role_id: []
+country: [India, India, India]
+address: [Gujarat, Gujarat, Punjab]
+user_id: [1, 2, 3]
+role_id: [3, 2, 1]
+city: []
 last_name: []
-first_name: []
+first_name: [Harsh, Raj, Seedak]
 ---------------------------------------------------------------------------------------------------------------------------------------------

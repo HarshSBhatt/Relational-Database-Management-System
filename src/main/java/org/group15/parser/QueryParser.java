@@ -42,20 +42,27 @@ public class QueryParser {
 
   DataDictionary dataDictionary;
 
+  boolean isTransaction;
+
+  boolean isBulkOperation;
+
   public QueryParser(FileWriter eventLogsWriter, FileWriter generalLogsWriter
-      , FileWriter queryLogsWriter) {
+      , FileWriter queryLogsWriter, boolean isTransaction,
+                     boolean isBulkOperation) {
     this.eventLogsWriter = eventLogsWriter;
     this.generalLogsWriter = generalLogsWriter;
     this.queryLogsWriter = queryLogsWriter;
+    this.isTransaction = isTransaction;
+    this.isBulkOperation = isBulkOperation;
     table = new Table(eventLogsWriter);
-    createSQL = new Create(eventLogsWriter);
-    insertSQL = new Insert(eventLogsWriter);
-    selectSQL = new Select(eventLogsWriter);
-    showSQL = new Show(eventLogsWriter);
-    alterSQL = new Alter(eventLogsWriter);
-    dropSQL = new Drop(eventLogsWriter);
-    deleteSQL = new Delete(eventLogsWriter);
-    updateSQL = new Update(eventLogsWriter);
+    createSQL = new Create(eventLogsWriter, isTransaction, isBulkOperation);
+    insertSQL = new Insert(eventLogsWriter, isTransaction, isBulkOperation);
+    selectSQL = new Select(eventLogsWriter, isTransaction, isBulkOperation);
+    showSQL = new Show(eventLogsWriter, isTransaction, isBulkOperation);
+    alterSQL = new Alter(eventLogsWriter, isTransaction, isBulkOperation);
+    dropSQL = new Drop(eventLogsWriter, isTransaction, isBulkOperation);
+    deleteSQL = new Delete(eventLogsWriter, isTransaction, isBulkOperation);
+    updateSQL = new Update(eventLogsWriter, isTransaction, isBulkOperation);
     erd = new ERD(eventLogsWriter);
     sqlDump = new SQLDump(eventLogsWriter);
     dataDictionary = new DataDictionary(eventLogsWriter);
@@ -197,7 +204,7 @@ public class QueryParser {
         } else {
           isValidSyntax = createSQL.parseCreateTableStatement(query.toLowerCase(),
               selectedSchema);
-          if (isValidSyntax) {
+          if (isValidSyntax && !isTransaction) {
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");
             tableName = queryParts[2].toLowerCase();
@@ -214,7 +221,7 @@ public class QueryParser {
           isValidSyntax =
               insertSQL.parseInsertTableStatement(query,
                   selectedSchema);
-          if (isValidSyntax) {
+          if (isValidSyntax && !isTransaction) {
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");
             tableName = queryParts[2].toLowerCase();
@@ -231,7 +238,7 @@ public class QueryParser {
           isValidSyntax =
               alterSQL.parseAlterTableStatement(query,
                   selectedSchema);
-          if (isValidSyntax) {
+          if (isValidSyntax && !isTransaction) {
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");
             tableName = queryParts[2].toLowerCase();
@@ -248,7 +255,7 @@ public class QueryParser {
           isValidSyntax =
               selectSQL.parseSelectStatement(query,
                   selectedSchema);
-          if (isValidSyntax) {
+          if (isValidSyntax && !isTransaction) {
             eventLogsWriter.append("[User: ").append(username).append("] [Query" +
                 ": ").append(query).append("]\n");
           }
@@ -262,7 +269,7 @@ public class QueryParser {
           isValidSyntax =
               dropSQL.parseDropTableStatement(query,
                   selectedSchema);
-          if (isValidSyntax && queryParts.length == 3) {
+          if (isValidSyntax && !isTransaction && queryParts.length == 3) {
             System.out.println("Table: " + queryParts[2] + " dropped " +
                 "successfully from the schema: " + selectedSchema);
           } else {
@@ -280,7 +287,7 @@ public class QueryParser {
           isValidSyntax =
               deleteSQL.parseDeleteStatement(query,
                   selectedSchema);
-          if (isValidSyntax) {
+          if (isValidSyntax && !isTransaction) {
             System.out.println("Delete operation performed successfully in " +
                 "table: " + queryParts[2]);
           } else {
@@ -300,7 +307,7 @@ public class QueryParser {
           isValidSyntax =
               updateSQL.parseUpdateTableStatement(query,
                   selectedSchema);
-          if (isValidSyntax) {
+          if (isValidSyntax && !isTransaction) {
             System.out.println("Update operation performed successfully in " +
                 "table: " + queryParts[1]);
           } else {
