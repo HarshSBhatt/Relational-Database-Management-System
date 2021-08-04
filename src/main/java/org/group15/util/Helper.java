@@ -186,8 +186,11 @@ public class Helper {
   }
 
   public static <T> List<T> convertSetToList(Set<T> set) {
-    // return the list
     return new ArrayList<>(set);
+  }
+
+  public static <T> Set<T> convertListToSet(List<T> list) {
+    return new HashSet<>(list);
   }
 
 }
