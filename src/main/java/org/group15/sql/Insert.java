@@ -28,12 +28,18 @@ public class Insert {
 
   CustomLock customLock;
 
-  public Insert(FileWriter eventLogsWriter) {
+  boolean isTransaction;
+
+  boolean isBulkOperation;
+
+  public Insert(FileWriter eventLogsWriter, boolean isTransaction, boolean isBulkOperation) {
     this.tableIO = new TableIO();
     this.columns = new HashMap<>();
     this.primaryKeyColumn = null;
     this.foreignKeyColumn = null;
     this.eventLogsWriter = eventLogsWriter;
+    this.isTransaction = isTransaction;
+    this.isBulkOperation = isBulkOperation;
     table = new Table(eventLogsWriter);
     customLock = new CustomLock();
   }
@@ -110,18 +116,21 @@ public class Insert {
 
               if (isColAndValCorrectlyMapped) {
                 // If it is true, then we will insert data to the file/table
-                boolean isDataWritten = table.insert(schemaName, tableName,
-                    columnsArray, this.columns, this.primaryKeyColumn, this.foreignKeyColumn);
+                if (!isTransaction) {
+                  boolean isDataWritten = table.insert(schemaName, tableName,
+                      columnsArray, this.columns, this.primaryKeyColumn,
+                      this.foreignKeyColumn, isBulkOperation);
 
-                if (!isDataWritten) {
-                  customLock.unlock(schemaName, tableName);
-                  this.eventLogsWriter.append("Error: Something went wrong " +
-                      "while writing data to table").append("\n");
-                  throw new Exception("Error: Something went wrong while " +
-                      "writing data to table");
+                  if (!isDataWritten) {
+                    customLock.unlock(schemaName, tableName);
+                    this.eventLogsWriter.append("Error: Something went wrong " +
+                        "while writing data to table").append("\n");
+                    throw new Exception("Error: Something went wrong while " +
+                        "writing data to table");
+                  }
+                  this.eventLogsWriter.append("Data inserted successfully in " +
+                      "the table: ").append(tableName).append("\n");
                 }
-                this.eventLogsWriter.append("Data inserted successfully in " +
-                    "the table: ").append(tableName).append("\n");
               } else {
                 this.eventLogsWriter.append("Error: Something went wrong while " +
                     "fetching table data").append("\n");

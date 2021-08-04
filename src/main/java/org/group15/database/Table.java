@@ -387,8 +387,9 @@ public class Table {
     tableDataWriter.close();
   }
 
-  public void create(Map<String, Column> tableColumns, String schemaName, String tableName) throws Exception {
-    if (customLock.isLocked(schemaName, tableName)) {
+  public void create(Map<String, Column> tableColumns, String schemaName,
+                     String tableName, boolean isTransaction) throws Exception {
+    if (customLock.isLocked(schemaName, tableName) && !isTransaction) {
       System.out.println("Table: " + tableName + " is locked");
       this.eventLogsWriter.append("Table: ").append(tableName).append(" is " + "locked").append("\n");
     } else {
@@ -464,7 +465,9 @@ public class Table {
   }
 
   public boolean insert(String schemaName, String tableName, String[] columnArray, Map<String, Column> columnsDetails,
-                        Column primaryKeyColumn, Column foreignKeyColumn) throws IOException, InterruptedException {
+                        Column primaryKeyColumn, Column foreignKeyColumn,
+                        boolean isTransaction) throws IOException,
+      InterruptedException {
 
     StringBuilder fileContent = new StringBuilder();
 
@@ -472,7 +475,7 @@ public class Table {
 
     File tableFile = new File(tablePath);
 
-    if (customLock.isLocked(schemaName, tableName)) {
+    if (customLock.isLocked(schemaName, tableName) && !isTransaction) {
       System.out.println("Table: " + tableName + " is locked");
       this.eventLogsWriter.append("Table: ").append(tableName).append(" is " + "locked").append("\n");
       return false;
@@ -536,7 +539,7 @@ public class Table {
     }
   }
 
-  public boolean dropTable(String schemaName, String tableName) throws Exception {
+  public boolean dropTable(String schemaName, String tableName, boolean isTransaction) throws Exception {
     String schemaPath = Helper.getSchemaPath(schemaName);
     String tableMetadataPath = Helper.getTableMetadataPath(schemaName, tableName);
     String tableValuePath = Helper.getTablePath(schemaName, tableName);
@@ -558,7 +561,7 @@ public class Table {
       throw new Exception("Table with name: " + tableName + " not found");
     }
 
-    if (customLock.isLocked(schemaName, tableName)) {
+    if (customLock.isLocked(schemaName, tableName) && !isTransaction) {
       System.out.println("Table: " + tableName + " is locked");
       this.eventLogsWriter.append("Table: ").append(tableName).append(" is " + "locked").append("\n");
       return false;
@@ -629,14 +632,15 @@ public class Table {
     }
   }
 
-  public boolean delete(String schemaName, String tableName, String[] conditionString) throws Exception {
+  public boolean delete(String schemaName, String tableName,
+                        String[] conditionString, boolean isTransaction) throws Exception {
     if (conditionString.length != 2) {
       return false;
     }
     String conditionColName = conditionString[0];
     String conditionColValue = conditionString[1];
 
-    if (customLock.isLocked(schemaName, tableName)) {
+    if (customLock.isLocked(schemaName, tableName) && !isTransaction) {
       System.out.println("Table: " + tableName + " is locked");
       this.eventLogsWriter.append("Table: ").append(tableName).append(" is " + "locked").append("\n");
       return false;
@@ -706,7 +710,8 @@ public class Table {
     }
   }
 
-  public boolean update(String schemaName, String tableName, String columnsList, String[] conditionString)
+  public boolean update(String schemaName, String tableName,
+                        String columnsList, String[] conditionString, boolean isTransaction)
       throws Exception {
     if (conditionString.length != 2) {
       return false;
@@ -714,7 +719,7 @@ public class Table {
     String conditionColName = conditionString[0];
     String conditionColValue = conditionString[1];
 
-    if (customLock.isLocked(schemaName, tableName)) {
+    if (customLock.isLocked(schemaName, tableName) && !isTransaction) {
       System.out.println("Table: " + tableName + " is locked");
       this.eventLogsWriter.append("Table: ").append(tableName).append(" is " + "locked").append("\n");
       return false;
@@ -822,8 +827,9 @@ public class Table {
   }
 
   public boolean addColumn(String schemaName, String tableName, String columnNameToBeAdded,
-                           String[] dataTypeRelatedInfo) throws IOException, InterruptedException {
-    if (customLock.isLocked(schemaName, tableName)) {
+                           String[] dataTypeRelatedInfo, boolean isTransaction) throws IOException,
+      InterruptedException {
+    if (customLock.isLocked(schemaName, tableName) && !isTransaction) {
       System.out.println("Table: " + tableName + " is locked");
       this.eventLogsWriter.append("Table: ").append(tableName).append(" is " + "locked").append("\n");
       return false;
@@ -849,10 +855,11 @@ public class Table {
     }
   }
 
-  public boolean dropColumn(String schemaName, String tableName, String columnNameToBeDropped)
+  public boolean dropColumn(String schemaName, String tableName,
+                            String columnNameToBeDropped, boolean isTransaction)
       throws IOException, InterruptedException {
 
-    if (customLock.isLocked(schemaName, tableName)) {
+    if (customLock.isLocked(schemaName, tableName) && !isTransaction) {
       System.out.println("Table: " + tableName + " is locked");
       this.eventLogsWriter.append("Table: ").append(tableName).append(" is " + "locked").append("\n");
       return false;
@@ -890,8 +897,8 @@ public class Table {
   }
 
   public boolean changeColumn(String schemaName, String tableName, String oldColumnName, String newColumnName,
-                              String[] dataTypeRelatedInfo) throws IOException, InterruptedException {
-    if (customLock.isLocked(schemaName, tableName)) {
+                              String[] dataTypeRelatedInfo, boolean isTransaction) throws IOException, InterruptedException {
+    if (customLock.isLocked(schemaName, tableName) && !isTransaction) {
       System.out.println("Table: " + tableName + " is locked");
       this.eventLogsWriter.append("Table: ").append(tableName).append(" is " + "locked").append("\n");
       return false;

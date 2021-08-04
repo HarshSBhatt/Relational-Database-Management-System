@@ -4,19 +4,13 @@ import org.group15.database.Column;
 import org.group15.database.Table;
 
 import java.io.FileWriter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-// String updateTableQuery = "update users set last_name='raj',first_name='valand' where user_id=1";
 public class Update {
 
   Table table;
-
-  private Map<String, Column> columns;
-
 
   FileWriter eventLogsWriter;
 
@@ -24,11 +18,15 @@ public class Update {
 
   Column foreignKeyColumn;
 
-  public Update(FileWriter eventLogsWriter) {
+  boolean isTransaction;
 
+  boolean isBulkOperation;
+
+  public Update(FileWriter eventLogsWriter, boolean isTransaction, boolean isBulkOperation) {
     this.eventLogsWriter = eventLogsWriter;
+    this.isTransaction = isTransaction;
+    this.isBulkOperation = isBulkOperation;
     table = new Table(eventLogsWriter);
-    this.columns = new HashMap<>();
     this.primaryKeyColumn = null;
     this.foreignKeyColumn = null;
   }
@@ -42,7 +40,7 @@ public class Update {
 
   public boolean parseUpdateTableStatement(String query, String schemaName) throws Exception {
 
-//    update users set first_name='Harsh' where user_id=2
+    // update users set first_name='Harsh' where user_id=2
     Pattern updatePattern = Pattern.compile("update\\s+(.*?)\\s*set\\s+" +
             "(.*?)\\s*where\\s+(.*?)$",
         Pattern.CASE_INSENSITIVE);
@@ -56,7 +54,11 @@ public class Update {
 
       String[] conditionString = condition.split("\\s*=\\s*");
 
-      return table.update(schemaName, tableName, columns, conditionString);
+      if (!isTransaction) {
+        return table.update(schemaName, tableName, columns, conditionString,
+            isBulkOperation);
+      }
+      return true;
     } else {
       return false;
     }

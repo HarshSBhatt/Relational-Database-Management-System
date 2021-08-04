@@ -14,10 +14,16 @@ public class Show {
 
   FileWriter eventLogsWriter;
 
-  public Show(FileWriter eventLogsWriter) {
+  boolean isTransaction;
+
+  boolean isBulkOperation;
+
+  public Show(FileWriter eventLogsWriter, boolean isTransaction, boolean isBulkOperation) {
     this.schemaIO = new SchemaIO();
     this.tableIO = new TableIO();
     this.eventLogsWriter = eventLogsWriter;
+    this.isTransaction = isTransaction;
+    this.isBulkOperation = isBulkOperation;
   }
 
   public void parseShowSchemaStatement(int size, String[] queryParts) throws IOException {
