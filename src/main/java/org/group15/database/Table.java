@@ -534,7 +534,7 @@ public class Table {
         return false;
       }
       System.out.println("Inserted row successfully");
-      // customLock.unlock(schemaName, tableName);
+      customLock.unlock(schemaName, tableName);
       return true;
     }
   }
