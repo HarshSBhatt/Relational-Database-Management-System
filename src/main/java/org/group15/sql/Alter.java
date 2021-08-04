@@ -21,10 +21,16 @@ public class Alter {
 
   Table table;
 
-  public Alter(FileWriter eventLogsWriter) {
+  boolean isTransaction;
+
+  boolean isBulkOperation;
+
+  public Alter(FileWriter eventLogsWriter, boolean isTransaction, boolean isBulkOperation) {
     this.schemaIO = new SchemaIO();
     this.tableIO = new TableIO();
     this.eventLogsWriter = eventLogsWriter;
+    this.isTransaction = isTransaction;
+    this.isBulkOperation = isBulkOperation;
     table = new Table(eventLogsWriter);
   }
 
@@ -102,12 +108,14 @@ public class Alter {
           throw new Exception("Error: Unknown column: " + existingColumnName);
         }
 
-        boolean isDropped = this.table.dropColumn(schemaName, tableName,
-            existingColumnName);
-        if (!isDropped) {
-          this.eventLogsWriter.append("Error: Something went wrong while " +
-              "dropping the column").append("\n");
-          throw new Exception("Error: Something went wrong while dropping the column");
+        if (!isTransaction) {
+          boolean isDropped = this.table.dropColumn(schemaName, tableName,
+              existingColumnName, isBulkOperation);
+          if (!isDropped) {
+            this.eventLogsWriter.append("Error: Something went wrong while " +
+                "dropping the column").append("\n");
+            throw new Exception("Error: Something went wrong while dropping the column");
+          }
         }
       } else {
         newColumn = queryParts[4];
@@ -127,12 +135,15 @@ public class Alter {
           this.eventLogsWriter.append("Error: Column already exist: ").append(newColumn).append("\n");
           throw new Exception("Error: Column already exist: " + newColumn);
         }
-        boolean isAdded = this.table.addColumn(schemaName, tableName,
-            newColumn, dataTypeRelatedInfo);
-        if (!isAdded) {
-          this.eventLogsWriter.append("Error: Something went wrong while " +
-              "adding the column").append("\n");
-          throw new Exception("Error: Something went wrong while adding the column");
+
+        if (!isTransaction) {
+          boolean isAdded = this.table.addColumn(schemaName, tableName,
+              newColumn, dataTypeRelatedInfo, isBulkOperation);
+          if (!isAdded) {
+            this.eventLogsWriter.append("Error: Something went wrong while " +
+                "adding the column").append("\n");
+            throw new Exception("Error: Something went wrong while adding the column");
+          }
         }
       }
     }
@@ -157,12 +168,15 @@ public class Alter {
         this.eventLogsWriter.append("Error: Unknown column: ").append(existingColumnName).append("\n");
         throw new Exception("Error: Unknown column: " + existingColumnName);
       }
-      boolean isChanged = this.table.changeColumn(schemaName, tableName,
-          existingColumnName, newColumn, dataTypeRelatedInfo);
-      if (!isChanged) {
-        this.eventLogsWriter.append("Error: Something went wrong while " +
-            "changing the column").append("\n");
-        throw new Exception("Error: Something went wrong while changing the column");
+
+      if (!isTransaction) {
+        boolean isChanged = this.table.changeColumn(schemaName, tableName,
+            existingColumnName, newColumn, dataTypeRelatedInfo, isBulkOperation);
+        if (!isChanged) {
+          this.eventLogsWriter.append("Error: Something went wrong while " +
+              "changing the column").append("\n");
+          throw new Exception("Error: Something went wrong while changing the column");
+        }
       }
     }
 

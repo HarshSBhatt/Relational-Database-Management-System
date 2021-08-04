@@ -12,8 +12,14 @@ public class Delete {
 
   Table table;
 
-  public Delete(FileWriter eventLogsWriter) {
+  boolean isTransaction;
+
+  boolean isBulkOperation;
+
+  public Delete(FileWriter eventLogsWriter, boolean isTransaction, boolean isBulkOperation) {
     this.eventLogsWriter = eventLogsWriter;
+    this.isTransaction = isTransaction;
+    this.isBulkOperation = isBulkOperation;
     table = new Table(eventLogsWriter);
   }
 
@@ -30,7 +36,10 @@ public class Delete {
 
       String[] conditionString = condition.split("\\s*=\\s*");
 
-      return table.delete(schemaName, tableName, conditionString);
+      if (!isTransaction) {
+        return table.delete(schemaName, tableName, conditionString, isBulkOperation);
+      }
+      return true;
     } else {
       return false;
     }

@@ -9,7 +9,9 @@ import org.group15.util.Helper;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public class Create {
 
@@ -21,10 +23,16 @@ public class Create {
 
   Table table;
 
-  public Create(FileWriter eventLogsWriter) {
+  boolean isTransaction;
+
+  boolean isBulkOperation;
+
+  public Create(FileWriter eventLogsWriter, boolean isTransaction, boolean isBulkOperation) {
     this.schemaIO = new SchemaIO();
     this.tableIO = new TableIO();
     this.eventLogsWriter = eventLogsWriter;
+    this.isTransaction = isTransaction;
+    this.isBulkOperation = isBulkOperation;
     table = new Table(eventLogsWriter);
   }
 
@@ -136,8 +144,10 @@ public class Create {
               }
             }
           }
-          table.create(tableColumns, schemaName, table.getTableName());
-          this.eventLogsWriter.append("Table: ").append(table.getTableName()).append(" created in schema: ").append(schemaName).append("\n");
+          if (!isTransaction) {
+            table.create(tableColumns, schemaName, table.getTableName(), isBulkOperation);
+            this.eventLogsWriter.append("Table: ").append(table.getTableName()).append(" created in schema: ").append(schemaName).append("\n");
+          }
           isValidSyntax = true;
         }
       } else {
